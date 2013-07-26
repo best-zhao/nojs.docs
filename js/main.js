@@ -3,11 +3,7 @@ define(function(require,$,ui){
 		codeLight = require('nojs.ui/codelight'),
 		G = {};
 	
-	var menuData = [
-		//******//		
-		
-	],
-		main = $('#main_content'),
+	var main = $('#main_content'),
 		head = $('#ui_head'),
 		win = $(window),
 		D = $.cookie('currentPage') || 'noJS_info',
@@ -74,8 +70,6 @@ define(function(require,$,ui){
 	}
 	G.init = function(){
 		var add = $('<a href="" class="add_project">添加其他项目文档</a>');
-		//window.Menu = tree('menu_tree', menuData, treeOptions);
-		//Menu.box.before('<h3 class="tit">nojs:</h3>').after(add);
 		add.click(function(){
 			treeOptions.onSelect('project','p/project.html');
 			return false;
