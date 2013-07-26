@@ -1,0 +1,83 @@
+<h4 class="p_tit">noJS接口</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	<p class="mb10">noJS对外提供3个接口：noJS.config, noJS.use, define; 模块工厂函数内部提供一个require方法。</p>
+</div>
+<h6 class="p_tit">noJS.config：</h6>
+<div class="text_info"><p class="about_link"><a href="" id="noJS_config">见参数配置</a></p></div>
+<h6 class="p_tit">noJS.use：</h6>
+<div class="text_info">
+	<p>1.用于在页面中加载模块，noJS.use( modules,callback, options );</p>
+	<p class="mb10 gray9">
+		<b>参数说明：</b><br />
+		a. modules: Array/String, 所要引入的模块组，单个模块可直接只用其字符串标示符<br />
+		b. callback: Function, 模块加载完毕后执行的回调<br />
+		c. options: Object, 对该组模块进行单独的配置，不影响全局
+	</p>
+	<script type="text/codelight" code="javascript" key="use">
+	//加载单个模块
+	noJS.use('init');
+	
+	//模块载入完毕后执行回调,第3个参数可对该组模块进行单独配置，不影响其他模块
+	noJS.use( 'init', function( $, ui, init ){
+		init();
+	}, {
+		base : '',	//基址
+		fix : ''	//后缀
+	});
+	
+	//加载多个模块，模块载入完毕后执行回调
+	noJS.use( ['init','main'], function(){} );
+	
+	//无回调时，也可以直接使用第二个参数作为配置项
+	noJS.use( ['init','main'], {base:''} );
+	</script>
+	
+	<p class="mb10">2.或者执行一段依赖页面之前载入所有模块的代码，这段代码会先存入队列中，等待整个依赖链加载完毕后依次执行。</p>
+	<script type="text/codelight" code="javascript" key="use">
+	noJS.use(function( $, ui ){
+		var a = $('#id');
+	});
+	</script>
+	<p class="orange">2种情况的回调函数中都有一个参数列表，分别是全局模块的接口加引入模块的接口。</p>
+</div>
+<h6 class="p_tit">define：</h6>
+<div class="text_info"><p class="about_link">定义一个模块，<a href="" id="noJS_module">见模块说明</a></p></div>
+<h6 class="p_tit">require：</h6>
+<div class="text_info">
+	<p>在模块定义的工厂函数中，使用require来加载外部依赖模块</p>
+	<p class="mb10">比如模块a依赖于模块b和c，则模块a定义如下：</p>
+	<script type="text/codelight" code="javascript" key="require">
+	define(function(require){
+		var b = require('b'),
+			c = require('c');
+		//dosomething	
+		//这里就可以使用b和c提供的接口了
+	});
+	</script>
+	<p class="mb10">require使用的是同步模式，不需要使用回调函数即可在之后的代码中调用其接口，模块a在下载完毕后首先解析工厂函数内部所有require，并提前下载所有依赖的模块，以此类推，在整个依赖链全部加载完毕后依次初始化所有工厂函数</p>
+	<p class="orange">
+		注：<br />
+		1.require的参数必须为字符串直接量，不能存在表达式或者变量，如require('a'+b+'c')或者require("a".toLowerCase())都不正确<br />
+		2.require不能被重新定义或赋值，第一个参数名称require也不能更改
+	</p>
+</div>
+<h6 class="p_tit">require.async：</h6>
+<div class="text_info">
+	<p class="mb10">当模块内部存在条件加载时，或者需要触发某个事件后才加载相应模块即按需加载，这种情况下就需要使用require.async方法，该方法使用的是回调模式，不会被提前加载</p>
+	<script type="text/codelight" code="javascript" key="async">
+	define(function(require,$,ui){
+		btn.click(function(){
+			require.async( [b,c], function($,ui,b,c){
+				
+			})
+		})
+	});
+	</script>
+	<p>回调函数自带的参数与use方法中的回调类似</p>
+</div>
+<script>
+noJS.use(function($,ui){
+	
+});
+</script>

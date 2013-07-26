@@ -1,0 +1,33 @@
+<h4 class="p_tit">drag</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	对象拖拽
+	<p>依赖模块：'nojs.module/drag'</p>
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="">
+	new drag(drag);	
+	</script>
+	
+</div>
+<h6 class="p_tit">实例：</h6>
+<div style="height:30px"><a href="javascript:void(0)" class="nj_btn" id="drag_test">点击并拖拽</a></div>
+
+<div style="height:30px"><a href="javascript:void(0)" class="nj_btn" id="drag_test_limit1">限制区域,对象本身在区域外</a></div>
+
+<div id="drag_limit" style="border:1px solid #ccc;background:#f9f9f9;width:300px;height:200px;padding:20px">
+	<a href="javascript:void(0)" class="nj_btn" id="drag_test_limit2">限制区域,对象本身在区域内</a>
+</div>
+<script>
+noJS.use('nojs.module/drag',function($,ui,drag){
+	var limit = $('#drag_limit');
+	new drag($('#drag_test'));
+	new drag($('#drag_test_limit1') ,null, {
+		limit : limit
+	});
+	new drag($('#drag_test_limit2') ,null, {
+		limit : limit
+	});
+});
+</script>

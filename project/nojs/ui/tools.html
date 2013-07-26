@@ -1,0 +1,77 @@
+
+<h4 class="p_tit">ui</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	<p>'nojs.ui'内置的常用jQuery扩展工具</p>
+</div>
+<h6 class="p_tit">$.random：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="random">
+	//获取一个随机数
+	var r = $.random();	
+	</script>
+</div>
+<h6 class="p_tit">$.stopDefault：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="stopDefault">
+	//阻止浏览器默认行为，需提供事件对象
+	$.stopDefault(e);	
+	</script>
+</div>
+<h6 class="p_tit">$.stopBubble：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="stopBubble">
+	//阻止冒泡，需提供事件对象
+	$.stopBubble(e);	
+	</script>
+</div>
+<h6 class="p_tit">$.onScroll：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="onScroll">
+	//自定义鼠标滚轮事件
+	//@obj:dom对象, @callback:回调
+	$.onScroll( obj, callback );	
+	</script>
+</div>
+<h6 class="p_tit">$.browser：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="browser">
+	//浏览器检测
+	//@type:string,返回boolean值，判断多浏览器时用空格隔开；type为空时返回当前浏览器类型
+	$.browser(type);	
+	</script>
+</div>
+<h6 class="p_tit">$.tmpl：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="tmpl">
+	//js模版引擎
+	//@str:对象id或一段html字符串, @data:数据对象
+	$.tmpl( str, data );	
+	</script>
+</div>
+<h6 class="p_tit">$.cookie：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="cookie">
+	/*
+	 * cookie操作
+	 * 读取cookie值: $.cookie("key"); 
+	 * 设置/新建cookie的值:	$.cookie("key", "value");
+	 * 新建一个cookie 包括有效期(天数) 路径 域名等:$.cookie("key", "value", {expires: 7, path: '/', domain: 'a.com', secure: true});
+	 * 删除一个cookie:$.cookie("key", null);	
+	 */	
+	$.cookie( name, value, options );	
+	</script>
+</div>
+<h6 class="p_tit">$.addCss：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="addCss">
+	//动态创建css
+	//如：$.addCss('body{background:#eee;color:#333} a{color:#666}');	
+	$.addCss(css);	
+	</script>
+</div>
+<script>
+noJS.use(function($,ui){
+	
+});
+</script>

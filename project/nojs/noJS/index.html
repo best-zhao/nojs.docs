@@ -1,0 +1,41 @@
+
+<h4 class="p_tit">noJS模块管理</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	noJS是一个模块化管理框架，不依赖第三方js库，页面只需引入入口模块，其他依赖关系会自动完成；功能和接口都类似seajs。
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<p class="mb10">1.引入noJS.js</p>
+	<script type="text/codelight" code="html">
+		<script src="js/noJS.js">< /script>
+	</script>	
+	<p class="mb10">2.配置基本参数</p>
+	<script type="text/codelight" code="javascript" key="config">
+		noJS.config({
+			//设置js模块的基址目录，其他所有模块都相对于这个目录进行引入。默认会读取页面中的一个script标签的文件目录
+			base : 'http://static.a.com/js/',
+			
+			//设置模块文件后缀名，默认'.js'
+			fix : '.js'						
+		})
+	</script>
+	<p class="mb10">3.引入入口模块</p>
+	<script type="text/codelight" code="javascript" key="use">
+	noJS.use( 'init', function( init ){
+		//模块载入完成执行回调
+		//参数init为该组模块提供的接口
+	})
+	</script>
+	<p class="orange mb10">注：当无回调时入口模块可直接写入script标签的data-main属性</p>
+	<script type="text/codelight" code="html">
+		<script src="js/noJS.js" data-main="init">< /script>
+	</script>
+</div>
+
+
+<script>
+noJS.use(function($,ui){
+	
+});
+</script>

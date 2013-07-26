@@ -1,0 +1,43 @@
+
+<h4 class="p_tit">添加其他项目文档</h4>
+<div class="p_con">
+	<h6 class="p_tit">说明：</h6>
+	<div class="text_info">
+		可将自己的其他项目文档和该文档整合在一起，方便查看。
+	</div>
+	<h6 class="p_tit">方法：</h6>
+	<div class="text_info">
+		<p class="mb10">1. 在/project/目录下新建一个项目文件夹，用于存放需要的html文档文件。 </p>
+		<p class="mb10">2. 编辑文件/project/config.js. </p>
+		<script type="text/templete" code="javascript">
+		/*
+		 * 添加一个对象即可添加一个项目  projectName : {data:Array,order:string}
+		 * @projectName: 项目名称，与上一步新建文件夹名称必须一致
+		 * @data: 左侧树形菜单数据
+		 * @order: 添加顺序，'prepend/append'添加当前tree前/后面,'prepend_new/append_new'新建一个tree,添加当前tree前/后面
+		 */
+		define({
+			'project1' : {
+				data : [
+					{id:'test_page',text:'test_page',data:[
+						{id:'test_page1',text:'test_page1',link:'index'}
+					]}
+				],
+				order : 'prepend_new'
+			},
+			'project2' : {
+				data : [
+					{id:'test_page3,text:'test_page1',link:'index'}
+				]
+			}
+		});
+		</script>
+	</div>
+</div><!--p_con-->
+
+<script>
+noJS.use(function($,ui){
+	
+	
+});
+</script>

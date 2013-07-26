@@ -1,0 +1,31 @@
+{
+  "name": "latesd",
+  "version": "0.0.0",
+  "description": "noJS模块管理框架、UI库及其他常用模块的 一个在线文档。 文档还不完善，还在陆续整理中。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nolure/nojs.docs.git"
+  },
+  "author": "",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/nolure/nojs.docs/issues"
+  },
+  "devDependencies": {
+  	"grunt": "~0.4.1",
+	"grunt-compare-size": "~0.4.0",
+	"grunt-git-authors": "~1.2.0",
+	"grunt-contrib-watch": "~0.4.4",
+	"grunt-contrib-jshint": "~0.6.0",
+	"grunt-contrib-uglify": "~0.2.2",
+	"gzip-js": "0.3.2",
+	"testswarm": "~1.1.0",
+	"archiver": "~0.4.6",
+	"grunt-jsonlint": "~1.0.0",
+    "grunt-contrib-nodeunit": "~0.1.2"
+  }
+}

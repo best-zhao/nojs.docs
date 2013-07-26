@@ -1,0 +1,45 @@
+<style type="text/css">
+.nj_s_menu{border-bottom:1px solid #ccc}
+.nj_s_m{float:left;padding:0 15px;background:#eee}
+.nj_s_menu .current{background:#ccc}
+</style>
+<h4 class="p_tit">ui.slide</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	幻灯片组件，由ui.Switch扩展而来，html及参数同$.ui.Switch
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="slide">
+		var Slide = new ui.slide( id, option );
+	</script>	
+	
+	<div id="switch_box">
+		<ul class="nj_s_menu clearfix">
+			<li class="nj_s_m">1</li>
+			<li class="nj_s_m">2</li>
+			<li class="nj_s_m">3</li>
+		</ul>
+		<div class="nj_s_con">
+			<div class="nj_s_c">11</div>
+			<div class="nj_s_c">22</div>
+			<div class="nj_s_c">33</div>
+		</div>
+	</div>
+</div>
+<h6 class="p_tit">方法：</h6>
+<div class="text_info">
+	<p>change:</p>
+	
+</div>
+<h6 class="p_tit">事件：</h6>
+<div class="text_info">
+	<p>onChange: 提供一个参数index,this指向当前对象</p>
+</div>
+
+<script>
+noJS.use(function($,ui){
+	new ui.slide( 'switch_box', {
+	})
+});
+</script>

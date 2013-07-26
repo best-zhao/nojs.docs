@@ -1,0 +1,59 @@
+<h4 class="p_tit">noJS模块</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	<p class="mb10">一般一个文件即可称为一个模块，模块标示符常用路径+文件名表示。</p>
+	
+	假如基址目录为：'http://static.a.com/js/':<br />
+	<div class="gray9">
+		1.模块'jquery'即表示'http://static.a.com/js/jquery.js'<br />
+		2.模块'main/index'即表示'http://static.a.com/js/main/index.js'<br />
+		<p class="orange">使用'./表示上级目录'</p>
+		3.模块'./init'即表示'http://static.a.com/init.js'<br />
+		4.当基址目录为为空时表示使用相对目录查找，'../'表示上级
+	</div>
+	
+</div>
+<h6 class="p_tit">定义模块</h6>
+<div class="text_info">
+	<p class="mb10">使用define定义一个标准模块，标准格式 define( factory );</p>
+	<script type="text/codelight" code="javascript" key="define|require">
+	define(function( require, $, ui ){
+		//使用require来引入外部依赖模块，并返回其接口
+		var upload = require('upload');	
+		//定义模块功能函数
+		var init = function(){
+			
+		}
+		//返回模块接口
+		return init;
+	})
+	</script>
+	<p>factory称为工厂函数，至少自带一个参数require，且该参数名require不能更改，不能对其重新赋值，后面紧跟的是全局模块提供的接口列表</p>
+	<p class="orange mb10">require是noJS提供的内部函数，仅在工厂函数内部使用,<span class="about_link"><a href=""id="noJS_api">更多</a></span></p>
+	<p class="mb10">factory返回的值即为该模块提供的接口，如果该接口为纯json对象，可使用如下方式定义：</p>
+	<script type="text/codelight" code="javascript" key="define">
+	//返回整个对象
+	define({
+		'length' : 2,
+		'init' : function(){
+			
+		}
+	})
+	</script>
+</div>
+<h6 class="p_tit">加载模块</h6>
+<div class="text_info">
+	<p>1.在模块内部使用require来引入依赖模块</p>
+	<p class="mb10">2.在页面中使用noJS.use来引入模块</p>
+	<script type="text/codelight" code="javascript">
+	noJS.use('init');
+	noJS.use('init',function(){});
+	noJS.use(['init','main'],function(){});
+	</script>
+	3.noJS.config配置的global全局模块也是一种方式
+</div>
+<script>
+noJS.use(function($,ui){
+	
+});
+</script>

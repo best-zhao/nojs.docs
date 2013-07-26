@@ -1,0 +1,63 @@
+<style type="text/css">
+.img_hot .wrap{position:relative;width:600px;height:300px;border:1px solid #D1D7DC;padding:1px;overflow:hidden;background:#f8f8f8}
+.img_hot .wrap .img_wrap{position:absolute;width:100%;height:100%}
+.img_hot .wrap .img_wrap img{vertical-align:top;cursor:crosshair;max-width:100%;max-height:100%}
+.img_hot .wrap .img_wrap img:focus{box-shadow:0 0 20px #999}
+.img_hot .wrap .hotarea{position:absolute;background:#090;opacity:0.4;box-shadow:inset 0 0 20px #fff}
+.img_hot .wrap .hotarea .point{position:absolute;width:6px;height:6px;background:#00F0FF}
+.img_hot .wrap .hotarea .p_tl{top:-3px;left:-3px}
+.img_hot .wrap .hotarea .p_tr{top:-3px;right:-3px}
+.img_hot .wrap .hotarea .p_bl{bottom:-3px;left:-3px}
+.img_hot .wrap .hotarea .p_br{bottom:-3px;right:-3px}
+.img_hot .wrap .current{box-shadow:inset 0 0 30px #fff;opacity:0.9}
+.img_hot .preview{width:100%;height:100%;overflow:auto;display:none}
+.imghot_select{position:absolute;display:none;background:rgba(36,96,169,0.3);box-shadow:inset 0 0 1px #000}
+.img_hot .side{border:1px solid #D1D7DC;height:302px;min-width:200px;margin-left:603px;box-shadow:inset 1px 1px 2px #eee}
+.img_hot .code_wrap pre{border-width:1px 0;max-height:277px;overflow:auto}
+.img_hot .code_wrap li.current{background:#ccc}
+.img_hot .state{padding:12px;overflow:hidden;line-height:2}
+.img_hot .state .rate{margin-left:10px}
+/*preview*/
+.hot_prev_mode .preview{display:block}
+.hot_prev_mode .img_wrap,.hot_prev_mode .state .rate{display:none}
+</style>
+<h4 class="p_tit">imgHot 图像热点绘制</h4>
+<div class="p_con">
+	<h6 class="p_tit">demo:</h6>
+	<span class="mb10 nj_btn nj_up_btn">上传本地图片<input type="file" name="filedata" id="up_file" /></span>
+	<div class="mb10 img_hot clearfix" id="img_hot">
+		<div class="fl wrap">
+			<div class="img_wrap"><img src="" width="200" height="200"></div>
+			<div class="preview"> </div>
+		</div>
+		<div class="side">
+			<div class="state">
+				<a href="javascript:void(0);" class="nj_btn mode fl"><i>预览</i></a>
+				<span class="rate"> </span>
+			</div>
+			<div class="code_wrap"> </div>
+		</div>
+	</div>
+	<h6 class="p_tit">使用:</h6>
+	<script type="text/templete" code="javascript" key="imgHot">
+		new imgHot(id);
+	</script>
+	
+</div><!--p_con-->
+<script>
+noJS.use(['nojs.module/imghot','nojs.module/upload'],function($,ui,imgHot,upload){
+	var Hot = new imgHot('img_hot');
+	
+	new upload( $('#up_file'), {
+		fileSize : 4,
+		auto : false,
+		onSelect : function(){
+			Hot.imgWrap.html('<img src="" alt="" />');
+			setTimeout(function(){
+				Hot.init(true);
+			},400)
+			return Hot.imgWrap;
+		}
+	});
+})
+</script>

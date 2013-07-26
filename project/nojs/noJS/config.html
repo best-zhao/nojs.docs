@@ -1,0 +1,38 @@
+
+<h4 class="p_tit">noJS.config 参数配置</h4>
+<h6 class="p_tit">其他参数配置：</h6>
+<div class="text_info">
+	<p class="mb10">除最基本参数配置外，还可以设置以下参数</p>
+	<script type="text/codelight" code="javascript" key="config">
+	noJS.config({
+		//设置全局依赖模块，即在所有模块加载之前会提前引入该组模块，没有可不设置
+		//注：全局模块组内模块之间可相互依赖，但是不可依赖其他模块
+		global : ['jquery','nojs.ui'],
+					
+		//设置文件打包规则,打包只是针对同一组模块，并不能将整个依赖链全部打包在一起
+		//如[a,b]打包之后地址为：pack.base + (pack.path+a+pack.fix) + (pack.path+b+pack.fix);
+		pack : {
+			base:'http://image.testbiom.cn/min/?f=',
+			path:'js/',	//默认为空''
+			fix:'.js'	//默认'.js'
+		}
+	})
+	</script>
+	<p class="orange mb10">注：如果参数配置比较简单，可直接写入script标签的data-config属性</p>
+	<script type="text/codelight" code="html">
+		<script src="js/noJS.js" 
+			data-config=" global : ['jquery','nojs.ui'], pack : {base:'',path:''} " >
+		< /script>
+	</script>
+	
+</div>
+<h6 class="p_tit"></h6>
+<div class="text_info">
+	
+
+
+<script>
+noJS.use(function($,ui){
+	
+});
+</script>

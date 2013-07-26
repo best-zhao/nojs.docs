@@ -1,0 +1,44 @@
+/*reset*/
+body,div,h1,h2,h3,h4,h5,h6,hr,p,pre,dl,dt,dd,ol,ul,li,fieldset,form,legend,th,td{margin:0;padding:0}
+img,fieldset{border:none}
+body,button,input,select,textarea{font:12px/1.6 arial;color:#333}
+button,input,select,textarea{margin:0;outline:none}
+h1,h2,h3,h4,h5,h6{font-size:100%}
+address,cite,dfn,em,var,i{font-style:normal}
+li{list-style:none}
+section,article,aside,header,footer,nav,dialog,figure{display:block}/*html5*/
+pre{word-wrap:break-word;font-family:Arial;zoom:1;white-space:pre-wrap}
+th{text-align:left}
+html{-webkit-text-size-adjust:none}/*解除chrome最小字体限制*/
+::-webkit-input-placeholder{color:#aaa;font-weight:400}/*for webkit*/
+input:-moz-placeholder,textarea:-moz-placeholder{color:#aaa!important;font-weight:400!important}/*重置firefox placeholder*/
+.ph_lab{position:absolute;color:#aaa;cursor:text;text-indent:9px;font-family:Tahoma}/*placeholder for ie*/
+/*public*/
+.page_all{width:990px;margin:0 auto}
+a{text-decoration:none;color:#02A6EF}
+a:hover{text-decoration:underline;color:#f30}
+.clear{clear:both;overflow:hidden;height:0}
+.clearfix:after{content:"";display:block;height:0;clear:both;visibility:hidden}
+.clearfix{zoom:1}
+*[hidden]{display:none}
+.none{display:none}
+.fl{float:left}
+.fr{float:right}
+.gray3{color:#333}/*text color*/
+.gray6{color:#666}
+.gray9{color:#999}
+.blue{color:#00639C}
+.orange{color:#F58331}
+.green{color:#308045}
+.mt10{margin-top:10px}
+.mr10{margin-right:10px}
+.mb10{margin-bottom:10px}
+.ml10{margin-left:10px}
+
+.pages{font-size:12px;padding:10px 0}
+.pages *{background:#FFFFFF;border:1px solid #CDCDCD;margin:3px;margin-right:0;padding:0 6px;line-height:25px;display:inline-block;vertical-align:top} 
+.pages a{text-decoration:none;color:#666}
+.pages a:hover{background-color:#FE7104;color:#fff}
+.pages strong{background-color:#FE7104;color:#fff}
+.pages em{padding:0 4px;color:#646464}
+

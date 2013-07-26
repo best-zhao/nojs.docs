@@ -1,0 +1,39 @@
+<h4 class="p_tit">ui.msg</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	公用消息提示框，由ui.win扩展而来，提供2个方法
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="msg">
+		//显示消息框
+		ui.msg.show( type, content, option );
+		
+		//隐藏消息框
+		ui.msg.hide();
+	</script>
+	
+	<select name="" id="test_type">
+		<option value="ok">操作成功</option>
+		<option value="warn">警告</option>
+		<option value="error">操作失败</option>
+		<option value="confirm">确认操作</option>
+		<option value="loading">loading提示</option>
+	</select>
+	<a href="" class="nj_btn" id="test">显示消息框</a>
+	<a href="" class="nj_btn" id="hide">隐藏消息框</a>
+</div>
+<script>
+noJS.use(function($,ui){
+	
+	var type = new ui.select('test_type');
+	$('#test').click(function(){
+		ui.msg.show( type.value, '操作提示消息' );
+		return false;
+	})
+	$('#hide').click(function(){
+		ui.msg.hide();
+		return false;
+	})
+});
+</script>

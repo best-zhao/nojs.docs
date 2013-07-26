@@ -1,0 +1,82 @@
+<style type="text/css">
+
+</style>
+<h4 class="p_tit">form表单验证</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	表单验证组件，内置常用验证规则，可扩展规则
+	<p>依赖模块：'nojs.module/form'</p>
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="form">
+		new ui.form( btn, rules, options );
+	</script>	
+	<h6>参数：</h6>
+	<p>1. btn: 表单submit按钮对象，或者触发提交的对象均可</p>
+	<p>2. rules: 表单规则，为一个关联数组对象；key为表单对象name值，对应的是一个规则对象</p>
+	<script type="text/codelight" code="javascript">
+		var rules = {
+			name1 : {rule1:tip1,rule2:tip2},
+			name2 : {rule2:tip2}
+		}
+	</script>
+	<p>3. options: 其他选项</p>
+	<script type="text/codelight" code="javascript">
+		options = {
+			onSubmit : fn,				//表单提交时触发的回调，所有验证通过之后才执行；返回false可阻止表单默认提交
+			onBeforeSubmit : fn,		//与onSubmit不同的是，该事件在验证之前执行
+			checkMode : 'blur/submit/keyup',	//验证类型
+			//设置form对象，默认会取btn所在表单对象，但有时2者不在同一区域，这时可单独设置表单对象；formSubmit为false时，该对象可设置为非form对象
+			form : obj,					
+			formSubmit : true, 			//默认通过btn触发form的submit事件来验证,当上面情况发生时，可设为false，这样就会将事件绑定在btn的click事件上
+			showIco : true 				//是否显示提示图标
+		}
+	</script>
+</div>
+<h6 class="p_tit">方法：</h6>
+<div class="text_info">
+	
+</div>
+<h6 class="p_tit">实例：</h6>
+<div class="text_info">
+	<form action="">
+		<ul class="p_form">
+			<li class="item clearfix">
+				<span class="p_txt">
+					<label for="" class="lab">用户名：</label>
+					<input name="name" class="text" />
+				</span>
+			</li>
+			<li class="item clearfix">
+				<span class="p_txt">
+					<label for="" class="lab">密码：</label>
+					<input type="password" name="password" class="text" />
+				</span>
+			</li>
+			<li class="item clearfix">
+				<span class="p_txt">
+					<label for="" class="lab">确认密码：</label>
+					<input type="password" name="repass" class="text" />
+				</span>
+			</li>
+			<li class="item clearfix">
+				<div class="in"><input type="submit" class="nj_btn n_b_sb" id="sub_btn" /></div>
+			</li>
+		</ul>
+	</form>
+</div>
+
+<script>
+noJS.use('nojs.module/form',function($,ui,form){
+	new form( $('#sub_btn'), {
+		'name' : {isNull:'不能为空'},
+		'password' : {isNull:'不能为空',confirmPas:{name:'repass'}}
+	},{
+		onSubmit : function(){
+			ui.msg.show('ok','验证通过');
+			return false;
+		}
+	})
+});
+</script>

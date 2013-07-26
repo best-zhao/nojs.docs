@@ -1,0 +1,32 @@
+<style>
+#nj_color{position:absolute;background:#f5f5f5;padding:15px;border:1px solid;border-color:#e4e4e4 #ccc #ccc #e4e4e4;display:none}
+#nj_color .mask{border:1px solid;border-color:#bbb #fff #fff #bbb;width:255px;height:255px;position:relative;float:left;background:red}
+#nj_color .mask .b{position:absolute;top:0;left:0;width:100%;height:100%;background:url(img/masks.png); _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=crop,src=img/masks.png);_background:none}
+#nj_color .mask .c{position:absolute;top:-6px;left:-6px;width:12px;height:12px;background:url(img/choose.png);_font-size:0;_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true, sizingMethod=crop, src=img/choose.png);_background:none}
+#nj_color .roll{width:20px;height:255px;margin:0 12px;float:left;position:relative;background:url(img/rolling.png)}
+#nj_color .roll .c{width:32px;height:9px;background:url(img/rolling_B.png);position:absolute;top:-3px;left:-5px;_font-size:0;_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true, sizingMethod=crop, src=img/rolling_B.png);_background:none}
+#nj_color .r{float:right}
+#nj_color .preview{text-align:center;display:inline-block}
+#nj_color .preview i{display:block;width:70px;height:40px;border:1px solid;border-color:#bbb #fff #fff #bbb;background:white}
+#nj_color .r dl{margin:5px 0 0}
+#nj_color .r dd label{display:inline-block;width:21px}
+#nj_color .r dd input{width:25px;padding:1px 3px;line-height:15px;border-radius:3px;border:1px solid;border-color:#ccc #eee #eee #ccc;margin:0 5px 0 0}
+#nj_color .r dd{padding:1px 0 2px}
+#nj_color .r .color{padding:6px 0}
+#nj_color .r .color label{width:auto}
+#nj_color .r .color input{width:50px}
+</style>
+<h4 class="p_tit">color 取色器</h4>
+<h6 class="p_tit">说明:</h6>
+<div class="text_info">
+	<p>依赖模块：'nojs/nojs.color'</p>
+</div>
+<h6 class="p_tit">demo:</h6>
+<div class="text_info">
+	<input value="#38c" id="get_color" />
+</div><!--p_con-->
+<script>
+noJS.use('nojs.module/color',function( $, ui, color ){
+	color( $('#get_color') );
+});
+</script>

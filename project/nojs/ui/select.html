@@ -1,0 +1,60 @@
+<style type="text/css">
+</style>
+<h4 class="p_tit">ui.select</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	select美化组件,html与原select相同
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="select|batch">
+		//实例化单个select
+		var Select = new ui.select( id, option );
+		
+		//批量初始化容器内所有select
+		ui.select.batch( box, option );
+	</script>
+	
+	<div class="mb10">设置默认选中项：在select标签上设置val属性为当前value值或者在需选中的option上设置selected="selected"</div>
+	<script type="text/codelight" code="html" key="val|selected">
+		<select name="" id="test_type" val="2">
+			<option value="1">请选择类型</option>
+			<option value="2" selected="selected">类型1</option>
+		</select>
+	</script>
+</div>
+<h6 class="p_tit">方法：</h6>
+<div class="text_info">
+	<div class="mb10">1. select : 切换到某项</div>
+	<script type="text/codelight" code="javascript" key="select">
+		Select.select( value );
+	</script>
+	<div id="test">
+		<select name="" id="test_type">
+			<option value="1">请选择类型</option>
+			<option value="2">类型1</option>
+			<option value="3">类型2</option>
+			<option value="4" href="http://www.baidu.com" target="_blank">类型3 (link)</option>
+		</select>
+		<a href="" class="nj_btn" id="change_test">手动切换其选项</a>
+	</div>
+</div>
+<h6 class="p_tit">属性：</h6>
+<div class="text_info">
+	<p>1. value : 当前value值</p>
+	<p>2. length : 所有选项个数</p>
+</div>
+<script>
+noJS.use(function($,ui){
+	var type = new ui.select('test_type'),
+		n = type.length,
+		i = 1;
+		
+	$('#change_test').click(function(){
+		i++;
+		i = i>n ? 1 : i;
+		type.select(i);
+		return false;
+	})
+});
+</script>

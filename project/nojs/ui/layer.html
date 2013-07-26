@@ -1,0 +1,33 @@
+
+<h4 class="p_tit">ui.layer</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	模拟遮罩层，只提供2个方法
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="layer">
+	noJS.use(function($,ui){
+		ui.layer.show();//显示
+		//ui.layer.hide();//隐藏
+	})	
+	</script>
+	<p>通过ui.layer.self可获取遮罩层对象，前提是至少执行过一次show方法</p>
+</div>
+<h6 class="p_tit">实例：</h6>
+<div class="text_info"><input class="nj_btn" id="show_layer" value="显示遮罩" type="button" /> <span class="gray9">1s后自动隐藏</span></div>
+<h6 class="p_tit">扩展应用</h6>
+<div class="text_info" id="about_link">
+	<a href="" id="ui_win">弹窗</a>
+</div>
+
+<script>
+noJS.use(function($,ui){
+	$('#show_layer').click(function(){
+		ui.layer.show();
+		setTimeout(function(){
+			ui.layer.hide();
+		},1000)
+	})
+});
+</script>
