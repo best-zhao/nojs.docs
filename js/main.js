@@ -22,7 +22,7 @@ define(function(require,$,ui){
 	if( typeof onhashchange!='undefined' ){
 		window.onhashchange = function(){
 			var hash = location.hash, i, m;
-			hash = hash.substring(3, hash.length);
+			hash = hash.substring(1, hash.length);
 			if( hash ){
 				for( i=0;i<G.project.length;i++ ){
 					m = G.project[i];
