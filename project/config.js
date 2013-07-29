@@ -1,9 +1,5 @@
 define({
-	'test' : {
-		data : [
-			{id:'test1',text:'test11'}
-		]
-	},
+	
 	'nojs' : {
 		data : [
 			{id:'noJS',text:'noJS模块管理',data:[
