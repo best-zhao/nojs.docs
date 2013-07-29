@@ -46,8 +46,8 @@ define(function(require,$,ui){
 		onSelect : function(id,link){			
 			$.cookie('currentPage',id);
 			setUrl(id);
-			frame.html('<i class="load"></i>');
 			if(!link){return;}
+			frame.html('<i class="load"></i>');
 			new ui.ico('loading',frame.find('i.load'), {
 				width : 32,
 				height : 32
