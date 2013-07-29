@@ -1,7 +1,7 @@
 define({
 	'test' : {
 		data : [
-			{id:'test1',text:'test'}
+			{id:'test1',text:'test11'}
 		]
 	},
 	'nojs' : {
