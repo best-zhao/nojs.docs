@@ -36,7 +36,7 @@ define(function(require,$,ui){
 		}
 	}
 	$(window).bind('popstate', function(e){ 
-		//console.log(e);
+		
 	})
 	
 	var treeOptions = {
