@@ -1,7 +1,7 @@
 html,body,#ui_page{height:100%;overflow:hidden}
 body{font-family:'微软雅黑'}
 .orange{color:red}
-
+/**/
 #ui_head{height:50px;background:#e6e6e6;padding:20px}
 #ui_head h1{font:800 26px arial;color:#000}
 #ui_head h2{color:#666;font-weight:400;font-size:13px}
