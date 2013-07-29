@@ -1,6 +1,7 @@
 define(function(require,$,ui){
 	var tree = require('nojs.module/tree'),
 		codeLight = require('nojs.ui/codelight'),
+		project = require('./project/config'),
 		G = {};
 	
 	var main = $('#main_content'),
@@ -59,9 +60,15 @@ define(function(require,$,ui){
 				new codeLight({parent:frame});
 				//扩展应用
 				frame.find('#about_link,.about_link').on('click',function(e){
-					var t = e.target;
+					var t = e.target, i ,m;
 					if(t.tagName.toLowerCase()=='a'){
-						Menu.setNode(t.id);
+						for( i=0;i<G.project.length;i++ ){
+							m = G.project[i];
+							if( m.box.find('#'+t.id).length ){
+								m.setNode(t.id);
+								break;
+							}
+						}
 						return false;
 					}
 				})
@@ -75,7 +82,8 @@ define(function(require,$,ui){
 			return false;
 		})
 	}
-	G.init();
+	//G.init();
+	
 	var headHeight = head.outerHeight();
 	function setLayout(){
 		var h = win.height() - headHeight;
@@ -86,20 +94,17 @@ define(function(require,$,ui){
 	
 	G.project = [];
 	
-	//添加其他项目文档
-	require.async('./project/config',function($,ui,project){
-		side.empty();
-		for( var i in project ){
-			createProject( i, project[i] )
-		}
-	})	
+	side.empty();
+	for( var i in project ){
+		createProject( i, project[i] );
+	}	
 	function createProject( name, p ){
 		var data = p.data, _tree, id;
 			
 		if( !data ){return;}
 		
 		id = 'menu_'+name;
-		_tree = $('<h3 class="tit">'+name+':</h3><div id="'+id+'" class="nj_tree"></div>');
+		_tree = $('<div id="'+id+'" class="nj_tree"></div>');
 		side.append(_tree);
 		treeOptions.file = 'project/'+name+'/';
 		G.project.push( tree( id, data, treeOptions ) );

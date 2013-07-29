@@ -5,7 +5,6 @@
 define(function( require, $ ){
 	var UI = {};
 		
-	window.nojs = window.nojs || {};	
 	UI.config = {};	
 	
 	/* [animate动画扩展]
