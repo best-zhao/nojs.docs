@@ -48,7 +48,8 @@ define(function(require,$,ui){
 			setUrl(id);
 			if(!link){return;}
 			frame.html('<i class="load"></i>');
-			new ui.ico('loading',frame.find('i.load'), {
+			new ui.ico( frame.find('i.load'), {
+				type : 'loading',
 				width : 32,
 				height : 32
 			})
@@ -72,6 +73,7 @@ define(function(require,$,ui){
 						return false;
 					}
 				})
+				ui.init(frame);
 			});
 		}
 	}

@@ -1,14 +1,85 @@
-/**
+/*
  * nojs UI
- * 2012-12-13
+ * 2013-7-30
+ * nolure@vip.qq.com
  */
 define(function( require, $ ){
 	var UI = {};
+	
+	/*
+	 * 触发方式
+	 * 1.普通：直接执行相关方法，
+	 * 		分为2种情况，a:所需dom就绪之后，直接执行即可;b:dom未加载前，采用延后执行的技术在domReady之后再次执行
+	 * 		2种书写方式完全一样
+	 * 2.区域初始化：通过在Elements上配置相应的属性初始化对应区域内所有ui组件，默认body区域
+	 */
+	
+	
+	UI.init = function( area ){
+		area = area || $('body');
+		
+		var dom = area.find('[data-ui]'),
+			i, elem, method, options;
+			
+		for( i=0; i<dom.length; i++ ){
+			elem = dom[i];
+			method = elem.getAttribute('data-ui');
+			if( UI[method] ){
+				options = elem.getAttribute('data-config');
+				options = options && eval('({'+options+'})') || {};
+				//elem.removeAttribute('data-ui');
+				UI[method]( elem, options );
+			}
+		}	
+	};
+	
+	var isNew, cache = {};
+	function instaceofFun( fun, arg ){
+		if( !(fun instanceof arg.callee) ){
+			return Extend( arg.callee, Array.prototype.slice.call(arg) );
+		}else{
+			return false;
+		}
+	}
+	
+	//结合new和apply的方式
+	function Extend( parent, args ) {
+	    function F( parent,args ) {
+	    	parent.apply( this, args );
+	    	//console.log(this.constructor)
+	    }
+	    //F.constructor = parent;
+	    F.prototype = parent.prototype;
+	    isNew = null;
+		return new F( parent, args );
+	}
+	
+	/*
+	 * 所有依赖dom的ui组件都可以通过id,element,jQuery来获取dom元素
+	 */
+	function getDom( selector ){
+		var type = typeof selector, elem;
+		if( type=='string' ){//通过id
+			elem = $('#'+selector);
+		}else if( type=='object' ){
+			elem = selector.nodeType ? $(selector) : selector;
+		}
+		elem = elem.length ? elem : null;		
+		return elem;
+	}
+	
+	UI.data = function( id, Class ){
+		if( Class ){//set
+			cache[id] = Class;
+		}else{
+			return cache[id];
+		}
+	}
 		
 	UI.config = {};	
 	
-	/* [animate动画扩展]
-	 * 
+	/* 
+	 * [animate动画扩展]
 	 * easeIn：加速度缓动；
 	 * easeOut：减速度缓动；
 	 * easeInOut：先加速度至50%，再减速度完成动画
@@ -319,7 +390,7 @@ define(function( require, $ ){
 			this.tit = this.self.find(".win_tit");
 			this.con = this.self.find(".win_con");
 			this.opt = this.self.find(".win_opt");
-			new UI.ico( 'close', this.close );
+			new UI.ico( this.close, {type:'close'} );
 			this.bind();
 		},
 		bind : function(){
@@ -502,7 +573,7 @@ define(function( require, $ ){
 					win.stillLayer = C ? false : true;
 					
 					win.setCon( tit, '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
-					new UI.ico( C ? 'warn' : type, win.con.find('i.tip_ico') );
+					new UI.ico( win.con.find('i.tip_ico'),{type:C ? 'warn' : type} );
 					Win[type] = win;
 				}				
 				
@@ -547,18 +618,20 @@ define(function( require, $ ){
 		}
 	}();
 	
-	UI.select = function(box,opt){
+	UI.select = function( dom, opt ){
+		if( isNew = instaceofFun(this,arguments) ){
+			return isNew;
+		}
 		/*
 		 * 通用下拉列表,延迟200毫秒触发
-		 * @opt:可选项{show:只显示几项,只接受整数，固定高度,onSelect:根据value值来匹配切换事件}
-		 * onChange{value1:callBack,value2:callBack}，当选择某项的时候触发一个回调
+		 * @opt:可选项{show:只显示几项,只接受整数，固定高度,onSelect:当选择某项的时候触发一个回调}
 		 * 默认选中项根据隐藏域的value值来匹配
 		 */		
 		opt = $.extend( UI.config.select, opt );
-		this.box = $('#'+box);
-		if(!this.box.length){return;}
+		this.box = getDom(dom);
+		if(!this.box){return;}
+		UI.data( this.box[0].id, this );
 		this.show = opt.show;
-		this.onChange = opt.onChange;
 		this.maxH = "auto";//展开时的最大高度
 		this.onSelect = opt.onSelect;//切换回调
 		this.defaultEvent = opt.defaultEvent==true?true:false;//首次是否执行回调
@@ -576,6 +649,7 @@ define(function( require, $ ){
 				link,
 				style = this.box.attr('style'),
 				v = this.box.attr("val")||this.box.val()||0,
+				id = this.box[0].id||'',
 				i,j;
 			this.len = list.length;
 			html = '<span class="nj_select"><span class="wrap"><i></i><div class="nj_arrow"></div><ul></ul>';
@@ -585,7 +659,7 @@ define(function( require, $ ){
 			this.box.hide();
 			this.box = this.box.next();
 			this.box.prev().remove();
-			this.box.attr({'style':style});
+			this.box.attr({'style':style,'id':id});
 			
 			this.menu = this.box.find("ul");
 			this.menu.html(HTML);
@@ -690,20 +764,7 @@ define(function( require, $ ){
 				if(m.tagName.toLowerCase()=='li'){
 					T.select(v);
 				}
-			})
-			/*
-			this.box.ajaxStart(function(){
-				!T.ajaxLoading&&createLoad();
-				T.ajaxLoading.show();
-			}).ajaxComplete(function(){
-				T.ajaxLoading&&T.ajaxLoading.hide();
-			});
-			function createLoad(){
-				T.ajaxLoading = $(document.createElement('em')).attr({'class':'nj_ico n_i_loading ajax_loading'});
-				T.box.append(T.ajaxLoading);
-				new UI.ico('loading',T.ajaxLoading);
-			}
-			*/
+			})			
 		},
 		select : function(v,I){
 			var M,text,m;
@@ -725,7 +786,6 @@ define(function( require, $ ){
 			
 			if(I===false){return;}
 			//为其添加事件
-			this.onChange&&this.onChange[v]&&this.onChange[v]();
 			this.onSelect&&this.onSelect.call(this,v,M);
 		}
 	}
@@ -866,17 +926,21 @@ define(function( require, $ ){
 		}
 	}
 	
-	UI.ico = function(type,obj,opt){
+	UI.ico = function(dom,opt){
 		/*
 		 * canvas/vml绘制的图标
 		 */		
+		if( isNew = instaceofFun(this,arguments) ){
+			return isNew;
+		}
 		opt = $.extend( UI.config.ico, opt );
 		this.hasCanvas = !!document.createElement('canvas').getContext;
-		this.ico = $('<i class="nj_ico n_i_'+type+'"></i>');
-		obj && obj.length && obj.empty();
-		this.obj = obj || $('body:first');
+		this.type = opt.type || 'ok';
+		this.ico = $('<i class="nj_ico n_i_'+this.type+'"></i>');
+		dom = getDom(dom);
+		dom && dom.length && dom.empty();
+		this.obj = dom || $('body:first');
 		this.obj.append(this.ico);
-		this.type = type;
 		this.canvas = null;
 		this.ctx = null;
 		this.width = opt.width||this.ico.width();
