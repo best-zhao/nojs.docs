@@ -25,9 +25,10 @@ define(function( require, $ ){
 			elem = dom[i];
 			method = elem.getAttribute('data-ui');
 			if( UI[method] ){
-				options = elem.getAttribute('data-config');
-				options = options && eval('({'+options+'})') || {};
-				//elem.removeAttribute('data-ui');
+				if( options = elem.getAttribute('data-config') ){
+					options = eval('({'+options+'})') || {};
+					//elem.removeAttribute('data-config');
+				}
 				UI[method]( elem, options );
 			}
 		}	
@@ -1151,9 +1152,12 @@ define(function( require, $ ){
 		/*
 		 * 下拉菜单，动态创建html
 		 */
+		if( isNew = instaceofFun(this,arguments) ){
+			return isNew;
+		}
 		//if(!obj||!obj.length){return;}
 		this.opt = opt = $.extend( UI.config.menu, opt );
-		this.obj = obj;
+		this.obj = obj = getDom(obj);
 		this.menu = null;
 		this.content = opt.content || '';//菜单内容
 		this.align = opt.align || 'left';//对齐方式

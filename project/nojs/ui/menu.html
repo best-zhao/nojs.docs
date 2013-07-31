@@ -19,15 +19,13 @@
 	
 </div>
 <input id="test1" class="nj_btn" type="button" value="删除" />
-<a href="" id="test2" class="nj_btn nj_menu_hover" style="padding:0 14px 0 5px;width:1px;margin-left:-5px"><i class="nj_arrow" style="margin:9px 0 0"></i></a>
-
+<a href="" id="test2" class="nj_btn nj_menu_hover" style="padding:0 14px 0 5px;width:1px;margin-left:-5px" data-ui="menu" data-config="offset:[0,-1],align:'right',content:$('#menu_con')">
+	<i class="nj_arrow" style="margin:9px 0 0"></i>
+</a>
+<ul id="menu_con"><li class="item"><a href="####">所有选项1</a></li><li class="item"><a href="####">当前选项</a></li></ul>
 
 <script>
 noJS.use(function($,ui){
-	new ui.menu( $('#test2'), {
-		offset : [0,-1],
-		align : 'right',
-		content : '<ul><li class="item"><a href="####">所有选项</a></li><li class="item"><a href="####">当前选项</a></li></ul>'
-	});
+	
 });
 </script>

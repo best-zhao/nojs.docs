@@ -1,7 +1,7 @@
 /*
  * 对象拖拽
  */
-define(function( require, $ ){
+define(function(require,$){
 	$.addCss('.addIndex{z-index:99999}');
 	
 	var drag = function(drag,move,opt){

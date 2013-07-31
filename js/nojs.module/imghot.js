@@ -4,7 +4,7 @@
 define(function(require,$,ui){
 	var drag = require('nojs.module/drag'),
 		codeLight = require('nojs.ui/codelight'),
-	
+		
 	imgHot = function(id,opt){
 		opt = opt || {};
 		this.box = $('#'+id);
