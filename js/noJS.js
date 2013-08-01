@@ -131,20 +131,21 @@
 	 * 打包规则转换
 	 * 将多个模块array转换成一个打包后的[url],file为string时反之
 	 * pack = {
-	 * 	  base : 'http://image.fantibody.com/min/?b=p&f=',
+	 * 	  base : 'http://-/min/?',
 	 * 	  path : 'js/',
 	 *    fix : '.js'
 	 * }
 	 */
-	load.pack = function( file, cf ){
+	load.pack = function( file ){
 		var rect = [],
 			pack = config.pack,
 			i;
 		if( type(file)=='array' ){
 			for( i=0; i<file.length; i++ ){
-				rect.push( load.getPath(pack.path, file[i]) + pack.fix );
+				//rect.push( load.getPath(pack.path, file[i]) + pack.fix );
+				rect.push(file[i].replace(/\//g,'-'));
 			}
-			rect = [ pack.base + rect.join(',') ];
+			rect = [ pack.base + rect.join(',') + pack.fix ];
 		}else{
 			
 			
@@ -250,6 +251,14 @@
 			_modules = parseRequire( factory.toString() );
 			if( _modules.length ){
 				current['deps'] = [].concat( _modules );
+				
+				//设置打包后，当前模块所依赖模块会并入自身
+				if( config.pack ){
+					var i, m;
+					//for( var i=0; i<_modules.length; i++ ){
+						//m = T.getPath( cf.base, file[i] ) + cf.fix;
+					//}
+				}
 				load.add( _modules, over, null, true );
 			}else {
 				over();
@@ -269,7 +278,8 @@
 		//mod.state++;
 		
 		//当最后一个依赖模块加载完毕时
-		if( !load.state ){			
+		if( !load.state ){
+			//console.log(1)			
 			var i, j, _mod, rect = [], call;
 			for( i in modules ){
 				_mod = modules[i];

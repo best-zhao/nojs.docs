@@ -1,24 +1,29 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
+		basename : '**',
 		dirs: {  
 			src: 'js/nojs.module',  
 		    dest: 'dist' 
 		},  
         transport: {
-        	 options : {
-		        paths : ['js']
+        	options : {
 		        //alias: '<%= pkg.spm.alias %>',
-		        
 		    },
             dialog: {
             	options : {
+            		paths : ['js'],
 		            idleading : ''
 		        },
                 files : [
-                    {
-                        src : 'js/nojs.module/*.js',
-                        dest : '.build'
+                    {	
+                    	expand: true,
+                        src : 'js/main.js',
+                        dest : '.build',
+                        rename : function(a){
+                        	grunt.log.debug(a);
+                        	return 'aa';
+                        }
                     }
                 ]
             }
@@ -26,20 +31,34 @@ module.exports = function(grunt) {
         concat: {
             dist: {
             	options : {
-            		paths : ['js'],
-		            include : 'all'
+            		paths : [''],
+    				//include : 'relative',
+    				noncmd: true
 		        },
 		       
 		        files : {
-		        	'dist/main.js' : ['js/main.js','js/nojs.module/color.js']
+		        	'dist/jquery,nojs.ui-core.js' : ['js/jquery.js','js/nojs.ui/core.js'],
+		        	'dist/nojs.module-tree,nojs.ui-codelight,.-project-config.js' : ['js/nojs.module/tree.js','js/nojs.ui/codelight.js','project/config.js']
 		        }
             }
         },
         uglify : {
+        	options: {
+        		banner: '/*12*/',
+		    	mangle: {
+		        	except: ['require']
+		    	}
+		    },
         	main : {
-                files : {
-                     'dist/noJS.js' : ["js/noJS.js"] 
-                }
+                files : [
+                	{
+	                	expand : true,
+	                	cwd: 'dist/',
+	                	src : "*.js",
+	                	dest : 'dist/',
+	                	ext: ''
+	                }
+                ]
            }
         },
 		clean : {
@@ -47,10 +66,10 @@ module.exports = function(grunt) {
 		}
 	});
 	
-	grunt.loadNpmTasks('grunt-cmd-transport');//grunt-contrib-uglify
+	grunt.loadNpmTasks('grunt-cmd-transport');
     grunt.loadNpmTasks('grunt-cmd-concat');
-    //grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     //grunt.loadNpmTasks('grunt-contrib-clean');
-
-    grunt.registerTask('default', ['concat']);
+	
+    grunt.registerTask('default',['uglify']);
 };
