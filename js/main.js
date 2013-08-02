@@ -54,7 +54,10 @@ define(function(require,$,ui){
 				height : 32
 			})
 			
-			var url = id=='project' ? link : ( (this.box[0].id=='menu_tree' ? 'p/' : this.file) +link+'.html' );
+			var _id = this.box[0].id,
+				name = _id.substring(_id.indexOf('_')+1,_id.length),
+				url = 'project/' + name + '/' +link+'.html';
+			
 			id!='project' && this.box.siblings('.nj_tree').find('a.current').removeClass('current');
 			frame.load( url,function(){
 				//代码高亮
@@ -110,7 +113,6 @@ define(function(require,$,ui){
 		side.append(_tree);		
 		var t = tree( id, data, treeOptions );
 		G.project.push( t );
-		t.file = 'project/'+name+'/';
 	}
 	
 	return G;
