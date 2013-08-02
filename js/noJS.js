@@ -380,7 +380,7 @@
 			
 			_host:
 			for( i in page ){
-				if( i=='main' && mainReg.test(host) || new RegExp('^'+i+'.').test(host) ){
+				if( i=='main' && mainReg.test(host) || new RegExp('^'+i+'[.]').test(host) ){
 					p = page[i];
 					for( j in p ){
 						if( j=='index' && new RegExp(host+'/$').test(href) || href.indexOf(j)>1 ){

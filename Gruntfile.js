@@ -37,8 +37,11 @@ module.exports = function(grunt) {
 		        },
 		       
 		        files : {
-		        	'dist/jquery,nojs.ui-core.js' : ['js/jquery.js','js/nojs.ui/core.js'],
-		        	'dist/nojs.module-tree,nojs.ui-codelight,.-project-config.js' : ['js/nojs.module/tree.js','js/nojs.ui/codelight.js','project/config.js']
+		        	'dist/jquery,nojs.ui-core.js' : 
+		        	['js/jquery.js','js/nojs.ui/core.js'],
+		        	
+		        	'dist/nojs.module-tree,nojs.ui-codelight,.-project-config.js' : 
+		        	['js/nojs.module/tree.js','js/nojs.ui/codelight.js','project/config.js']
 		        }
             }
         },
