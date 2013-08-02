@@ -54,7 +54,7 @@ define(function(require,$,ui){
 				height : 32
 			})
 			
-			var url = id=='project' ? link : ( (this.box[0].id=='menu_tree' ? 'p/' : treeOptions.file) +link+'.html' );
+			var url = id=='project' ? link : ( (this.box[0].id=='menu_tree' ? 'p/' : this.file) +link+'.html' );
 			id!='project' && this.box.siblings('.nj_tree').find('a.current').removeClass('current');
 			frame.load( url,function(){
 				//代码高亮
@@ -94,7 +94,7 @@ define(function(require,$,ui){
 	setLayout();
 	win.on('scroll resize',setLayout);
 	
-	G.project = [];
+	G.project = [];	
 	
 	side.empty();
 	for( var i in project ){
@@ -107,9 +107,10 @@ define(function(require,$,ui){
 		
 		id = 'menu_'+name;
 		_tree = $('<div id="'+id+'" class="nj_tree"></div>');
-		side.append(_tree);
-		treeOptions.file = 'project/'+name+'/';
-		G.project.push( tree( id, data, treeOptions ) );
+		side.append(_tree);		
+		var t = tree( id, data, treeOptions );
+		G.project.push( t );
+		t.file = 'project/'+name+'/';
 	}
 	
 	return G;
