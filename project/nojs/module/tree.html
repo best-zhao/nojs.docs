@@ -1,5 +1,5 @@
 <style>
-.test_tree{font-size:12px;width:30%;border:1px solid #ddd;margin-right:20px;padding:9px 0;overflow:auto;height:200px}	
+.test_tree{font-size:12px;width:30%;min-width:170px;border:1px solid #ddd;margin-right:20px;padding:9px 0;overflow:auto;height:200px}	
 </style>
 <h4 class="p_tit">ui.tree</h4>
 <h6 class="p_tit">说明：</h6>
@@ -22,8 +22,10 @@
 </div>
 <script>
 noJS.use(['nojs.module/tree1','./project/config'],function($,ui,tree,data){
-	tree( 'tree_test1',data.nojs.data );
-	tree( 'tree_test2',data.nojs.data, {
+	
+	tree( 'tree_test1', data.nojs.data );
+	
+	tree( 'tree_test2', data.nojs.data, {
 		isCheck : true
 	});
 });

@@ -4,7 +4,7 @@
  */
 define(function(require,$){
 	
-	return function(id,data,opt){
+	function tree(id,data,opt){
 		/*
 		 * 无限级tree目录树
 		 * @id:容器id
@@ -31,7 +31,7 @@ define(function(require,$){
 				var len = data.length,
 					i, j, now, m, link, line, id, open, check;						
 				item += '<ul>';
-				for(i=0,c=level;i<len;i++){						
+				for( i=0, c=level; i<len; i++ ){						
 					item += '<li level="'+(level+1)+'">';
 					m = data[i];
 					if(m&&m['text']){
@@ -51,7 +51,7 @@ define(function(require,$){
 						arr.length++;
 						for(j in m){
 							now = m[j];
-							if($.type(now)=='array'&&now.length){
+							if( $.type(now)=='array' && now.length ){
 								c = level;
 								read(now,++c);
 								break;
@@ -217,4 +217,7 @@ define(function(require,$){
 		
 		return arr;
 	};
+	
+	
+	return tree;
 });
