@@ -33,7 +33,7 @@ define({
 				{id:'drag',text:'drag',link:'module/drag'},
 				{id:'form',text:'form表单验证',link:'module/form'},
 				{id:'upload',text:'upload文件上传',link:'module/upload'},
-					{id:'ui_tree',text:'tree',link:'module/tree'},
+					{id:'ui_tree',text:'tree树形菜单',link:'module/tree'},
 				{id:'color',text:'color取色器',link:'module/color'}
 			]},
 	

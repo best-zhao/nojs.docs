@@ -3,6 +3,7 @@
  * 目录树
  */
 define(function(require,$){
+	
 	return function(id,data,opt){
 		/*
 		 * 无限级tree目录树
