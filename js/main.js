@@ -28,7 +28,7 @@ define(function(require,$,ui){
 				for( i=0;i<G.project.length;i++ ){
 					m = G.project[i];
 					if( m.box.find('#'+hash).length ){
-						m.setNode(hash);
+						m.select(hash);
 						break;
 					}
 				}
@@ -40,11 +40,14 @@ define(function(require,$,ui){
 	})
 	
 	var treeOptions = {
-		openAll : true,//展开全部
+		//openAll : true,//展开全部
 		defaultNode : setUrl() || D,//设置默认节点
 		//file : 'p/',
-		onSelect : function(id,link){			
+		onSelect : function(data){		
+			var link = data.link,
+				id = data.id;	
 			$.cookie('currentPage',id);
+			
 			setUrl(id);
 			if(!link){return;}
 			frame.html('<i class="load"></i>');
@@ -69,7 +72,7 @@ define(function(require,$,ui){
 						for( i=0;i<G.project.length;i++ ){
 							m = G.project[i];
 							if( m.box.find('#'+t.id).length ){
-								m.setNode(t.id);
+								m.select(t.id);
 								break;
 							}
 						}
@@ -100,6 +103,10 @@ define(function(require,$,ui){
 	G.project = [];	
 	
 	side.empty();
+	tree.key = {
+		'name' : 'text',
+		'children' : 'data'
+	}
 	for( var i in project ){
 		createProject( i, project[i] );
 	}	
@@ -111,7 +118,8 @@ define(function(require,$,ui){
 		id = 'menu_'+name;
 		_tree = $('<div id="'+id+'" class="nj_tree"></div>');
 		side.append(_tree);		
-		var t = tree( id, data, treeOptions );
+		treeOptions.data = data;
+		var t = new tree( id, treeOptions );
 		G.project.push( t );
 	}
 	

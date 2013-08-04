@@ -86,7 +86,7 @@ h6.p_tit{margin:0 0 10px}
 .nj_tree ul ul{display:none}
 .nj_tree .item{display:block;color:#333;-webkit-transition:background .2s linear;-moz-transition:background .2s linear;padding:0 20px}
 .nj_tree .item:hover{background:#e2e2e2;text-decoration:none}
-.nj_tree .folder,.nj_tree .ico,.nj_tree .line{float:left;width:17px;height:22px;background:url(../img/tree.png) no-repeat 3px -40px;overflow:hidden}
+.nj_tree .folder,.nj_tree .ico,.nj_tree .line{float:left;width:17px;height:24px;background:url(../img/tree.png) no-repeat 3px -40px;overflow:hidden}
 .nj_tree .line{background-position:3px -172px}
 .nj_tree .folder{width:15px;height:14px;background-position:-20px -88px;margin:4px 3px 0 0}
 .nj_tree .open .folder{background-position:-41px -88px}
@@ -103,7 +103,7 @@ h6.p_tit{margin:0 0 10px}
 .nj_tree .item .last_ico1{background-position:3px -62px}
 .nj_tree .open .last_ico1{background-position:3px -150px}
 .nj_tree .item .last_line{background:none}
-.nj_tree input{float:left;vertical-align:-2px;margin:4px 5px 0 2px}
+.nj_tree input{float:left;vertical-align:-2px;margin:5px 5px 0 2px}
 .nj_tree .no_child input{margin-right:0}
 
 /*uplaod*/
