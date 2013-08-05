@@ -177,7 +177,7 @@ define(function(require,$){
 				if(  m[ _child ].length ){
 					//item += this.init(id,false);
 					//暂不加载子节点，除默认打开节点外
-					item += m[_open]==1 ? this.init(id,false) : '<ul></ul>';
+					item += (m[_open]==1||T.options.openAll) ? this.init(id,false) : '<ul></ul>';
 				}
 				item += '</li>';
 			}
