@@ -40,9 +40,7 @@ define(function(require,$,ui){
 	})
 	
 	var treeOptions = {
-		//openAll : true,//展开全部
 		defaultNode : setUrl() || D,//设置默认节点
-		//file : 'p/',
 		onSelect : function(data){		
 			var link = data.link,
 				id = data.id;	
@@ -118,8 +116,11 @@ define(function(require,$,ui){
 		id = 'menu_'+name;
 		_tree = $('<div id="'+id+'" class="nj_tree"></div>');
 		side.append(_tree);		
-		treeOptions.data = data;
-		var t = new tree( id, treeOptions );
+		var t = new tree( id, {
+			data : data,
+			onSelect : treeOptions.onSelect,
+			defaultNode : treeOptions.defaultNode
+		});
 		G.project.push( t );
 	}
 	
