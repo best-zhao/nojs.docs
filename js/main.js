@@ -117,6 +117,7 @@ define(function(require,$,ui){
 		_tree = $('<div id="'+id+'" class="nj_tree"></div>');
 		side.append(_tree);		
 		var t = new tree( id, {
+			openAll : name=='nojs' ? false : true,
 			data : data,
 			onSelect : treeOptions.onSelect,
 			defaultNode : treeOptions.defaultNode
