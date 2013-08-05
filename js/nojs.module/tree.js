@@ -6,14 +6,24 @@
 define(function(require,$){
 	
 	function tree( box, options ){
+		var date1 = (+new Date);
 		this.box = $('#'+box);
 		this.options = options || {};
 		this.data = tree.format( options.data, options.key );
 		if( !this.box.length || !this.data ){
 			return;
 		}
-		
+		//console.log(this.data.level)
+		var date2 = (+new Date);
+		//console.log(date2-date1);
+		if(this.box[0].id=='tree_test1'){
+			//return;
+		}
 		this.init( null, true );
+		
+		date2 = (+new Date);
+		//console.log(date2-date1);
+		
 	}
 	/***
 	
@@ -126,9 +136,7 @@ define(function(require,$){
 			//@node:节点id，初始化该节点下所有一级子节点，为空表示初始化根节点
 			
 			var T = this,
-				level = node ? this.data.all[node].level+1 : 0,
-				data = this.data.level[level],
-				
+			
 				_link = tree.key['link'],
 				_id = tree.key['id'],
 				_open = tree.key['open'],
@@ -136,18 +144,20 @@ define(function(require,$){
 				_parent = tree.key['parent'],
 				_child = tree.key['children'],
 				
+				isChild = node!=undefined,
+				all = this.data.all,
+				level = isChild ? all[node].level+1 : 0,
+				data = isChild ? all[node][_child] : this.data.level[level],
 				isCheck = this.options.isCheck,
-				item = '', i, j, now, m, link, line, id, open, check;
-			
-			item += '<ul>';	
-			for( i in data ){
+				item, i, j, now, m, link, line, id, open, check;
 				
+			//this.box[0].id=='tree_test1' && console.log(node)
+			item = '<ul>';	
+			for( i in data ){
 				m = data[i];
+				m = isChild ? all[m] : m;
 				id = m[_id];
 				
-				if( node && node!=m[_parent] ){
-					continue;
-				}
 				item += '<li level="'+level+'">';
 				m.init = true;
 				
@@ -164,24 +174,35 @@ define(function(require,$){
 				
 				item += '<a class="item" href="'+link+'" reallink="'+link+'" id="'+id+'" '+open+'>'+line+'<i class="ico"></i>'+check+'<i class="folder"></i><span class="text">'+m[_name]+'</span></a>';
 				
-				if( m[ _child ].length ){
-					item += this.init(id,false);
+				if(  m[ _child ].length ){
+					//item += this.init(id,false);
+					//暂不加载子节点，除默认打开节点外
+					item += m[_open]==1 ? this.init(id,false) : '<ul></ul>';
 				}
+				item += '</li>';
 			}
+			
 			item += '</ul>';
 			
 			if( set ){
-				this.box.html(item);
-				this.bind();
-				this.addClass();
-				this.replaceLink();
+				var area = this.box;
+				if( isChild ){
+					area = $(item)
+					$('#'+node).next('ul').replaceWith(area);
+				}else{
+					this.box.html(item);
+					this.bind();
+				}
 				
-				(function(){
-					var node = T.box.find('a.item').not('.no_child');//包含子节点
+				this.addClass(area);
+				this.replaceLink(area);
+				
+				(function(area){
+					var node = area.find('a.item').not('.no_child');//包含子节点
 					
 					//展开全部
 					if( T.options.openAll ){
-						T.box.find('ul ul').show();
+						area.find('ul ul').show();
 						node.addClass('open');
 					}
 					
@@ -193,8 +214,8 @@ define(function(require,$){
 					node.filter(function(){
 						return this.getAttribute('open')=='1';
 					}).addClass('open').next('ul').show();
-				})();
-				this.select(this.options.defaultNode);
+				})(area);
+				!isChild && this.select(this.options.defaultNode);
 				
 			}
 			
@@ -215,6 +236,11 @@ define(function(require,$){
 						sec && sec.is(":visible") && sec.hide();
 						tag.removeClass('open');
 					}else{
+						if( !sec.data('init') ){
+							T.init(tag[0].id,true);
+							sec = tag.next('ul');
+							sec.data('init',true);
+						}
 						sec && sec.is(":hidden") && sec.show();
 						tag.addClass('open');
 					}
@@ -262,8 +288,9 @@ define(function(require,$){
 				return false;
 			})
 		},
-		addClass : function(){
-			var list = this.box.find('.item'),
+		addClass : function(area){
+			area = area || this.box;
+			var list = area.find('a.item'),
 				i,j,
 				n = list.length,
 				m,
@@ -272,7 +299,7 @@ define(function(require,$){
 			for( i=0; i<n; i++ ){
 				m = list.eq(i);
 				i==0 && m.find('.ico').addClass('first_ico');
-				li = m.parents('li').eq(0);
+				li = m.closest('li');
 				if(!m.next('ul').length){//无子节点
 					m.addClass('no_child');
 					if(!li.next().length){
@@ -283,7 +310,7 @@ define(function(require,$){
 						m.find('.ico').addClass('last_ico1');
 						level = li.attr('level');
 						for(j=0;j<li.find('li').length;j++){
-							li.find('li').eq(j).find('.line').eq(level-1).addClass('last_line');
+							li.find('li').eq(j).find('.line').eq(level).addClass('last_line');
 						}
 					}
 				}				
@@ -299,6 +326,7 @@ define(function(require,$){
 			var T = this,
 				node = typeof ID!=='undefined' ? 
 					this.box.find('a['+by+'="'+ID+'"]').eq(0) : this.box.find('a.current:first');
+					
 			if(!node.length){return;}
 			
 			this.box.find('a.current').removeClass('current');
@@ -325,11 +353,12 @@ define(function(require,$){
 			s(len-1);//从最外层父ul开始展开
 			set();
 		},
-		replaceLink : function(){
+		replaceLink : function(area){
 			//ie67下会自动补全url为绝对路径
 			//使用 getAttribute( 'href', 2 ) 可解决
 			if( $.browser('ie6 ie7') ){
-				var a = this.box.find('a'), link;
+				area = area || this.box;
+				var a = area.find('a'), link;
 				a.each(function(){
 					this.href = this.getAttribute( 'reallink', 2 );
 					this.removeAttribute('reallink');
@@ -338,14 +367,14 @@ define(function(require,$){
 		}
 	}
 	
-	//通过一个select来展现树形结构
-	tree.select = function( Data, options ){
-		Data = tree.format(Data);
-		var data = Data.level;
-		if( !data || !data.length ){
+	//通过一个select来展现树形结构或者是级联菜单
+	tree.select = function( box, options ){
+		options = options || {};
+		var Data = tree.format(options.data),
+			data = Data.level;
+		if( !box || !box.length || !data || !data.length ){
 			return;
 		}
-		options = options || {};
 		
 		var	level = 0, item,
 			_id = tree.key['id'],
@@ -355,28 +384,27 @@ define(function(require,$){
 			
 		
 		function get(level){
-			var i, j, _item = '', _data;
+			var i, j, item = '', _data;
 			_data = data[level];
 			item = '<select name="" id="">';	
 			item += single ? '<option value="-1">根目录</option>' : '';
 			
 			for( i in _data ){
-				_item += getItem( _data[i], level );
+				item += getItem( _data[i], level );
 			}
-			item += _item;
 			item += '</select>';
 			return item;
 		}
 		function getChild(child){
-			var j, _item = '';
+			var j, item = '';
 			level++;
 			if( child.length ){
 				for( j=0; j<child.length; j++ ){
-					_item += getItem( data[level][ child[j] ], level );
+					item += getItem( data[level][ child[j] ], level );
 				}
 			}
 			level--;
-			return _item;
+			return item;
 		}
 		function getLine(level){
 			var line = '--';
@@ -390,6 +418,7 @@ define(function(require,$){
 		}
 		item = get(level);
 		item = $(item);
+		box.html(item);
 		
 		if( !single ){
 			function change(item){
@@ -410,11 +439,12 @@ define(function(require,$){
 				item.change(function(){
 					change(this);
 				})
+				if( item.val() ){
+					change(item);
+				}
 			}
 			bind( item );
-			if( item.val() ){
-				change(item);
-			}
+			
 		}
 		
 		return item;

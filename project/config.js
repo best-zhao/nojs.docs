@@ -29,7 +29,7 @@ define({
 					{id:'ui_code',text:'ui.code',link:'ui/code'}
 				]}
 			]},
-			{id:'other',text:'其他常用模块',data:[
+			{id:'other',text:'其他常用模块',open:1,data:[
 				{id:'drag',text:'drag',link:'module/drag'},
 				{id:'form',text:'form表单验证',link:'module/form'},
 				{id:'upload',text:'upload文件上传',link:'module/upload'},

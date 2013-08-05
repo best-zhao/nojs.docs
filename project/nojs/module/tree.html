@@ -25,15 +25,34 @@
 </div>
 <script>
 noJS.use(['nojs.module/tree','./project/config'],function($,ui,tree,config){
+	var date1 = (+new Date);
 	data = config.nojs.data;
 	tree.key = {
 		'name' : 'text',
 		'children' : 'data'
 	}
+	function testData(number){
+		//number*s.length 个节点
+		var rect = [], i, j, p, s = ['a','b','c','d','e'];
+		for( j=0; j<s.length; j++ ){
+			for( i=0; i<number; i++ ){
+				rect.push({
+					'id' : s[j]+i,'text':s[j]+i,'parent':j==0?-1:(s[j-1]+i)
+				})
+			}
+		}
+		return rect;
+	}
+	data = testData(1000);
+	//console.log( tree.format(testData(3)).level )
+	
 	new tree( 'tree_test1',  {
 		data : data,
 		defaultNode : 'ui_tree'
 	});
+	var date2 = (+new Date);
+	//console.log(date2-date1);
+	return;
 	new tree( 'tree_test2', {
 		data : data,
 		isCheck : true,
@@ -43,11 +62,9 @@ noJS.use(['nojs.module/tree','./project/config'],function($,ui,tree,config){
 		}
 	});
 	
-	var select1 = tree.select(data, {level:0}),
-		select2 = tree.select(data);
+	var select1 = tree.select( $('#tree_test3'), {level:0,data:data} ),
+		select2 = tree.select( $('#tree_test4'), {data:data,select:['nj_ui','ui_core']} );
 		
-	$('#tree_test3').html(select1);	
-	$('#tree_test4').html(select2);	
 	//new ui.select( select1, {show : 10});
 });
 </script>
