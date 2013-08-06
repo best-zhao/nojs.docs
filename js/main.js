@@ -14,9 +14,9 @@ define(function(require,$,ui){
 		wrap = page.children('div.ui_wrap');
 	
 	function setUrl(id){
-		var url = location.href.split('#');
-		if( !id && url[1] ){
-			return url[1].split('/')[1];
+		var url = location.href.split('#'), hash = url[1];
+		if( id==undefined ){
+			return hash;
 		}
 		location.href = url[0] + '#' + id;
 	}	

@@ -159,7 +159,7 @@ define(function(require,$){
 				id = m[_id];
 				
 				item += '<li level="'+level+'">';
-				m.init = true;
+				//m.init = true;
 				
 				line = '';
 				if( level ){
@@ -177,7 +177,13 @@ define(function(require,$){
 				if(  m[ _child ].length ){
 					//item += this.init(id,false);
 					//暂不加载子节点，除默认打开节点外
-					item += (m[_open]==1||T.options.openAll) ? this.init(id,false) : '<ul></ul>';
+					if( m[_open]==1||T.options.openAll ){
+						item += this.init(id,false);
+						m.init = true;
+					}else{
+						item += '<ul></ul>';
+					}
+					
 				}
 				item += '</li>';
 			}
@@ -210,11 +216,14 @@ define(function(require,$){
 					node.filter(function(){
 						return this.getAttribute('open')=='0';
 					}).removeClass('open').next('ul').hide();
+					
 					//设置默认打开
 					node.filter(function(){
 						return this.getAttribute('open')=='1';
 					}).addClass('open').next('ul').show();
+					
 				})(area);
+				
 				!isChild && this.select(this.options.defaultNode);
 				
 			}
@@ -322,15 +331,37 @@ define(function(require,$){
 		 * @by:属性 通过该属性来查找节点，默认通过id
 		 */
 		select : function( ID, by ){
+			if( !ID ){return;}
+			
 			by = by || 'id';
 			var T = this,
-				node = typeof ID!=='undefined' ? 
-					this.box.find('a['+by+'="'+ID+'"]').eq(0) : this.box.find('a.current:first');
+				node = this.box.find('a['+by+'="'+ID+'"]').eq(0),
+				_parent = tree.key['parent'],
+				_node = this.data.all[ID],
+				_id = tree.key['id'],
+				parents = [];
 					
-			if(!node.length){return;}
+			if(!_node){return;}
+			if( !node || !node.length ){
+				//从当前节点依次往上寻找父节点，直到找到已经初始化的节点为止
+				_node = _node[_parent];//父节点id
+				for( ; _node = this.data.all[_node]; _node = _node[_parent] ){
+					if( _node.init ){
+						break;
+					}
+					parents.push( _node[_id] );
+				}
+				
+				//然后从最外层的父节点开始初始化
+				for( var i=parents.length-1; i>=0; i-- ){
+					this.init( parents[i], true );
+				}
+				node = this.box.find('a['+by+'="'+ID+'"]').eq(0);
+			}
 			
 			this.box.find('a.current').removeClass('current');
-			if(node.parents('ul').first().is(':visible')){
+			
+			if( node.parents('ul').first().is(':visible') ){
 				return set();
 			}
 			
