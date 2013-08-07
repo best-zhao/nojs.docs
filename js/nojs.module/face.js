@@ -7,8 +7,8 @@ define(function(require,$,ui){
 	var face = function( options ){
 		options = options || {};
 		this.button = options.button;//表情选择器,JQ对象
-		this.insertTo = options.insert;//表情写入对象
-		if(!this.button || !this.insertTo ){return;}
+		this.insert = options.insert;//表情写入对象
+		if(!this.button || !this.insert ){return;}
 		this.baseUrl = options.baseUrl ? options.baseUrl : "/img/face/";
 		this.themeName = options.theme;
 		this.theme = face.theme[options.theme];
@@ -73,7 +73,6 @@ define(function(require,$,ui){
 				}
 			});
 		},
-		
 		//载入表情
 		loadFace : function(){
 			var T = this,
@@ -97,13 +96,13 @@ define(function(require,$,ui){
 		//将所选表情写入到目标对象
 		insert : function(text){
 			//将表情插入到光标处
-			var C = new insertOnCursor(this.insertTo);
+			var C = new insertOnCursor(this.insert);
 			C.insertAtCaret(text);
-			this.insertTo.focus();
+			this.insert.focus();
 		},
 		//提取表情,不传默认为当前表情插入对象val
 		replaceFace : function(con){
-			if(!con){var con = this.insertTo.val();}
+			if(!con){var con = this.insert.val();}
 			var faceArray = this.theme.item,
 				N,pic;
 			for(var i in faceArray){
