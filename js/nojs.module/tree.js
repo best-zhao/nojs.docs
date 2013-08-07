@@ -6,47 +6,16 @@
 define(function(require,$){
 	
 	function tree( box, options ){
-		var date1 = (+new Date);
-		this.box = $('#'+box);
+		this.box = typeof box=='string' ? $('#'+box) : box;
 		this.options = options || {};
 		this.data = tree.format( options.data, options.key );
 		if( !this.box.length || !this.data ){
 			return;
-		}
-		//console.log(this.data.level)
-		var date2 = (+new Date);
-		//console.log(date2-date1);
-		if(this.box[0].id=='tree_test1'){
-			//return;
-		}
+		}		
 		this.init( null, true );
-		
-		date2 = (+new Date);
-		//console.log(date2-date1);
-		
 	}
-	/***
-	
-	data.all = {
-		'0' : {id:'0',name:'',children:['1','2']},
-		
-			'1' : {id:'1',name:'',parent:'0',children:['11']},
-				'11' : {id:'11',name:'',parent:'1'},	
-				
-			'2' : {id:'2',name:'',parent:'0'}
-	}
-	data.level[0] = {
-		'0' : {id:'0',name:'',children:['1','2']}
-	}
-	data.level[1] = {
-		'1' : {id:'1',name:'',parent:'0',children:['11']},
-		'2' : {id:'2',name:'',parent:'0'}
-	}
-	data.level[2] = {
-		'11' : {id:'11',name:'',parent:'1'}
-	}
-	***/
 	tree.key = {};
+	tree.rootID = -1;//根节点id
 	/*
 	 * 格式化数据，可接受2种形式的数据，均为json Array对象
 	 * 1. 树状结构，子节点children(json Array).
@@ -55,7 +24,9 @@ define(function(require,$){
 	tree.format = function( data, key ){
 		var dataType = $.type( data ),
 			level = [],
+			time = 0,
 			_data = {};
+			
 			
 		tree.key = $.extend({
 			'id' : 'id',
@@ -75,7 +46,8 @@ define(function(require,$){
 		function each( Data, _level, _parent ){
 			var n = Data.length,
 				i, j, m, id, pid, child, _n = 0;
-				
+			
+			time++;	
 			for( i=0; i<n; i++ ){
 				m = Data[i];
 				id = m[ key['id'] ];
@@ -103,7 +75,7 @@ define(function(require,$){
 					if( m[child] && m[child].length ){
 						each( m[child], _level+1, id );
 					}
-				}else if( pid==-1 ){//一级根节点
+				}else if( pid==tree.rootID ){//一级根节点
 					m.level = _level = 0;
 					m[ child ] = [];
 				}else{//子节点
@@ -122,7 +94,7 @@ define(function(require,$){
 				level[_level] = level[_level] || {};
 				level[_level][id] = _data[id];
 			}
-			dataType==2 && _n<n && each(Data);
+			dataType==2 && _n<n && time<2 && each(Data);
 		}
 		each(data,0);
 		return {
@@ -216,14 +188,11 @@ define(function(require,$){
 					node.filter(function(){
 						return this.getAttribute('open')=='0';
 					}).removeClass('open').next('ul').hide();
-					
 					//设置默认打开
 					node.filter(function(){
 						return this.getAttribute('open')=='1';
 					}).addClass('open').next('ul').show();
-					
 				})(area);
-				
 				!isChild && this.select(this.options.defaultNode);
 				
 			}
@@ -233,7 +202,7 @@ define(function(require,$){
 		bind : function(){
 			var T = this,
 				tag, sec, link, t;
-			this.box.on( 'click.tree', function(e){
+			this.box.off('click.tree').on( 'click.tree', function(e){
 				t = e.target;
 				tag = $( t );
 				
@@ -418,7 +387,7 @@ define(function(require,$){
 			var i, j, item = '', _data;
 			_data = data[level];
 			item = '<select name="" id="">';	
-			item += single ? '<option value="-1">根目录</option>' : '';
+			item += single ? '<option value="'+tree.rootID+'">根目录</option>' : '';
 			
 			for( i in _data ){
 				item += getItem( _data[i], level );
