@@ -30,6 +30,22 @@ module.exports = function(grunt) {
         concat: {
             dist: {
             	options : {
+            		paths : ['.']
+		        },
+		       
+		        files : [
+                    {	
+                    	expand: true,
+                    	cwd: 'js/',
+                        src : 'main1.js',
+                        dest : '.build'
+                    }
+                ]
+            }
+        },
+        concat123: {
+            dist: {
+            	options : {
             		paths : [''],
     				//include : 'relative',
     				noncmd: true
@@ -73,5 +89,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     //grunt.loadNpmTasks('grunt-contrib-clean');
 	
-    grunt.registerTask('default',['uglify']);
+    grunt.registerTask('default',['concat']);
 };
