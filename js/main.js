@@ -27,7 +27,7 @@ define(function(require,$,ui){
 			if( hash ){
 				for( i=0;i<G.project.length;i++ ){
 					m = G.project[i];
-					if( m.box.find('#'+hash).length ){
+					if( m.data.all[hash] ){
 						m.select(hash);
 						break;
 					}

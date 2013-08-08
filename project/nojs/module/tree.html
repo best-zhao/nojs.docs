@@ -1,6 +1,9 @@
 <style>
-.test_tree{font-size:12px;width:22%;min-width:170px;border:1px solid #ddd;margin-right:2%;padding:9px 0;overflow:auto;height:200px}	
+.test_tree{font-size:12px;width:23.5%;min-width:170px;border:1px solid #ddd;margin-right:1%;padding:9px 0;overflow:auto;height:200px}	
 .test_tree select{padding:5px;margin:4px 0 0 15px;width:80%}
+.p_txt .t{margin:0}
+
+.nj_tree .more{text-indent:26px}
 </style>
 <h4 class="p_tit">ui.tree</h4>
 <h6 class="p_tit">说明：</h6>
@@ -19,14 +22,24 @@
 <h6 class="p_tit">实例：</h6>
 <div class="text_info">
 	<div id="tree_test1" class="nj_tree test_tree fl"></div>
-	<div id="tree_test2" class="nj_tree test_tree fl"></div>
+	<div class="test_tree fl">
+		<div id="set_tree_data" class="clearfix gray9" style="padding:0 9px 9px">
+			<span class="p_txt">
+				<input value="20000" style="width:60px;text-align:center" class="text" id="data_number" />
+				<i class="t"> *5(层级)= </i><b class="t orange" id="total_number" style="font-size:16px">100000</b><i class="t">(节点数)</i>
+			</span>
+			<input type="button" id="render_tree" value="生成" class="nj_btn" />
+		</div>
+		<div id="tree_test2" class="nj_tree"></div>
+	</div>
 	<div id="tree_test3" class="test_tree fl"></div>
 	<div id="tree_test4" class="test_tree fl"></div>
 </div>
 <script>
-noJS.use(['nojs.module/tree','./project/config'],function($,ui,tree,config){
-	var date1 = (+new Date);
-	data = config.nojs.data;
+noJS.use(['nojs.module/tree','./project/config'], function($,ui,tree,config){
+	var date1 = (+new Date),
+		data = config.nojs.data;
+		
 	tree.key = {
 		'name' : 'text',
 		'children' : 'data'
@@ -43,27 +56,49 @@ noJS.use(['nojs.module/tree','./project/config'],function($,ui,tree,config){
 		}
 		return rect;
 	}
-	data = testData(1000);
-	//console.log( tree.format(testData(3)).level )
 	
-	new tree( 'tree_test1',  {
+	new tree( 'tree_test1', {
 		data : data,
-		defaultNode : 'ui_tree'
+		defaultNode : 'tree'
 	});
-	var date2 = (+new Date);
-	//console.log(date2-date1);
-	new tree( 'tree_test2', {
-		data : data,
-		isCheck : true,
-		defaultNode : 'ui_win',
-		onCheck : function(id){
-			//console.log(this.checked);
+	
+	
+	var number = $('#data_number'),
+		total = $('#total_number');
+	number.keyup(function(){
+		if( isNaN(this.value) ){
+			this.value = parseInt(this.value,10);
 		}
-	});
+		total.text( this.value*5 );	
+	})	
+	$('#render_tree').click(function(){
+		$('#tree_test2').empty();
+		setTimeout(function(){
+			var date1 = (+new Date),
+				n = parseInt(number.val(),10),
+				data = testData(n),
+				date2;
+			total.text( n*5 );	
+			
+			new tree( 'tree_test2', {
+				data : data,
+				isCheck : true,
+				onCheck : function(id){
+					//console.log(this.checked);
+				}
+			});
+			date2 = (+new Date);
+			console.log(date2-date1);
+		},0)
+		return false;
+	})
 	
 	var select1 = tree.select( $('#tree_test3'), {level:0,data:data} ),
-		select2 = tree.select( $('#tree_test4'), {data:data,select:['nj_ui','ui_core']} );
+		select2 = tree.select( $('#tree_test4'), {data:data,select:['nj_ui','ui_core','ui_msg']} );
 		
 	//new ui.select( select1, {show : 10});
+	select1.scroll(function(){
+		console.log(1)
+	})
 });
 </script>
