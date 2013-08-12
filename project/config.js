@@ -26,7 +26,8 @@ define({
 					{id:'ui_select',text:'ui.select',link:'ui/select'},
 					{id:'ui_switch',text:'ui.Switch',link:'ui/switch'},
 					{id:'ui_slide',text:'ui.slide',link:'ui/slide'},
-					{id:'ui_menu',text:'ui.menu',link:'ui/menu'}
+					{id:'ui_menu',text:'ui.menu',link:'ui/menu'},
+					{id:'ui_ico',text:'ui.ico',link:'ui/ico'}
 				]},
 				{id:'ui_other',text:'扩展ui组件',open:0,data:[
 					{id:'ui_scroll',text:'ui.scroll',link:'ui/scroll'},
@@ -46,6 +47,11 @@ define({
 				{id:'impact',text:'html5碰撞小游戏',link:'test/impact'},
 				{id:'imghot',text:'在线绘制图片热点',link:'test/imghot'}
 			]}
+		]
+	},
+	'mobile' : {
+		data : [
+			{id:'mb',text:'nojs.mobile'}
 		]
 	}
 	
