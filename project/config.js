@@ -2,14 +2,18 @@ define({
 	/*
 	 * 
 	 */
-	'nojs' : {
+	'noJS' : {
 		data : [
 			{id:'noJS',text:'noJS模块管理',data:[
 				{id:'noJS_info',text:'使用介绍',link:'noJS/index'},
 				{id:'noJS_config',text:'参数配置',link:'noJS/config'},
 				{id:'noJS_module',text:'模块',link:'noJS/module'},
 				{id:'noJS_api',text:'接口',link:'noJS/api'}
-			]},
+			]}
+		]
+	},
+	'nojs' : {
+		data : [
 			{id:'nj_ui',text:'ui组件',open:1,data:[
 				{id:'ui_info',text:'说明',link:'ui/index'},
 				{id:'tools',text:'jQuery扩展工具',link:'ui/tools'},
@@ -44,4 +48,5 @@ define({
 			]}
 		]
 	}
+	
 });

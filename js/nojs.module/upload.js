@@ -133,7 +133,10 @@ define(function(require,$){
 					_file = this.files,
 					type, id;
 					
-				if(!val){return;}	
+				if(!val){return;}
+				//_file = _file.length && Array.prototype.slice.call(_file,0);
+				//_file.shift();
+				//console.log(_file)
 				
 				if( T.count >= opt.limit ){
 					T.tip( '超出数量', 'warn' );
@@ -155,8 +158,6 @@ define(function(require,$){
 					}
 				}
 				data = {};
-				//alert(window.URL.createObjectURL(_file[0]));
-				//console.log(_file.item(0).getAsDataURL());
 				data.name = val.substring( val.lastIndexOf('\\')+1, val.length );
 				
 				T.push( _file, data );
@@ -169,10 +170,7 @@ define(function(require,$){
 				
 			data = data || {};	
 			if( _file ){
-				n = _file.length;
-				//var blob = new Blob([_file[0]]);
-			    //console.log(blob.slice())			
-			    //console.log(_file[0].size)		
+				n = _file.length;					
 				for( i=0; i<n; i++ ){
 					if( T.count >= opt.limit ){
 						break;
@@ -191,6 +189,10 @@ define(function(require,$){
 				push(val);
 			}
 			opt.auto && T.startUpload();
+			
+			if( browser['4'] ){
+				this.button.val('');
+			}
 			
 			function push(val){	
 				if( T.fileItem[val] ){//文件已存在
@@ -502,6 +504,6 @@ define(function(require,$){
 });
 /*
  * bug记录：
- * 1. auto:false时，移除文件后没有将input值清空,否则无法继续选择刚移除的文件
+ * 1. auto:false时，移除文件后没有将input值清空,否则无法继续选择刚移除的文件(只针对支持多选的情况)【已解决】
  */
 

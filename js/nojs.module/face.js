@@ -88,13 +88,13 @@ define(function(require,$,ui){
 				var t = e.target, text;
 				if( t.tagName.toLowerCase()=='img' ){
 					text = '[:'+$(t).attr("title")+']';
-					T.insert(text);
+					T.insertTo(text);
 					T.faceBox.hide();
 				}
 			})
 		},
 		//将所选表情写入到目标对象
-		insert : function(text){
+		insertTo : function(text){
 			//将表情插入到光标处
 			var C = new insertOnCursor(this.insert);
 			C.insertAtCaret(text);

@@ -112,7 +112,6 @@ define(function(require,$,ui){
 		var data = p.data, _tree, id;
 			
 		if( !data ){return;}
-		
 		id = 'menu_'+name;
 		_tree = $('<div id="'+id+'" class="nj_tree"></div>');
 		side.append(_tree);		

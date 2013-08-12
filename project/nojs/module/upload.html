@@ -67,7 +67,7 @@ noJS.use( ['nojs.module/upload'], function($,ui,upload){
 		uploader : 'upload.php',
 		getProgressUrl : 'upload.php',
 		fileDomain : '',
-		limit : 4,
+		limit : 10,
 		fileSize : 2,
 		tip : function( con, type ){
 			ui.msg.show( type, con );
@@ -76,7 +76,7 @@ noJS.use( ['nojs.module/upload'], function($,ui,upload){
 	
 	up = new upload( btn, {
 		//dragUp : $('#drag_up'),
-		auto : false,
+		//auto : false,
 		onSelect : function( data ){
 			var wrap = $([
 				'<li class="clearfix">',
@@ -84,7 +84,7 @@ noJS.use( ['nojs.module/upload'], function($,ui,upload){
 					'<b class="cancel" id="'+data.id+'" title="移除"></b>',
 				'</li>'
 			].join('')).appendTo(preview);
-			new ui.ico( 'close', wrap.find('b.cancel') );
+			new ui.ico( wrap.find('b.cancel'), {type:'close'} );
 			return wrap;
 		}
 	});

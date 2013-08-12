@@ -58,7 +58,7 @@ noJS.use(['nojs.module/tree','./project/config'], function($,ui,tree,config){
 	}
 	
 	new tree( 'tree_test1', {
-		data : data,
+		data : 'tree.php',
 		defaultNode : 'tree'
 	});
 	
@@ -80,6 +80,9 @@ noJS.use(['nojs.module/tree','./project/config'], function($,ui,tree,config){
 				date2;
 			total.text( n*5 );	
 			
+			date2 = (+new Date);
+			//console.log(date2-date1);
+			
 			new tree( 'tree_test2', {
 				data : data,
 				isCheck : true,
@@ -88,7 +91,7 @@ noJS.use(['nojs.module/tree','./project/config'], function($,ui,tree,config){
 				}
 			});
 			date2 = (+new Date);
-			console.log(date2-date1);
+			//console.log(date2-date1);
 		},0)
 		return false;
 	})
@@ -97,8 +100,6 @@ noJS.use(['nojs.module/tree','./project/config'], function($,ui,tree,config){
 		select2 = tree.select( $('#tree_test4'), {data:data,select:['nj_ui','ui_core','ui_msg']} );
 		
 	//new ui.select( select1, {show : 10});
-	select1.scroll(function(){
-		console.log(1)
-	})
+	
 });
 </script>

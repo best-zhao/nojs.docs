@@ -1,11 +1,12 @@
 <?php
 
 $F = $_FILES['filedata'];
-$ajax = $_GET['ajax'];
 
+$ajax = isset($_GET['ajax']) ? $_GET['ajax'] : ""; 
+$jsoncallback = isset($_GET['jsoncallback']) ? $_GET['jsoncallback'] : ""; 
 
 //print_r($F); 
-if( $ajax==1 && isset($_GET['uploadID']) ){
+if( $ajax && isset($_GET['uploadID']) ){
 	//获取文件尺寸
 	//$status = apc_fetch('upload_' . $_GET["uploadID"]);
 	//apc_fetch('upload_'.$_GET['uploadID']);
@@ -25,7 +26,7 @@ if( $ajax==1 && isset($_GET['uploadID']) ){
 		move_uploaded_file($F["tmp_name"],"upfile/" . $F["name"]);
 		//print_r($F); 
 		$data = "{'status':1,'msg':'上传成功!','uploadID':'".$_POST["uploadID"]."','file':'/upfile/" . $F["name"] . "'}";
-		if( $_GET['jsoncallback'] ){//表单上传
+		if( $jsoncallback ){//表单上传
 			echo "<script>parent." . $_GET['jsoncallback'] . "(" . $data . ");</script>";
 		}else{//xhr异步上传
 			echo $data;

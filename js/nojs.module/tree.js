@@ -6,17 +6,32 @@
 define(function(require,$){
 	
 	function tree( box, options ){
-		//var date1 = (+new Date)
+		var date1 = (+new Date)
 		this.box = typeof box=='string' ? $('#'+box) : box;
 		this.options = options || {};
-		this.data = tree.format( options.data, options.key );
+		this._data = options.data;
+		//@data: string即为ajax获取数据
+		this.ajaxMode = typeof this._data=='string';
+		this.data = this.ajaxMode ? null : tree.format( this._data );
 		
-		if( !this.box.length || !this.data ){
+		if( !this.box.length || !this.ajaxMode && !this.data ){
 			return;
 		}	
 		//var date2 = (+new Date);
 		//console.log(date2-date1);	
-		this.init( null, true );
+		//ajax模式获取数据后，所有节点都应先初始化为包含子节点的节点
+		if( this.ajaxMode ){
+			var T = this;			
+			tree.ajax({
+				url : this._data,
+				tree : this,
+				success : function(){
+					T.init( null, true );
+				}
+			})
+		}else{
+			this.init( null, true );
+		}
 		//date2 = (+new Date);
 		//console.log(date2-date1);
 	}
@@ -24,36 +39,57 @@ define(function(require,$){
 	tree.max = 100;//一次一级最多能处理的节点数
 	tree.rootID = -1;//根节点id
 	/*
+	 * 通过ajax获取数据
+	 */
+	tree.ajax = function( options ){
+		options = options || {};
+		$.getJSON( options.url, options.data, function(json){
+			if( json.status==1 ){
+				var Tree = options.tree;
+				if( Tree && json.data ){
+					Tree.data = tree.format(json.data, Tree.data);
+				}
+				options.success && options.success(json.data);
+			}
+		})
+	}
+	/*
 	 * 格式化数据，可接受2种形式的数据，均为json Array对象
 	 * 1. 树状结构，子节点children(json Array).
 	 * 2. 所有节点并列存放，必须指定父节点id(parent),根节点为-1
+	 * @Data: 在原数据上添加
 	 */
-	tree.format = function( data, key ){
+	tree.format = function( data, _Data ){
 		var dataType = $.type( data ),
-			level = [],
+			level = _Data && _Data.level ? _Data.level : [],
 			time = 0,
-			_data = {};
-			
-			
-		tree.key = $.extend({
+			child,
+			key,
+			_data = _Data && _Data.all ? _Data.all : {};
+		
+		tree.key = key = $.extend({
 			'id' : 'id',
 			'name' : 'name',
 			'parent' : 'parent',
 			'children' : 'children',
 			'open' : 'open',
 			'link' : 'link'
-		}, tree.key);
+		}, tree.key);		
 		
-		tree.key = key = $.extend(tree.key,key);	
-		
+		child = key['children'];	
 		if( dataType!='array' || !data.length || $.type(data[0])!='object' ){
-			return;
+			return {
+				all : _data,
+				level : level
+			};
 		}
+		//_data = _data || {};
+		//console.log(_data)
 		dataType = data[0][ key['parent'] ]==undefined ? 1 : 2;
 		
 		function each( Data, _level, _parent ){
 			var n = Data.length,
-				i, j, m, id, pid, child, _n = 0;
+				i, j, m, id, pid, _n = 0;
 			
 			time++;	
 			for( i=0; i<n; i++ ){
@@ -61,13 +97,18 @@ define(function(require,$){
 				id = m[ key['id'] ];
 				_n++;
 				if( _data[id] ){
+					if( _Data ){
+						Data.shift();
+						i--;
+						n--;
+					}
 					continue;
 				}
 				_data[id] = m;
 				pid = m[ key['parent'] ];//该节点的父节点id
-				child = key['children'];
 				
 				if( pid==undefined ){//树状形式的数据
+					
 					_data[id] = {
 						level : _level
 					}
@@ -80,7 +121,9 @@ define(function(require,$){
 						_data[id][ key['parent'] ] = _parent;//指定其父节点
 						_data[_parent][child].push(id);
 					}
+					
 					if( m[child] && m[child].length ){
+						
 						each( m[child], _level+1, id );
 					}
 				}else if( pid==tree.rootID ){//一级根节点
@@ -138,10 +181,10 @@ define(function(require,$){
 		}
 		return parents;
 	}
+	
 	tree.prototype = {
 		init : function( node, set ){
 			//@node:节点id，初始化该节点下所有一级子节点，为空表示初始化根节点
-			
 			var T = this,
 			
 				_link = tree.key['link'],
@@ -159,22 +202,23 @@ define(function(require,$){
 				item = '', i, j, now, m, link, line, id, open, check, more;
 			
 			//this.box[0].id=='tree_test1' && console.log(node)
+			if( !data.length ){
+				return;
+			}
 			data['break'] = data['break'] || 0;
 			
 			for( i=data['break']; i<data.length; i++ ){
-				
 				if( i>=tree.max+data['break'] ){
 					data['break'] += tree.max;
 					item += '<li class="more"><a href="" pid="'+(isChild?node:tree.rootID)+'" data-action="more" style="margin-left:'+level*15+'px">more</a></li>';
 					break;
 				}
-				m = data[i];
+				m = data[i];				
 				m = isChild ? all[m] : m;
 				id = m[_id];
 				
 				item += '<li level="'+level+'">';
 				//m.init = true;
-				
 				line = '';
 				if( level ){
 					for( j=0; j<level; j++ ){
@@ -189,9 +233,7 @@ define(function(require,$){
 				item += '<a class="item" href="'+link+'" reallink="'+link+'" id="'+id+'" '+open+'>'+line+'<i class="ico"></i>'+check+'<i class="folder"></i><span class="text">'+m[_name]+'</span></a>';
 				
 				if(  m[ _child ].length ){
-					//item += this.init(id,false);
 					//暂不加载子节点，除默认打开节点外
-					
 					if( m[_open]==1 || T.options.openAll ){
 						item += '<ul data-init="true">';
 						item += this.init(id,false);
@@ -200,15 +242,20 @@ define(function(require,$){
 						item += '<ul>';
 					}
 					item += '</ul>';
+				}else if( this.ajaxMode ){
+					item += '<ul></ul>';
 				}
 				item += '</li>';
 			}
 			
 			if( set ){
-				var area = this.box;
+				var area = this.box,
+					_node;
 				if( isChild ){
 					area = $(item);
-					this.box.find('#'+node).next('ul').append(area);
+					_node = this.box.find('#'+node);
+					_node.next('ul').data('init',true).append(area);
+					this.addClass(_node.parent());
 				}else{
 					if( !this.rootWrap ){
 						this.rootWrap = $('<ul></ul>');
@@ -216,9 +263,10 @@ define(function(require,$){
 						this.bind();
 					}
 					this.rootWrap.append(item);
+					this.addClass(area,true);
 				}
 				
-				this.addClass(area);
+				
 				this.replaceLink(area);
 				
 				(function(area){
@@ -259,9 +307,30 @@ define(function(require,$){
 						tag.removeClass('open');
 					}else{
 						if( !sec.data('init') ){
-							T.init(tag[0].id,true);
-							//sec = tag.next('ul');
-							sec.data('init',true);
+							var node = tag[0].id;
+								///child = T.data.all[node][tree.key['children']][0];
+							//初始化该节点
+							if( T.ajaxMode ){
+								tree.ajax({
+									url : T._data,
+									data : {id:node},
+									tree : T,
+									success : function(data){
+										if( data && data.length ){
+											T.init(node,true);
+										}else{
+											tag.addClass('no_child').next('ul').remove();
+											if( tag.find('.last_ico1').length ){
+												tag.find('.last_ico1').addClass('last_ico').removeClass('last_ico1');
+											}
+										}
+										sec.data('init',true);
+									}
+								})
+							}else{
+								T.init(node,true);
+								sec.data('init',true);
+							}
 						}
 						sec && sec.is(":hidden") && sec.show();
 						tag.addClass('open');
@@ -313,29 +382,34 @@ define(function(require,$){
 				return false;
 			})
 		},
-		addClass : function(area){
+		addClass : function(area,root){
 			area = area || this.box;
 			var list = area.find('a.item'),
-				i,j,
+				i, j, q, l,
 				n = list.length,
-				m,
+				m, o,
 				li,
 				level;
 			for( i=0; i<n; i++ ){
 				m = list.eq(i);
-				i==0 && m.find('.ico').addClass('first_ico');
+				root && i==0 && m.find('.ico').addClass('first_ico');
 				li = m.closest('li');
 				if(!m.next('ul').length){//无子节点
-					m.addClass('no_child');
+					!this.ajaxMode && m.addClass('no_child');
 					if(!li.next().length){
 						m.find('.ico').addClass('last_ico');
 					}
-				}else{
-					if(!li.next().length){//有子节点并为最后一条
-						m.find('.ico').addClass('last_ico1');
-						level = li.attr('level');
-						for(j=0;j<li.find('li').length;j++){
-							li.find('li').eq(j).find('.line').eq(level).addClass('last_line');
+				}else{					
+					!li.next().length && m.find('.ico').addClass('last_ico1');//有子节点并为最后一条
+					level = li.attr('level');
+					for( j=0; j<li.find('li').length; j++ ){
+						
+						o = li.find('li').eq(j).find('.line');
+						!li.next().length && o.eq(level).addClass('last_line');
+						
+						q = m.find('.last_line');
+						for( l=0; l<q.length; l++ ){
+							o.eq(q.eq(l).index()).addClass('last_line');
 						}
 					}
 				}				
@@ -412,7 +486,7 @@ define(function(require,$){
 	tree.select = function( box, options ){
 		options = options || {};
 		
-		var Data = tree.format(options.data),
+		var Data = typeof options.data!='string' && tree.format(options.data),
 			data = Data.level,
 			selected = [].concat(options.select);
 			
@@ -424,10 +498,13 @@ define(function(require,$){
 			_id = tree.key['id'],
 			_name = tree.key['name'],
 			_child = tree.key['children'],
-			single = options.level==0;
+			single = options.level==0,
+			ajaxMode = !single && typeof options.data=='string';
+			
+		data = ajaxMode ? options.data : data;	
 		
 		function get(level){
-			var i, j, item = '', _data;
+			var i, item = '', _data;
 			_data = data[level];
 			item = '<select name="" id="">';	
 			item += single ? '<option value="'+tree.rootID+'">根目录</option>' : '';
@@ -476,7 +553,9 @@ define(function(require,$){
 				
 				m.nextAll('select').remove();
 				
-				if( child.length ){
+				if( ajaxMode ){
+					
+				}else if( child.length ){
 					level = _data.level;
 					child = $('<select name="" id="">'+getChild(child)+'</select>');
 					if( selected[level+1]!=undefined ){
