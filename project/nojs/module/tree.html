@@ -1,6 +1,7 @@
 <style>
-.test_tree{font-size:12px;width:23.5%;min-width:170px;border:1px solid #ddd;margin-right:1%;padding:9px 0;overflow:auto;height:200px}	
+.test_tree{font-size:12px;width:23.5%;min-width:170px;border:1px solid #ddd;margin:0 1% 9px 0;padding:9px 0;overflow:auto;height:200px}	
 .test_tree select{padding:5px;margin:4px 0 0 15px;width:80%}
+.test_tree h6{text-indent:1em;font-weight:400;color:#999}
 .p_txt .t{margin:0}
 
 .nj_tree .more{text-indent:26px}
@@ -11,35 +12,117 @@
 	树形菜单
 	<p>依赖模块：'nojs.module/tree'</p>
 </div>
-<h6 class="p_tit">使用：</h6>
-<div class="text_info">
-	<script type="text/codelight" code="javascript" key="menu">
-		
-	</script>	
-	
-	
-</div>
 <h6 class="p_tit">实例：</h6>
-<div class="text_info">
-	<div id="tree_test1" class="nj_tree test_tree fl"></div>
+<div class="text_info clearfix">
+	<div class="nj_tree test_tree fl"><h6>ajax tree：</h6><div id="tree_test1"></div></div>
 	<div class="test_tree fl">
 		<div id="set_tree_data" class="clearfix gray9" style="padding:0 9px 9px">
 			<span class="p_txt">
-				<input value="20000" style="width:60px;text-align:center" class="text" id="data_number" />
-				<i class="t"> *5(层级)= </i><b class="t orange" id="total_number" style="font-size:16px">100000</b><i class="t">(节点数)</i>
+				<input value="20000" style="width:50px;text-align:center" class="text" id="data_number" />
+				<i class="t"> *5(层级)= </i><b class="t orange" id="total_number">100000</b><i class="t">(节点数)</i>
 			</span>
 			<input type="button" id="render_tree" value="生成" class="nj_btn" />
 		</div>
 		<div id="tree_test2" class="nj_tree"></div>
 	</div>
-	<div id="tree_test3" class="test_tree fl"></div>
+	<div class="test_tree fl"><h6>树状select:</h6><div id="tree_test3"></div></div>
 	<div id="tree_test4" class="test_tree fl"></div>
+	<div class="test_tree fl"><h6>ajax级联：</h6><div id="tree_test5"></div></div>
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="tree">
+	noJS.use('nojs.module/tree', function($,ui,tree){
+		/*
+		 * @dom: 容器id或容器对象
+		 * @options: 配置选项
+		 */
+		var testTree = new tree(dom, options);
+	})	
+	</script>	
+	<p class="mb10">options选项：</p>
+	<script type="text/codelight" code="javascript">
+	options = {
+		data : string|object, 	//传入的json Array数据, ajax模式时传入url地址
+		defaultNode : string, 	//设置默认选中的节点id
+		isCheck : boolean,		//是否为checkbox模式
+		onCheck : fn,			//checkbox回调，返回一个参数为当前所选节点id,	通过this.checked可获取所有被选id的一个数组
+		onSelect : fn 			//当选择节点时的回调，返回一个参数为当前选择节点的data
+	}	
+	</script>	
+	<p class="mb10">非ajax模式下可接受2种形式的数据格式，且均为json Array对象</p>
+	<p>1. 树状结构</p>
+	<script type="text/codelight" code="javascript">
+	data = [
+		{id:1,name:'一级根节点',children:[
+			{id:11,name:'二级节点'}
+		]},
+		{id:2,name:'一级根节点',children:[
+			{id:21,name:'二级节点'},
+			{id:22,name:'二级节点'}
+		]},
+		{id:3,name:'一级根节点'}
+	]
+	</script>
+	<p>2. 并列结构，必须为每个节点指定parent即父id，根节点默认使用-1(可通过公共属性tree.rootID更改)</p>
+	<script type="text/codelight" code="javascript">
+	data = [
+		{id:1,name:'一级根节点',parent:-1},
+		{id:11,name:'二级节点',parent:1},
+		{id:12,name:'二级节点',parent:1},
+		{id:2,name:'一级根节点',parent:-1}
+	]
+	</script>
+</div>
+<h6 class="p_tit">公共属性：</h6>
+<div class="text_info">
+	<p>1. <b>tree.rootID</b> 指定根节点的父id，默认-1 </p>
+	<p>2. <b>tree.key</b> 统一key名</p>
+	<script type="text/codelight" code="javascript" key="key">
+	tree.key = {
+		'id' : 'tid',			//节点id
+		'name' : 'text',		//节点名称
+		'children' : 'child',	//子节点
+		'parent' : 'parentID',	//父节点
+		'open' : 'isopen',		//节点是否默认打开
+		'link' : 'href'			//节点指向的链接
+	}
+	</script>
+	<p>3. <b>tree.max</b> 设置一次最多能处理的节点数，默认100,表示同一级一次最多处理的数目，如果其中有默认打开的节点，不包含在此数目中</p>
+</div>
+<h6 class="p_tit">公共方法：</h6>
+<div class="text_info">
+	<p>1. <b>tree.format</b> 格式化数据，一般不会用，new tree的时候内部会自动执行此方法</p>
+	<script type="text/codelight" code="javascript" key="format">
+	//@data: 原始数据
+	//@Data: 在已经格式化的数据上追加	
+	var newData = tree.format(data[, Data]);
+	</script>
+	<p class="mb10">格式化后的数据包含2个对象，newData = { all:{}, level:[] }; all存放所有数据，通过id可快速索引任何节点；level为一个2维数组，分别存放每级的节点，如level[0]就是所有根节点的一个Array.</p>
+	<p>2. <b>tree.parents</b> 通过一个节点id找到其所有父节点的id集合，可设置查询终止条件</p>
+	<script type="text/codelight" code="javascript" key="parents">
+	//@node: 当前节点id
+	//@data: newData.all
+	//@until: fn,通过return false来终止查询，带一个参数为当前查询到的父节点data
+	var Parents = tree.parents(node, data[, until]);
+	</script>
+	<p>3. <b>tree.select</b> 生成一个树状select或者级联菜单</p>
+	<script type="text/codelight" code="javascript" key="select">
+	tree.select(dom, options);
+	</script>
+	<script type="text/codelight" code="javascript">
+	options = {
+		data : string|object, //传入的json Array数据, ajax模式时传入url地址
+		level : 0,			//设为0时会生成一个树状select, 否则为级联菜单
+		selected : Array, 	//默认选中的节点id
+		empty : id 			//缺省项空id
+	}	
+	</script>
 </div>
 <script>
 noJS.use(['nojs.module/tree','./project/config'], function($,ui,tree,config){
 	var date1 = (+new Date),
 		data = config.nojs.data;
-		
 	tree.key = {
 		'name' : 'text',
 		'children' : 'data'
@@ -97,9 +180,11 @@ noJS.use(['nojs.module/tree','./project/config'], function($,ui,tree,config){
 	})
 	
 	var select1 = tree.select( $('#tree_test3'), {level:0,data:data} ),
-		select2 = tree.select( $('#tree_test4'), {data:data,select:['nj_ui','ui_core','ui_msg']} );
+		select2 = tree.select( $('#tree_test4'), {data:data,select:['nj_ui','ui_core','ui_msg']} ),
+		select3 = tree.select( $('#tree_test5'), {
+			data : 'tree.php?act=select'
+		});
 		
-	//new ui.select( select1, {show : 10});
 	
 });
 </script>

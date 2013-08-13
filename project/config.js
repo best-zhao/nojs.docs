@@ -51,7 +51,9 @@ define({
 	},
 	'mobile' : {
 		data : [
-			{id:'mb',text:'nojs.mobile'}
+			{id:'mb',text:'nojs.mobile',data:[
+				
+			]}
 		]
 	}
 	

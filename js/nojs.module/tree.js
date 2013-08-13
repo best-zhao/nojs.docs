@@ -96,11 +96,11 @@ define(function(require,$){
 				m = Data[i];
 				id = m[ key['id'] ];
 				_n++;
-				if( _data[id] ){
-					if( _Data ){
-						Data.shift();
-						i--;
-						n--;
+				if( id==undefined || _data[id] ){//没有id或者重复数据
+					if( _Data ){//追加数据
+						//Data.splice(i,1);
+						//i--;
+						//n--;
 					}
 					continue;
 				}
@@ -486,30 +486,33 @@ define(function(require,$){
 	tree.select = function( box, options ){
 		options = options || {};
 		
-		var Data = typeof options.data!='string' && tree.format(options.data),
-			data = Data.level,
-			selected = [].concat(options.select);
+		var Data = typeof options.data=='string' ? {} : tree.format(options.data),
+			selected = [].concat(options.select),
+			single = options.level==0,
+			ajaxMode = typeof options.data=='string',
+			data = ajaxMode ? [] : Data.level,
+			emptyID = options.empty!=undefined ? options.empty : '',
+			empty,
 			
-		if( !box || !box.length || !data || !data.length ){
-			return;
-		}
-		
-		var	level = 0, item,
+			level = 0, item, 
 			_id = tree.key['id'],
 			_name = tree.key['name'],
-			_child = tree.key['children'],
-			single = options.level==0,
-			ajaxMode = !single && typeof options.data=='string';
-			
-		data = ajaxMode ? options.data : data;	
+			_child = tree.key['children'];
+		
+		if( !box || !box.length || !data ){
+			return;
+		}
 		
 		function get(level){
 			var i, item = '', _data;
 			_data = data[level];
-			item = '<select name="" id="">';	
-			item += single ? '<option value="'+tree.rootID+'">根目录</option>' : '';
+			item = '<select name="">';	
+			item += single ? '<option value="'+tree.rootID+'">根目录</option>' : empty;
 			
 			for( i in _data ){
+				if( emptyID==_data[i][_id] ){
+					continue;
+				}
 				item += getItem( _data[i], level );
 			}
 			item += '</select>';
@@ -519,7 +522,7 @@ define(function(require,$){
 			var j, item = '';
 			level++;
 			if( child.length ){
-				for( j=0; j<child.length; j++ ){
+				for( j in child ){
 					item += getItem(Data.all[ child[j] ], level );
 				}
 			}
@@ -534,47 +537,91 @@ define(function(require,$){
 			return line;
 		}
 		function getItem(m,level){
-			return '<option value="'+m[_id]+'">'+(single?getLine(level):'')+m[_name]+'</option>'+( single ? getChild(m[_child]) : '' );
+			return '<option value="'+(m[_id]!=undefined?m[_id]:'')+'">'+(single?getLine(level):'')+m[_name]+'</option>'+( single ? getChild(m[_child]) : '' );
 		}
-		item = get(level);
-		item = $(item);
-		if( selected[0]!=undefined ){
-			item[0].value = selected[0];
-			selected[0] = null;
+		empty = '<option value="'+emptyID+'">请选择</option>';
+		
+		if( ajaxMode ){
+			ajax();
+		}else{
+			init();
 		}
-		box.html(item);
+		
+		function init(){
+			item = get(level);
+			item = $(item);
+			if( selected[0]!=undefined ){
+				item[0].value = selected[0];
+				selected[0] = null;
+			}
+			box.html(item);
+		}
+		function ajax(_data, callback){
+			tree.ajax({
+				url : options.data,
+				data : _data,
+				success : function(_data){
+					if( !_data || !_data.length ){
+						return;
+					}
+					Data = tree.format(_data, Data);
+					data = Data.level;
+					if( callback ){
+						callback();
+					}else{
+						init();
+						!single && bind( item );
+					}
+				}
+			});
+		}
 		
 		if( !single ){
-			function change(item){
-				var m = $(item), 
-					id = m[0].value, 
-					_data = Data.all[id],
+			function add(m,id){
+				var _data = Data.all[id],
 					child = _data[_child];
-				
-				m.nextAll('select').remove();
-				
-				if( ajaxMode ){
 					
-				}else if( child.length ){
-					level = _data.level;
-					child = $('<select name="" id="">'+getChild(child)+'</select>');
-					if( selected[level+1]!=undefined ){
-						child[0].value = selected[level+1];
-						selected[level+1] = null;
-					}
-					m.after(child);
-					bind(child);
+				if( !child.length ){
+					return;
+				}	
+				m = $(m);
+				_data.init = true;
+				
+				level = _data.level;
+				child = $('<select name="">'+empty+getChild(child)+'</select>');
+				
+				if( selected[level+1]!=undefined ){
+					child[0].value = selected[level+1];
+					selected[level+1] = null;
 				}
+				m.after(child);
+				bind(child);
+			}
+			function change(item){
+				var id = item.value;
+				//box[0].id=='tree_test3' && console.log(id);
+				$(item).nextAll('select').remove();
+				if( !Data.all[id] ){
+					return;
+				}
+				if( ajaxMode && !Data.all[id].init ){
+					ajax({id:id}, function(){
+						add(item,id);
+					});
+				}else{
+					add(item,id);
+				}
+				
 			}
 			function bind(item){
 				item.change(function(){
 					change(this);
 				})
 				if( item.val() ){
-					change(item);
+					change(item[0]);
 				}
 			}
-			bind( item );
+			item && bind( item );
 		}
 		return item;
 	}
