@@ -52,7 +52,11 @@ define({
 	'mobile' : {
 		data : [
 			{id:'mb',text:'nojs.mobile',data:[
-				
+				{id:'mb_intro',text:'说明',link:'intro'},
+				{id:'mb_ui',text:'ui',data:[
+					{id:'mb_switch',text:'Switch选项卡',link:'switch'},
+					{id:'mb_slide',text:'slide幻灯片',link:'slide'}
+				]}
 			]}
 		]
 	}

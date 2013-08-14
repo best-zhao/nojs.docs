@@ -1,6 +1,6 @@
 /*
- * nojs UI
- * 2013-7-30
+ * nojs mobile UI
+ * 2013-8-04
  * nolure@vip.qq.com
  */
 define(function( require, $ ){
@@ -11,8 +11,6 @@ define(function( require, $ ){
 	 * 1.普通：直接执行相关方法，
 	 * 2.区域初始化：通过在Elements上配置相应的属性初始化对应区域内所有ui组件，默认body区域
 	 */
-	
-	
 	UI.init = function( area ){
 		area = area || $('body');
 		
@@ -52,7 +50,6 @@ define(function( require, $ ){
 	    isNew = null;
 		return new F( parent, args );
 	}
-	
 	/*
 	 * 所有依赖dom的ui组件都可以通过id,element,jQuery来获取dom元素
 	 */
@@ -74,22 +71,12 @@ define(function( require, $ ){
 			return cache[id];
 		}
 	}
-		
 	UI.config = {};	
 	
-	/* 
-	 * [animate动画扩展]
-	 * easeIn：加速度缓动；
-	 * easeOut：减速度缓动；
-	 * easeInOut：先加速度至50%，再减速度完成动画
-	 */	
-	$.extend( $.easing, {
-		//指数曲线缓动
-		easeOutExpo: function (x, t, b, c, d) {
-			return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-		}
-	});
-	$.extend({
+	$.fn.outerHeight = function(){
+		return $(this).height();
+	}
+	$.extend($, {
 		random : function(){
 			//得到一个随机数
 			return String(Math.ceil(Math.random() * 100000) + String(new Date().getTime()));
@@ -241,7 +228,7 @@ define(function( require, $ ){
 				document.getElementsByTagName('HEAD')[0].appendChild(style);
 			}
 		}
-	})
+	});
 	
 	//***********ui组件***********//
 	UI.setPos = function( obj, pos, isFloat ){
@@ -473,7 +460,7 @@ define(function( require, $ ){
 			this.self.stop().animate({
 				"margin-top":"0",
 				"opacity":"1"
-			}, 420, 'easeOutExpo');
+			}, 420);
 			setTimeout(function(){
 				callBack && callBack();
 			}, 100);
@@ -617,202 +604,6 @@ define(function( require, $ ){
 		}
 	}();
 	
-	UI.select = function( dom, opt ){
-		if( isNew = instaceofFun(this,arguments) ){
-			return isNew;
-		}
-		/*
-		 * 通用下拉列表,延迟200毫秒触发
-		 * @opt:可选项{show:只显示几项,只接受整数，固定高度,onSelect:当选择某项的时候触发一个回调}
-		 * 默认选中项根据隐藏域的value值来匹配
-		 */		
-		opt = $.extend( UI.config.select, opt );
-		this.box = getDom(dom);
-		if(!this.box){return;}
-		UI.data( this.box[0].id, this );
-		this.show = opt.show;
-		this.maxH = "auto";//展开时的最大高度
-		this.onSelect = opt.onSelect;//切换回调
-		this.defaultEvent = opt.defaultEvent==true?true:false;//首次是否执行回调
-		this.size = opt.size=='small'?'small':'big';
-		this.autoWidth = opt.autoWidth==false?false:true;
-		this.value = null;
-		this.now = null;
-		this.setCon();
-	};
-	UI.select.prototype = {
-		setCon : function(){
-			var HTML = this.box.html().replace(/OPTION|option/g,'li'),
-				list = this.box.find('option'),
-				html = '',m,
-				link,
-				style = this.box.attr('style'),
-				v = this.box.attr("val")||this.box.val()||0,
-				id = this.box[0].id||'',
-				i,j;
-			this.len = list.length;
-			html = '<span class="nj_select"><span class="wrap"><i></i><div class="nj_arrow"></div><ul></ul>';
-			html += '<input type="hidden" name="'+this.box.attr('name')+'" value="'+v+'" class="hide" />';
-			html += '</span></span>';
-			this.box.after(html);
-			this.box.hide();
-			this.box = this.box.next();
-			this.box.prev().remove();
-			this.box.attr({'style':style,'id':id});
-			
-			this.menu = this.box.find("ul");
-			this.menu.html(HTML);
-			this.m_on = this.box.find("i");
-			this.hide = this.box.find("input.hide");
-			
-			this.size=='small' && this.box.addClass('nj_select_s');
-			this.init();
-		},
-		init : function(I){
-			this.m = this.menu.find('li');
-			this.length = this.m.length;
-			
-			var _m,at,
-				d = this.hide.val(),
-				pd = parseInt(this.m_on.css("padding-left"))+parseInt(this.m_on.css("padding-right")),
-				w1, w2 = 0, w3;
-			this.m_on.removeAttr("style");
-			this.menu.removeAttr("style").css({"display":"block"});
-			
-			for(var i=0;i<this.length;i++){
-				_m = this.m.eq(i);
-				w1 = _m.width();
-				w2 = w1>w2 ? w1 : w2;
-				if(_m.attr('href')){
-					_m.wrapInner('<a href="'+_m.attr('href')+'" target="'+_m.attr('target')+'"></a>');
-					_m.addClass("link");
-				}
-			}
-			
-			this.h = this.m.last().outerHeight();
-			if(this.show && /^\d+$/.test(this.show)){//显示固定个数
-				if(this.show<this.length){
-					this.menu.css({"overflow-y":"scroll"});
-					this.maxH = this.h * this.show - 1;
-				}else{
-					this.menu.css({"overflow-y":"hidden"});
-					this.maxH = this.h * this.length - 1;
-				}
-				w3 = this.menu.width();
-				if(w3 > (w2 + pd)){w2 = w3 - pd;}
-			}
-			
-			
-			if(this.autoWidth){
-				this.menu.css('width',w2+pd);
-				this.m_on.width(w2);
-				//console.log(w2);
-			}else{
-				
-				this.m_on.width(this.box.width()-pd-2);
-				this.menu.width(this.box.width()-2);
-			}
-			
-			this.menu.css({
-				"height":this.maxH,
-				"display":"none"
-			})
-			this.m.removeClass('last').last().addClass('last');
-			if(!I){
-				this.bindEvent();
-			}
-			//设置默认选项
-			if(d.replace(/\s/g,"")!=""){
-				this.select( d, this.defaultEvent );
-			}else{
-				this.select( this.m.eq(0).attr("value"), this.defaultEvent );
-			}
-		},
-		bindEvent : function(){
-			var T = this,A,top,style;
-			
-			this.box.hover(function(){
-				window.clearTimeout(A);
-				if( T.menu.is(':visible') ){
-					return;
-				}
-				A = window.setTimeout(function(){
-					style = T.menu.attr('style').replace('top','top1').replace('bottom','top1');
-					T.menu.attr({'style':style}).css({"display":"none"});
-					T.box.addClass('nj_select_hover');
-					top = T.m_on.outerHeight()-1;
-					if( (T.box.offset().top-$(window).scrollTop()+T.box.height()+T.menu.height()) > $(window).height() ){
-						T.menu.css({'bottom':top});
-					}else{
-						T.menu.css( {'top':top} );
-					}
-					T.menu.show();
-				},90)
-			},function(){
-				window.clearTimeout(A);
-				A = window.setTimeout(function(){
-					T.menu.hide()//.slideUp(150,'easeOutExpo');
-					T.box.removeClass('nj_select_hover');
-				},200)
-			});
-			
-			this.menu.click(function(e){
-				var m = e.target,
-					text = $(m).text(),
-					v = m.getAttribute('value');
-				if(m.tagName.toLowerCase()=='li'){
-					T.select(v);
-				}
-			})			
-		},
-		select : function(v,I){
-			var M,text,m;
-			for(var i=0;i<this.length;i++){
-				m = this.m.eq(i);
-				if(m[0].getAttribute('value')==v){
-					M = m;
-					text = m.text();
-					break;
-				}
-			}
-			if(!M){return;}
-			this.m_on.text(text);
-			M.addClass("select").siblings().removeClass("select");
-			this.hide.val(v);
-			this.value = v;
-			this.now = M;
-			this.menu.css({"display":"none"});
-			
-			if(I===false){return;}
-			//为其添加事件
-			this.onSelect&&this.onSelect.call(this,v,M);
-		}
-	}
-	UI.select.batch = function(box,opt){
-		/*
-		 * 批量生成select组件(全部select只能统一设置,特殊情况时不能用此方法)
-		 * @box:传入父元素对象即可
-		 */
-		if(!box||!box.length){return;}
-		var s = box.find("select"),
-			m,
-			id,
-			arr = [],
-			n = s.length,
-			d;
-		if(!n){return;}	
-		for(var i=0;i<n;i++){
-			m = s.eq(i);
-			id = m.attr("id");
-			if(!id||id.replace(/\s/g,"")==""){
-				id = "s_"+$.random();
-				m.attr("id",id);
-			}
-			d = new this(id,opt);
-			arr.push(d);
-		}
-		return arr;
-	}
 	
 	UI.Switch = function(id,opt){
 		/*
@@ -834,21 +625,17 @@ define(function( require, $ ){
 			this.length = this.con.length;
 			if(!this.length){return;}
 			this.opt = opt || {};
-			this.mode = this.opt.mode=='click'?'click':'mouseover';
 			this.onChange = this.opt.onChange;
 			this.index = this.opt.firstIndex || 0;
 			this.bind();
 		},
 		bind : function(){
 			var T = this,
-				A,m,
-				delay = T.mode=='mouseover'?100:0;//延迟触发
-			this.menu.on(this.mode,function(){
+				A, m;
+			this.menu.on('tap',function(){
 				m = $(this);
 				if(m.hasClass('current')){return false;}
-				A = setTimeout(function(){
-					T.change(m.index());
-				}, delay)
+				T.change(m.index());
 				return false;
 			}).mouseout(function(){
 				A = clearTimeout(A);
@@ -880,7 +667,6 @@ define(function( require, $ ){
 		this.play = null;
 		this.time = this.opt.time || 5000;
 		this.auto = this.opt.auto==false?false:true;
-		this.stopOnHover = this.opt.stopOnHover==false?false:true;
 		this.start(true);
 	}
 	UI.slide.prototype = new UI.Switch();
@@ -903,17 +689,7 @@ define(function( require, $ ){
 	UI.slide.prototype.start = function(startNow){
 		//自动播放
 		var T = this;
-		if( this.auto && this.length>1 ){
-			if(this.stopOnHover){				
-				this.box.off().hover(function(){
-					T.play = window.clearInterval(T.play);
-				},function(){
-					s();
-				}).mouseout();
-			}else{
-				s();
-			}
-		}
+		this.auto && this.length>1 && s();
 		startNow && T.change(T.index);
 		function s(){
 			window.clearInterval(T.play);
@@ -930,7 +706,7 @@ define(function( require, $ ){
 		if( isNew = instaceofFun(this,arguments) ){
 			return isNew;
 		}
-		opt = $.extend( UI.config.ico, opt );
+		opt = $.extend( UI.config.ico||{}, opt );
 		this.hasCanvas = !!document.createElement('canvas').getContext;
 		this.type = opt.type || 'ok';
 		this.ico = $('<i class="nj_ico n_i_'+this.type+'"></i>');
@@ -1322,48 +1098,6 @@ define(function( require, $ ){
 			this.menu.children('.wrap').empty().append(con);
 		}
 	};
-	
-	//placeholder for ie
-	function placeHolder(input,index){
-		var w = input.innerWidth()*0.98,
-			h = input.outerHeight(),
-			id = input.attr('id'),
-			v = input.attr('placeholder'),
-			lab;
-		index = index || 0;	
-		id = id || 'ph_lab'+index;		
-		lab = $('<label for="'+id+'" style="width:'+w+'px;height:'+h+'px" class="ph_lab ph_lab'+index+'">'+v+'</label>');
-		if( /.*\s{2}$/.test(v) && $.browser('ie6 ie7') ){//for ie6/7
-			var F = input.css('float');
-			input.wrap($('<span class="ph_wrap" style="position:relative;float:'+F+'"></span>'));
-			lab.css('left','0');
-		}
-		if( input[0].tagName.toLowerCase()=='input' ){
-			lab.css( 'line-height', h+'px' );
-		}
-		input.attr( 'id', id ).before(lab);		
-		input.bind( 'blur propertychange input', function(){
-			setTimeout(function(){
-				input.val()=='' ? lab.show() : lab.hide();
-			},15)
-		})
-		setTimeout(function(){
-			input.val()!='' && lab.hide();
-		},150);
-	};
-	
-	if( $.browser('ie6 ie7 ie8 ie9') ){
-		$(function(){
-			var ph = $('[placeholder]'),
-				i,
-				len = ph.length;
-			if(len){
-				for(i=0;i<len;i++){
-					placeHolder( ph.eq(i), i );
-				}
-			}
-		});
-	}
 	
 	return UI;
 });

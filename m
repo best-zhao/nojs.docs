@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width">
-<title>nojs文档</title>
+<title>nojs mobile文档</title>
 <link rel="stylesheet" href="css/ui.css" />
 <link rel="stylesheet" href="css/base.css" />
 <link rel="stylesheet" href="css/main.css" />
-<script src="js/noJS.js" data-config="global:['jquery','nojs.ui/core']"></script>
+<script src="js/noJS.js" data-config="global:['m/zepto.min','m/ui']"></script>
 </head>
 <body>
 <div id="ui_page">
 	<div id="ui_head" class="clearfix">
 		<a href="" id="show_menu">menu</a>
-		<h1>nojs</h1>
-		<h2>包含noJS模块化管理框架、ui组件及常用模块</h2>
+		<h1>nojs mobile</h1>
+		<h2>nojs移动端ui文档</h2>
 	</div>
 	<div class="clearfix ui_wrap">
 		<div class="menu_tree fl" id="side_menu">
@@ -26,6 +26,7 @@
 	</div>
 </div><!--#ui_page-->
 <script>
+window.Page = 'mobile';
 noJS.use('main');
 </script>	
 </body>

@@ -139,9 +139,9 @@ define(function(require,$){
 			opt = box.find(".set_opt");
 			hide = opt.find(".hide");
 			
-			box.hover(function(){
+			box.mouseover(function(){
 				opt.show();
-			},function(){
+			}).mouseout(function(){
 				opt.hide();
 			}).click(function(e){
 				var t = $(e.target);

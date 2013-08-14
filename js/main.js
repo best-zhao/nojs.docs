@@ -4,14 +4,16 @@ define(function(require,$,ui){
 		project = require('./project/config'),
 		G = {};
 	
-	var main = $('#main_content'),
+	var page = $('#ui_page'),
+		main = $('#main_content'),
 		head = $('#ui_head'),
 		win = $(window),
-		D = $.cookie('currentPage') || 'noJS_info',
+		D = window.Page=='mobile' ? 'mb_intro' : 'noJS_info',
 		page = $('#ui_page'),
 		frame = $('#iframe_content'),
 		side = $('#side_menu'),
-		wrap = page.children('div.ui_wrap');
+		wrap = page.children('div.ui_wrap'),
+		showMenu = $('#show_menu');
 	
 	function setUrl(id){
 		var url = location.href.split('#'), hash = url[1];
@@ -44,7 +46,7 @@ define(function(require,$,ui){
 		onSelect : function(data){		
 			var link = data.link,
 				id = data.id;	
-			$.cookie('currentPage',id);
+			//$.cookie('currentPage',id);
 			
 			setUrl(id);
 			if(!link){return;}
@@ -58,9 +60,10 @@ define(function(require,$,ui){
 			var _id = this.box[0].id,
 				name = _id.substring(_id.indexOf('_')+1,_id.length),
 				url = 'project/' + name + '/' +link+'.html';
-			
+				
 			id!='project' && this.box.siblings('.nj_tree').find('a.current').removeClass('current');
-			frame.load( url,function(){
+			
+			frame.load( url, function(){
 				//代码高亮
 				new codeLight({parent:frame});
 				//扩展应用
@@ -79,6 +82,7 @@ define(function(require,$,ui){
 				})
 				ui.init(frame);
 			});
+			showMenu.is(':visible') && setMenu('hide');
 		}
 	}
 	G.init = function(){
@@ -106,6 +110,9 @@ define(function(require,$,ui){
 		'children' : 'data'
 	}
 	for( var i in project ){
+		if( window.Page=='mobile' && i!='mobile' || window.Page!='mobile' && i=='mobile' ){
+			continue;
+		}
 		createProject( i, project[i] );
 	}	
 	function createProject( name, p ){
@@ -123,6 +130,43 @@ define(function(require,$,ui){
 		});
 		G.project.push( t );
 	}
+	
+	showMenu.click(function(){
+		setMenu();
+		return false;
+	})
+	function setMenu(display){
+		if( display && showMenu.is(':hidden') ){
+			return;
+		}
+		if( !display ){
+			display = setMenu.display=='show' ? 'hide' : 'show';
+		}
+		if( display=='show' ){
+			side.css('left','0');
+			page.css('padding-left','14em');
+			setMenu.display='show';
+		}else{
+			side.css('left','-15em');
+			page.css('padding-left','0');
+			setMenu.display='hide';
+		}
+	}
+	setMenu.display='hide';
+	
+	
+	
+	if( window.Page=='mobile' ){
+		side.append('<div class="f_link"><a href="/">nojs</a></div>');
+		page.swipeRight(function(){
+			setMenu('show');
+		}).swipeLeft(function(){
+			setMenu('hide');
+		})
+	}else{
+		side.append('<div class="f_link"><a href="/m">nojs mobile</a></div>');
+	}
+	
 	
 	return G;
 });
