@@ -1,7 +1,4 @@
 define({
-	/*
-	 * 
-	 */
 	'nojs' : {
 		data : [
 			{id:'noJS',text:'noJS模块管理',data:[
