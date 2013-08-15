@@ -448,9 +448,8 @@
 		var i,
 			T = load,
 			nojsSrc = getSrc(nojsScript),
-		
-		_modules = nojsScript.getAttribute('data-main'),
-		_config = nojsScript.getAttribute('data-config');
+			_modules = nojsScript.getAttribute('data-main'),
+			_config = nojsScript.getAttribute('data-config');
 		
 		if( _config || _modules ){
 			//配置选项
@@ -464,9 +463,9 @@
 			}
 			//入口模块
 			if( _modules ){
-				_modules = _modules.split('|');
+				_modules = _modules.split(',');
 				defaultLoad['deps'] = defaultLoad['deps'].concat( _modules );
-				T.add( _modules, null );
+				T.add( _modules );
 			}				
 		}		
 	}

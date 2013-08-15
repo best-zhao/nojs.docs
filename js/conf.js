@@ -1,4 +1,9 @@
 noJS.config({
 	base : 'js/',
-	global : ['jquery','nojs.ui/core']
+	global : ['jquery','nojs.ui/core'],
+	page : {
+		'main' : {
+			
+		}
+	}
 })
