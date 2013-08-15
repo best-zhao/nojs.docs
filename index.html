@@ -7,9 +7,12 @@
 <link rel="stylesheet" href="css/ui.css" />
 <link rel="stylesheet" href="css/base.css" />
 <link rel="stylesheet" href="css/main.css" />
-<script src="js/noJS.js" data-config="conf.js" id="nojs"></script>
+<script src="js/noJS.js" id="nojs" data-config="global:['jquery','nojs.ui/core']"></script>
 </head>
 <body>
+<script>
+noJS.use('main');
+</script>		
 <div id="ui_page">
 	<div id="ui_head" class="clearfix">
 		<a href="" id="show_menu">menu</a>
@@ -25,9 +28,7 @@
 		</div>
 	</div>
 </div><!--#ui_page-->
-<script>
-noJS.use('main');
-</script>
+
 </body>
 </html>
 

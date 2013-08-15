@@ -156,13 +156,13 @@
 	load.fileItem = [];		//存放文件数组队列
 	load.now = null;		//当前队列
 	load.point = null;		//当前指向的模块
-	load.state = false;
+	load.state = null;
 	/*
 	 * 添加新文件及回调到队列组
 	 * @file:Array
 	 * @callback:文件加载完后回调
 	 * @opt:文件配置信息，包括路径和后缀等，不设置则使用默认配置
-	 * @order:添加顺序，默认是往队列后面追加 true表示添加到队列最前面，提前加载
+	 * @order:添加顺序，默认是往队列后面追加 /  true表示添加到队列最前面，提前加载
 	 */
 	load.add = function( file, callback, opt, order ){
 		var T = load;
@@ -279,17 +279,16 @@
 		
 		//当最后一个依赖模块加载完毕时
 		if( !load.state ){
-			//console.log(1)			
 			var i, j, _mod, rect = [], call;
 			for( i in modules ){
 				_mod = modules[i];
 				if( i=='start' || _mod.init ){
 					continue;
 				}
-				
 				_mod['factory'] && rect.push( _mod );
 			}
 			//从依赖关系的最末端开始初始化工厂函数并提取数据接口
+			
 			for( i=rect.length-1; i>=0; i-- ){
 				_mod = rect[i];
 				getExports(_mod);
@@ -352,9 +351,9 @@
 			}
 		}
 		
-		//设置全局依赖模块,会在其他模块之前引入
+		//设置全局依赖模块,会在其他模块之前引入，只能设置一次
 		var global = config.global;
-		if( global ){
+		if( !globalExports && global ){
 			global = typeof global=='string' ? [global] : global;
 			if( type(global)=='array' ){
 				
@@ -364,7 +363,7 @@
 				load.add( global, function(){
 					//保存全局依赖模块的接口
 					depsToExports( defaultLoad['deps'], true );
-				});
+				}, null, true);
 			}			
 		}
 		
@@ -396,7 +395,7 @@
 	}
 	
 	/*
-	 * 载入入口模块，或者执行一段依赖入口模块(data-main)的代码块
+	 * 载入入口模块，或者执行一段依赖全局模块的代码块
 	 */
 	noJS.use = function( path, fun, opt ){
 		var T = load,
@@ -441,7 +440,8 @@
 	
 	function getSrc(node){
 		return node.hasAttribute ? node.src : node.getAttribute("src", 4);
-	}	
+	}
+		
 	//通过script标签的data-main来引入主模块
 	//data-config设置配置选项
 	function defaultLoad(){
