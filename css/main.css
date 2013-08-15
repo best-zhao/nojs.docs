@@ -20,8 +20,8 @@ body{font-family:'微软雅黑'}
 
 .iframe_content{padding:30px}
 .p_tit{clear:both}
-h4.p_tit{font:800 18px '微软雅黑';margin:0 0 20px;color:#222}
-h6.p_tit{margin:0 0 10px}
+h4.p_tit{font:800 18px '微软雅黑';margin:0 0 20px;color:#222;text-shadow:0 0 2px #ccc}
+h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 .p_con{padding:0 20px 10px}
 .text_info{padding:0 0 1em 2em}
 

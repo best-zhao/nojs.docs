@@ -17,7 +17,8 @@ module.exports = function(grunt) {
                 files : [
                     {	
                     	expand: true,
-                        src : 'js/main.js',
+                    	cwd: 'js/',
+                        src : '**/*.js',
                         dest : '.build',
                         rename : function(a){
                         	grunt.log.debug(a);
@@ -30,17 +31,25 @@ module.exports = function(grunt) {
         concat: {
             dist: {
             	options : {
-            		paths : ['.']
+            		paths : ['js'],
+            		include : 'all'
 		        },
-		       
 		        files : [
-                    {	
-                    	expand: true,
-                    	cwd: 'js/',
-                        src : 'main1.js',
-                        dest : '.build'
-                    }
-                ]
+		        	{
+		        		expand: true,
+		        		cwd: '.build/',
+		        		src : '**/*.js',
+		        		dest : 'dest'
+		        	}
+		        ]
+            },
+            css : {      
+            	options : {
+            		noncmd : true	
+            	},   	
+            	files : {
+            		'dist/base.css' : ['css/ui.css','css/base.css']
+            	}
             }
         },
         concat123: {
@@ -77,7 +86,7 @@ module.exports = function(grunt) {
 	                	ext: ''
 	                }
                 ]
-           }
+			}
         },
 		clean : {
 			build : ['dist'] //清除
@@ -86,8 +95,8 @@ module.exports = function(grunt) {
 	
 	grunt.loadNpmTasks('grunt-cmd-transport');
     grunt.loadNpmTasks('grunt-cmd-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    //grunt.loadNpmTasks('grunt-contrib-uglify');
     //grunt.loadNpmTasks('grunt-contrib-clean');
 	
-    grunt.registerTask('default',['concat']);
+    grunt.registerTask('default',['concat:css']);
 };

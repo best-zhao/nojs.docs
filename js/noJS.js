@@ -371,7 +371,7 @@
 		//设置整站各页面的入口模块
 		//二维关联数组   域名=〉页面 主域名用main表示 首页index
 		var page = config.page,
-			href, host, hostReg, p, j;
+			href, host, mainReg, p, j;
 		
 		if( page ) {
 			href = location.href;
@@ -436,42 +436,49 @@
 	}
 	
 	var script = d.getElementsByTagName("script"),
-		Len = script.length;
+		Len = script.length,
+		nojsScript = d.getElementById('nojs') || script[Len-1];
+	
+	function getSrc(node){
+		return node.hasAttribute ? node.src : node.getAttribute("src", 4);
+	}	
 	//通过script标签的data-main来引入主模块
 	//data-config设置配置选项
 	function defaultLoad(){
-		var i,s,
+		var i,
 			T = load,
-			_config, _modules;
+			nojsSrc = getSrc(nojsScript),
 		
-		for(i=0;i<Len;i++){
-			s = script[i];
-			_modules = s.getAttribute('data-main');
-			_config = s.getAttribute('data-config');
-			if( _config || _modules ){
-				//配置选项
-				if( _config ){
-					_config = _config ? eval( '({' + _config + '})' ) : {};
+		_modules = nojsScript.getAttribute('data-main'),
+		_config = nojsScript.getAttribute('data-config');
+		
+		if( _config || _modules ){
+			//配置选项
+			if( _config ){
+				if( /\.js$/.test(_config) ){
+					T.add( [_config], null, {fix:''} );
+				}else{
+					_config = eval( '({' + _config + '})' );
 					noJS.config( _config );
-				}
-				//入口模块
-				if( _modules ){
-					_modules = _modules.split('|');
-					defaultLoad['deps'] = defaultLoad['deps'].concat( _modules );
-					T.add( _modules, null );
 				}				
-				break;
 			}
+			//入口模块
+			if( _modules ){
+				_modules = _modules.split('|');
+				defaultLoad['deps'] = defaultLoad['deps'].concat( _modules );
+				T.add( _modules, null );
+			}				
 		}		
 	}
 	
 	defaultLoad['deps'] = [];
+	defaultLoad['gdeps'] = [];//保存全局依赖模块
 	
 	!function(){
 		//保存已载入模块
 		var i, src, baseUrl;
 		for(var i=0;i<Len;i++){
-			src = script[i].src;
+			src = getSrc( script[i] );
 			if( src ){
 				modules[ src ] = { id : src };
 				//获取默认路径为noJS所在目录
@@ -485,13 +492,11 @@
 	//noJS本身也通过异步加载的方式
 	if( _noJS && _noJS.args ){
 		var methods = ["define", "config", "use"],
-			args = _noJS.args;
-		//console.log(args);	
+			args = _noJS.args;		
 		for ( var i = 0; i < args.length; i += 2 ) {
 			noJS[methods[args[i]]].apply( noJS, args[i + 1] );
 		}
-	}
-	
+	}	
 	
 	/*
 	 * bug记录
