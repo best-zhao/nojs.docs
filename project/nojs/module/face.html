@@ -1,0 +1,61 @@
+<h4 class="p_tit">表情组件</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	<p>依赖模块：'nojs.module/face'</p>
+	<p>需要指定一个表情触发按钮和一个文本框，选择表情后将特定规则的字符插入到文本框中，支持光标定位</p>
+</div><!--p_con-->
+<h6 class="p_tit">实例：</h6>
+<div class="text_info">
+	<span class="p_txt" id="">
+		<textarea name="" id="comment_box" class="text" style="height:50px"></textarea>
+		<div class="opt"><a href="javascript:void(0)" id="facetest">face</a></div>
+	</span>
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/templete" code="javascript" key="face">
+	noJS.use('p/face',function($,ui,face){	
+		var FaceTest = new face( options );
+	});
+	</script>
+</div>
+<h6 class="p_tit">参数：</h6>
+<div class="text_info">
+	<script type="text/templete" code="javascript" key="face">
+	options = {
+		'button' : DOM,	//表情触发按钮
+		'insert' : DOM,	//表情插入对象，文本框
+		'theme' : string,  //表情主题包,即文件夹名称
+		'baseUrl' : string,//表情包存放路径
+	}
+	</script>
+</div>
+<h6 class="p_tit">方法：</h6>
+<div class="text_info">
+	<script type="text/templete" code="javascript" key="face">
+	//替换内容字符串中的表情字符为img标签
+	var content = FaceTest.insert.val();
+	content = FaceTest.replaceFace( content );
+	</script>
+</div>
+<style>
+#facetest{display:inline-block;padding:3px 0 5px}
+
+.face_menu{width:310px}
+.nj_face{padding:10px}
+.nj_face .list li{float:left;border:1px solid #fff;cursor:pointer}
+.nj_face .list li:hover{border-color:#555}
+.nj_face .a{position:absolute;z-index:22;top:-9px;left:7px}
+.nj_face .a *{color:#999;font-size:40px;position:absolute;top:0;left:0;line-height:18px;height:10px;overflow:hidden}
+.nj_face .a i{color:#fff;top:1px}
+</style>
+<script>
+noJS.use('nojs.module/face',function($,ui,face){
+	new face({
+		button : $('#facetest'),
+		insert : $('#comment_box'),
+		baseUrl : 'http://cache.soso.com/img/',
+		theme : 'img'
+	});
+});
+</script>

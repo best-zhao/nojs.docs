@@ -1,0 +1,38 @@
+<style>
+.css3_btn{padding:0 15px 0 9px;background:#ddd;position:relative;font:800 14px/28px 'microsoft yahei';color:#fff;
+	border:1px solid #004E89;border-radius:0 9px 9px 0;height:30px;text-shadow:1px 1px 2px rgba(0,0,0,.6);
+	box-shadow:0 0 2px #004E89,inset -1px 1px 2px rgba(255,255,255,.2),1px 1px 1px rgba(255,255,255,.2);
+	background:-webkit-gradient(linear,0 0,0 100%,from(#4DAEE1),to(#1A6AB3));
+	background:-moz-linear-gradient(top,#4DAEE1,#1A6AB3);
+	background:-ms-linear-gradient(top,#4DAEE1,#1A6AB3);
+}
+.css3_btn i{position:absolute;left:-16px;top:-1px;z-index:9;width:17px;height:32px;overflow:hidden}
+.css3_btn i:after{content:'';width:20px;height:20px;border:1px solid #004E89;background:#ccc;position:absolute;top:4px;left:5px;
+	-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);transform:rotate(45deg);
+	box-shadow:0px 0 2px #004E89,1px 1px 1px rgba(255,255,255,.3);
+	background:-webkit-gradient(linear,0 0,100% 100%,from(#4DAEE1),to(#1A6AB3));
+	background:-moz-linear-gradient(-45deg,#4DAEE1,#1A6AB3);
+	background:-ms-linear-gradient(-45deg,#4DAEE1,#1A6AB3);}
+</style>
+<link rel="stylesheet" href="/css/datepicker.css" />
+<h4 class="p_tit">datepicker 日历</h4>
+
+<h6 class="p_tit">说明:</h6>
+<div class="text_info">
+	<p>依赖模块：'nojs.module/datepicker'</p>
+</div>
+<h6 class="p_tit">demo:</h6>
+<div class="text_info">
+	<input value="" id="start_date" />
+	<input value="" id="end_date" />
+</div><!--p_con-->
+<span style="background:#357FCA;padding:19px 30px;display:inline-block;color:#72ADEA">
+	<h4 class="mb10">css3 button</h4>
+	<button class="css3_btn"><i></i>返回</button>
+	
+</span>
+<script>
+noJS.use('datepicker',function( $ ){
+	$('#start_date,#end_date').datepicker($.datepickerConfig);
+});
+</script>

@@ -1,0 +1,43 @@
+<style>
+.nj_ico{margin:0 5px 0 0;vertical-align:middle}
+.n_i_ok1{width:24px;height:24px}	
+</style>
+<h4 class="p_tit">ui.ico</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	canvas/vml绘制的小图标<br />优点：通过css可任意控制图标的尺寸及外观，且兼容所有浏览器
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<p class="mb10">通过指定一个dom元素即可在其内部生成一个图标</p>
+	<script type="text/codelight" code="javascript" key="ico">
+	new ui.ico( element, options );	
+	</script>
+	<p class="mb10">图标生成之后，会在该dom内部生成一个新的元素</p>
+	<script type="text/codelight" code="html" key="">
+	<span id="new_ico"></span>
+	<!--之后会变成这样-->
+	<span id="new_ico"><i class="nj_ico n_i_ok"><!--code--></i></span>
+	</script>
+	<p>通过改变'.nj_ico'的css就可以控制图标外观了</p>
+</div>
+<h6 class="p_tit">实例</h6>
+<div class="text_info" id="about_link">
+	<p class="mb10 gray9">自带5种常用图标</p>
+	<i data-ui="ico" data-config="type:'ok'"></i>
+	<i data-ui="ico" data-config="type:'warn'"></i>
+	<i data-ui="ico" data-config="type:'error'"></i>
+	<i data-ui="ico" data-config="type:'close'"></i>
+	<i data-ui="ico" data-config="type:'loading'"></i>
+	<br />
+	<i data-ui="ico" data-config="type:'ok',width:'24',height:'24'"></i>
+	<i data-ui="ico" data-config="type:'warn',width:'24',height:'24'"></i>
+	<i data-ui="ico" data-config="type:'error',width:'24',height:'24'"></i>
+	<i data-ui="ico" data-config="type:'close',width:'24',height:'24'"></i>
+	<i data-ui="ico" data-config="type:'loading',width:'24',height:'24',color:'#cccccc'"></i>
+</div>
+<script>
+noJS.use(function($,ui){
+	//new ui.ico();
+});
+</script>

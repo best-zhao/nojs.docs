@@ -1,0 +1,18 @@
+<h4 class="p_tit">nojs.mobile</h4>
+<h6 class="p_tit">使用zepto替代jQuery及jQuery mobile：</h6>
+<div class="text_info">
+	<p>jQuery+jQuery.mobile对于移动端过于庞大，所以采用zepto作为底层框架。</p>
+	<p>zepto与jQuery用法基本一致，而且提供移动端的相关touch事件api。</p>
+</div>	
+<h6 class="p_tit">zepto与jQuery异同：</h6>
+<div class="text_info">
+	<p>1. zepto不提供innerWidth()和outerWidth()等4个方法，但是其width()方法与jQuery的innerWidth()等同，height同理。</p>
+	<p>2. 往$上追加方法必须是$.extend($,target)，而不能是$.extend(target)。且第一个参数不能为undefined</p>
+</div>
+
+<script>
+noJS.use(function($,ui){
+	
+	
+});
+</script>
