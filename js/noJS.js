@@ -342,6 +342,7 @@
 		for( i in option ){
 			config[i] = option[i];
 		}
+		configFile = null;
 		//打包
 		var pack = config.pack;
 		if( pack ){
@@ -361,8 +362,6 @@
 				
 				globalExports = [];
 				defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
-				
-				configFile = null;
 				
 				load.add( global, function(){
 					//保存全局依赖模块的接口
