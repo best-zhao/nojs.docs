@@ -25,7 +25,8 @@
 		config = {
 			queue : true,//默认为串行加载，false为并行加载
 			fix : '.js'
-		};
+		},
+		configFile;
 	
 	//检测对象类型	
 	function type( obj ){		
@@ -119,7 +120,6 @@
 					T.begin();
 				}else{//所有队列执行完毕
 					T.state = false;
-					//console.log(modules['js/nojs/nojs.codelight.js'].exports);
 				}
 			}else if( cf.queue===true ){
 				s && loader(num);
@@ -167,11 +167,14 @@
 	load.add = function( file, callback, opt, order ){
 		var T = load;
 		if( type(file)=='array' && file.length ){
-			T.fileItem[order=='true'?'unshift':'push']( [ file, callback, opt ] );
+			T.fileItem[order==true?'unshift':'push']( [ file, callback, opt ] );
 			!T.state && T.begin();
 		}
 	}
 	load.begin = function(){
+		if( configFile ){
+			return;
+		}
 		load.state = true;
 		load.now = load.fileItem.shift();
 		load( load.now[0] );
@@ -264,7 +267,7 @@
 				over();
 			}
 			
-		}else if( _type=='object' ){
+		}else{
 			current['exports'] = factory;
 		}
 		
@@ -276,7 +279,6 @@
 	function check( mod ){
 		//mod.state = mod.state || 0;
 		//mod.state++;
-		
 		//当最后一个依赖模块加载完毕时
 		if( !load.state ){
 			var i, j, _mod, rect = [], call;
@@ -359,6 +361,8 @@
 				
 				globalExports = [];
 				defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
+				
+				configFile = null;
 				
 				load.add( global, function(){
 					//保存全局依赖模块的接口
@@ -456,6 +460,7 @@
 			if( _config ){
 				if( /\.js$/.test(_config) ){
 					T.add( [_config], null, {fix:''} );
+					configFile = true;
 				}else{
 					_config = eval( '({' + _config + '})' );
 					noJS.config( _config );
