@@ -5,6 +5,9 @@ noJS.config({
 	page : {
 		'main' : {
 			'index' : 'main'
+		},
+		'nolure' : {
+			'index' : 'main'
 		}
 	}
 })
