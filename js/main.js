@@ -1,7 +1,7 @@
 define(function(require,$,ui){
 	var tree = require('nojs/module/tree'),
 		codeLight = require('nojs/module/codelight'),
-		project = require('./project/config'),
+		project = require('project'),
 		G = {};
 	
 	var page = $('#ui_page'),

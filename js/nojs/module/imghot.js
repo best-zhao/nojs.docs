@@ -2,8 +2,8 @@
  * 图像热区绘制工具
  */
 define(function(require,$,ui){
-	var drag = require('nojs.module/drag'),
-		codeLight = require('nojs.ui/codelight'),
+	var drag = require('nojs/module/drag'),
+		codeLight = require('nojs/module/codelight'),
 		
 	imgHot = function(id,opt){
 		opt = opt || {};

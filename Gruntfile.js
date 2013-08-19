@@ -11,19 +11,14 @@ module.exports = function(grunt) {
 		    },
             dialog: {
             	options : {
-            		paths : ['js'],
-		            idleading : ''
+            		paths : ['js']
 		        },
                 files : [
                     {	
                     	expand: true,
                     	cwd: 'js/',
                         src : '**/*.js',
-                        dest : '.build',
-                        rename : function(a){
-                        	grunt.log.debug(a);
-                        	return 'aa';
-                        }
+                        dest : '.build'
                     }
                 ]
             }
@@ -42,14 +37,6 @@ module.exports = function(grunt) {
 		        		dest : 'dest'
 		        	}
 		        ]
-            },
-            css : {      
-            	options : {
-            		noncmd : true	
-            	},   	
-            	files : {
-            		'dist/base.css' : ['css/ui.css','css/base.css']
-            	}
             }
         },
         concat123: {
@@ -98,5 +85,5 @@ module.exports = function(grunt) {
     //grunt.loadNpmTasks('grunt-contrib-uglify');
     //grunt.loadNpmTasks('grunt-contrib-clean');
 	
-    grunt.registerTask('default',['concat:css']);
+    grunt.registerTask('default',['transport']);
 };
