@@ -1,7 +1,7 @@
 noJS.config({
-	base : 'js/',
-	//fix : '.js?t=1',
+	base : 'dest/',
 	global : ['nojs/jquery','nojs/ui'],
+	//pack : true,
 	page : {
 		'main' : {
 			'index' : 'main'

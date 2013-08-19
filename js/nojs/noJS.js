@@ -24,7 +24,8 @@
 		//配置选项
 		config = {
 			queue : true,//默认为串行加载，false为并行加载
-			fix : '.js'
+			fix : '.js',
+			pack : true
 		},
 		configFile;
 	
@@ -49,7 +50,7 @@
 		
 		//整理数组
 		for( i=len-1; i>=0; i-- ){
-			m = T.getPath( cf.base, file[i] ) + cf.fix;
+			m = T.getPath( file[i], cf );
 			
 			if( modules[m] ){//清除已存在模块
 				file.splice(i,1);
@@ -65,14 +66,20 @@
 		if(!len){
 			return;
 		}
-		
-		isPack = config.pack && len>1;
+		//isPack = config.pack && len>1;
+		if( file.point ){
+			for( i=0;i<file.point.length;i++ ){
+				m = load.getPath(file.point[i]);
+				file.point[i] = m;
+				modules[m] = {id:m}; 
+			}
+		}
 		
 		if( isPack ){
 			_file = file;
 			file = load.pack( file, cf );
 			for( i=0; i<len; i++ ){
-				_file[i] = T.getPath( cf.base, _file[i] ) + cf.fix;
+				_file[i] = T.getPath( _file[i], cf );
 			}
 			len = 1;
 		}
@@ -83,11 +90,11 @@
 		}
 		
 		function loader( index ){
-			append( isPack ? file[index] : (T.getPath( cf.base, file[index] ) + cf.fix) );
+			append( isPack ? file[index] : T.getPath( file[index], cf ) );
 		}
 		
 		function append( src ){
-			T.point = isPack ? _file : src;
+			T.point = file.point ? file.point : isPack ? _file : src;
 			//创建script
 	        s = d.createElement("script");
 	        s.async = true;
@@ -183,14 +190,18 @@
 	 * 寻址操作./上级目录
 	 * 当base为空时，相对于当前页面，使用../表示上级
 	 */
-	load.getPath = function( base, path ){
+	load.getPath = function( path, cf ){
 		if(typeof path!='string'){return '';}
+		cf = cf || config;
+		
 		var p1 = path.indexOf('./'),
 			p2 = path.lastIndexOf('./'),
+			base = cf.base,
+			fix = cf.fix,
 			n, len, s, i;
-			
+		
 		if(p1!=0){//同级
-			return base + path;
+			return base + path + fix;
 		}else if(p1==p2){//上一级
 			n = 1;
 		}else{
@@ -208,7 +219,24 @@
 			base = base.join('/');
 			base = base=='' ? '' : base+'/';
 		}
-		return base + path;
+		return base + path + fix;
+	}
+	load.getPaths = function(modules){
+		var _type = type(modules),
+			rect = modules;
+			
+		function get(m){
+			return load.getPath(m);
+		}
+		if( _type=='string' ){
+			return get(modules);
+		}else if(_type=='array' ){
+			rect = [];
+			for( var i=0; i<modules.length; i++ ){
+				rect[i] = get(modules[i]);
+			}			
+		}
+		return rect;
 	}
 	
 	/*
@@ -218,7 +246,7 @@
 	 */
 	function require( id ){
 		var mod;
-		id = load.getPath( config.base, id ) + config.fix;
+		id = load.getPath( id );
 		mod = modules[id];
 		return mod && getExports(mod);
 	}
@@ -241,38 +269,43 @@
 	 * @factory:工厂函数 提供一个参数require来引入模块 并返回数据接口
 	 * 模块id使用其绝对路径
 	 */
-	window.define = function( factory ){
-		var _type = type( factory ),
+	window.define = function(){
+		var args = Array.prototype.slice.call(arguments),
+			factory = args.slice(-1)[0],
+			_type = type( factory ),
 			current = type(load.point)=='array' ? load.point.shift() : load.point,//当前载入模块的uri
 			_modules, exports;
 			
 		current = modules[current];
 		current['factory'] = factory;
-			
+		
+		function over(){
+			check( current );
+		}
+		
 		if( _type=='function' ){
 			//解析内部所有require并提前载入
 			_modules = parseRequire( factory.toString() );
 			if( _modules.length ){
 				current['deps'] = [].concat( _modules );
 				
+				//console.log(load.point);
 				//设置打包后，当前模块所依赖模块会并入自身
-				if( config.pack ){
-					var i, m;
-					//for( var i=0; i<_modules.length; i++ ){
-						//m = T.getPath( cf.base, file[i] ) + cf.fix;
-					//}
+				if( config.pack && typeof load.point=='string' ){
+					load.point = load.getPaths(_modules); 
+					var i, m; 
+					for( i=0;i<_modules.length;i++ ){
+						m = load.getPath(_modules[i]);
+						modules[m] = {id:m};
+					}
+					return;
 				}
-				load.add( _modules, over, null, true );
+				load.add( _modules, over );
 			}else {
 				over();
 			}
-			
 		}else{
 			current['exports'] = factory;
-		}
-		
-		function over(){
-			check( current );
 		}
 	}
 	
@@ -309,7 +342,7 @@
 		var _mod, j, rect = [];
 		
 		for( j=0; j<deps.length; j++ ){
-			_mod = load.getPath( config.base, deps[j] ) + config.fix;
+			_mod = load.getPath( deps[j] );
 			_mod = modules[_mod];
 			if(!_mod){
 				continue;
@@ -347,7 +380,7 @@
 		var pack = config.pack;
 		if( pack ){
 			if( type( pack ) != 'object' || typeof pack.base != 'string' ){
-				pack = null;
+				//pack = null;
 			}else{
 				pack.path = pack.path || '';
 				pack.fix = pack.fix || config.fix;
@@ -362,7 +395,11 @@
 				
 				globalExports = [];
 				defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
-				
+				if( pack ){
+					var _global = global, m;
+					global = global.slice(0,1);
+					global.point = _global;
+				}
 				load.add( global, function(){
 					//保存全局依赖模块的接口
 					depsToExports( defaultLoad['deps'], true );
@@ -378,9 +415,9 @@
 		if( page ) {
 			href = location.href.split(/[#?]/)[0]; 
 			host = location.host;
-			mainReg = !function(){
+			mainReg = (function(){
 				return /^www[\.]/.test(host) || host.indexOf('.')==host.lastIndexOf('.');
-			}();//主域
+			})();//主域
 			hostReg = new RegExp(host.replace(/\./g,'\\.')+'/$').test(href);//检测域名首页
 			
 			_host:
@@ -461,8 +498,10 @@
 			//配置选项
 			if( _config ){
 				if( /\.js$/.test(_config) ){
-					T.add( [_config], null, {fix:''} );
-					configFile = true;
+					if( !config.pack ){
+						T.add( [_config], null, {fix:''} );
+						configFile = true; 
+					}
 				}else{
 					_config = eval( '({' + _config + '})' );
 					noJS.config( _config );

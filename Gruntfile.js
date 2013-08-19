@@ -24,6 +24,14 @@ module.exports = function(grunt) {
             }
         },
         concat: {
+        	nojs : {
+        		options : {
+        			noncmd : true
+        		},
+        		files : {
+        			'dest/nojs/noJS.js' : ['js/nojs/noJS.js','js/conf.js']
+        		}
+        	},
             dist: {
             	options : {
             		paths : ['js'],
@@ -37,7 +45,15 @@ module.exports = function(grunt) {
 		        		dest : 'dest'
 		        	}
 		        ]
-            }
+            },
+        	global : {
+        		options : {
+        			noncmd : true
+        		},
+        		files : {
+        			'dest/nojs/jquery.js':['.build/nojs/jquery.js','.build/nojs/ui.js']
+        		}
+        	}
         },
         concat123: {
             dist: {
@@ -76,14 +92,25 @@ module.exports = function(grunt) {
 			}
         },
 		clean : {
-			build : ['dist'] //清除
+			build : ['.build','dest/**/*-debug.js'] //清除
+		},
+		watch: {			
+			another: {
+				files: ['js/**/*.js'],
+				tasks: ['transport','concat','clean'],
+				options: {
+			    	// Start another live reload server on port 1337
+			        livereload: 1337,
+				},
+			}
 		}
 	});
 	
 	grunt.loadNpmTasks('grunt-cmd-transport');
     grunt.loadNpmTasks('grunt-cmd-concat');
     //grunt.loadNpmTasks('grunt-contrib-uglify');
-    //grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 	
-    grunt.registerTask('default',['transport']);
+    grunt.registerTask('default',['watch']);
 };
