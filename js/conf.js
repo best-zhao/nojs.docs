@@ -1,11 +1,10 @@
 noJS.config({
 	base : 'js/',
 	fix : '.js?t=1',
-	global : ['jquery','nojs.ui/core'],
+	global : ['nojs/jquery','nojs/ui'],
 	page : {
 		'main' : {
 			
 		}
 	}
 })
-//console.log(1);

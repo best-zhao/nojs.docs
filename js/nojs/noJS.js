@@ -373,19 +373,22 @@
 		//设置整站各页面的入口模块
 		//二维关联数组   域名=〉页面 主域名用main表示 首页index
 		var page = config.page,
-			href, host, mainReg, p, j;
+			href, host, mainReg, hostReg, p, j;
 		
 		if( page ) {
-			href = location.href;
+			href = location.href.split(/[#?]/)[0]; 
 			host = location.host;
-			mainReg = new RegExp('^www.');//检测主域
+			mainReg = !function(){
+				return /^www[\.]/.test(host) || host.indexOf('.')==host.lastIndexOf('.');
+			}();//主域
+			hostReg = new RegExp(host.replace(/\./g,'\\.')+'/$').test(href);//检测域名首页
 			
 			_host:
 			for( i in page ){
-				if( i=='main' && mainReg.test(host) || new RegExp('^'+i+'[.]').test(host) ){
+				if( i=='main' && mainReg || new RegExp('^'+i+'[\.]').test(host) ){
 					p = page[i];
 					for( j in p ){
-						if( j=='index' && new RegExp(host+'/$').test(href) || href.indexOf(j)>1 ){
+						if( j=='index' && hostReg || href.indexOf(j)>1 ){
 							noJS.use( p[j] );
 							break _host;
 						}

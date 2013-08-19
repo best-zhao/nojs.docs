@@ -2,7 +2,7 @@
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
 	对象拖拽
-	<p>依赖模块：'nojs.module/drag'</p>
+	<p>依赖模块：'nojs/module/drag'</p>
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
@@ -20,7 +20,7 @@
 	<a href="javascript:void(0)" class="nj_btn" id="drag_test_limit2">限制区域,对象本身在区域内</a>
 </div>
 <script>
-noJS.use('nojs.module/drag',function($,ui,drag){
+noJS.use('nojs/module/drag',function($,ui,drag){
 	var limit = $('#drag_limit');
 	new drag($('#drag_test'));
 	new drag($('#drag_test_limit1') ,null, {

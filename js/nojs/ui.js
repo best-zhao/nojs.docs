@@ -1017,12 +1017,12 @@ define(function( require, $ ){
 					ctx.lineWidth = border;
 					window.setInterval(function(){
 						ctx.clearRect(0,0,width,height);
-						startAngle += 0.1;
-						endAngle += 0.1;
+						startAngle += 0.2;
+						endAngle += 0.2;
 						ctx.beginPath();
 						ctx.arc(width/2,height/2,width/2-border+1,startAngle,endAngle,false);
 						ctx.stroke();
-					},15);
+					},20);
 				}else{
 					startAngle = 0;
 					border--;
@@ -1030,7 +1030,7 @@ define(function( require, $ ){
 					$(this.canvas).append('<v:stroke weight="'+border+'" color="'+color+'"/>');
 					this.ico.append(this.canvas);
 					window.setInterval(function(){
-						startAngle +=6;
+						startAngle += 6;
 						startAngle = startAngle>360?startAngle-360:startAngle;
 						T.canvas.rotation = startAngle;
 					},15);

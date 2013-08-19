@@ -1,7 +1,7 @@
 <h4 class="p_tit">表情组件</h4>
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
-	<p>依赖模块：'nojs.module/face'</p>
+	<p>依赖模块：'nojs/module/face'</p>
 	<p>需要指定一个表情触发按钮和一个文本框，选择表情后将特定规则的字符插入到文本框中，支持光标定位</p>
 </div><!--p_con-->
 <h6 class="p_tit">实例：</h6>
@@ -50,7 +50,7 @@
 .nj_face .a i{color:#fff;top:1px}
 </style>
 <script>
-noJS.use('nojs.module/face',function($,ui,face){
+noJS.use('nojs/module/face',function($,ui,face){
 	new face({
 		button : $('#facetest'),
 		insert : $('#comment_box'),

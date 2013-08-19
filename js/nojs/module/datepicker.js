@@ -30,7 +30,7 @@ define(function(require,$){
 						instance.settings.dateFormat ||
 						$.datepicker._defaults.dateFormat,
 						selectedDate, instance.settings );
-				console.log(typeof selectedDate)
+				//console.log(typeof selectedDate)
 				date = isStart?T.setDay(date,1):T.setDay(date,-1);
 				
 				$("#start_date,#end_date").not(this).datepicker( "option", option, date );

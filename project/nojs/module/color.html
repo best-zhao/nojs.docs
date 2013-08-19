@@ -2,14 +2,14 @@
 <h4 class="p_tit">color 取色器</h4>
 <h6 class="p_tit">说明:</h6>
 <div class="text_info">
-	<p>依赖模块：'nojs/nojs.color'</p>
+	<p>依赖模块：'nojs/module/color'</p>
 </div>
 <h6 class="p_tit">demo:</h6>
 <div class="text_info">
 	<input value="#38c" id="get_color" />
 </div><!--p_con-->
 <script>
-noJS.use('nojs.module/color',function( $, ui, color ){
+noJS.use('nojs/module/color',function( $, ui, color ){
 	color( $('#get_color') );
 });
 </script>

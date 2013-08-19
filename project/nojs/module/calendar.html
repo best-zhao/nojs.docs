@@ -32,7 +32,8 @@
 	
 </span>
 <script>
-noJS.use('datepicker',function( $ ){
-	$('#start_date,#end_date').datepicker($.datepickerConfig);
+noJS.use('nojs/module/datepicker',function( $ ){
+	$('#start_date').datepicker($.datepickerConfig);
+	$('#end_date').datepicker($.datepickerConfig);
 });
 </script>

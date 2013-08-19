@@ -1,6 +1,6 @@
 define(function(require,$,ui){
-	var tree = require('nojs.module/tree'),
-		codeLight = require('nojs.ui/codelight'),
+	var tree = require('nojs/module/tree'),
+		codeLight = require('nojs/module/codelight'),
 		project = require('./project/config'),
 		G = {};
 	
@@ -72,7 +72,7 @@ define(function(require,$,ui){
 					if(t.tagName.toLowerCase()=='a'){
 						for( i=0;i<G.project.length;i++ ){
 							m = G.project[i];
-							if( m.box.find('#'+t.id).length ){
+							if( m.data.all[t.id] ){
 								m.select(t.id);
 								break;
 							}

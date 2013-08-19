@@ -5,7 +5,7 @@
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
 	表单验证组件，内置常用验证规则，可扩展规则
-	<p>依赖模块：'nojs.module/form'</p>
+	<p>依赖模块：'nojs/module/form'</p>
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
@@ -68,7 +68,7 @@
 </div>
 
 <script>
-noJS.use('nojs.module/form',function($,ui,form){
+noJS.use('nojs/module/form',function($,ui,form){
 	new form( $('#sub_btn'), {
 		'name' : {isNull:'不能为空'},
 		'password' : {isNull:'不能为空',confirmPas:{name:'repass'}}
