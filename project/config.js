@@ -24,8 +24,8 @@ define({
 				]}
 			]},
 			{id:'other',text:'常用模块',open:1,data:[
-				{id:'m_scroll',text:'ui.scroll',link:'module/scroll'},
-				{id:'m_code',text:'ui.code',link:'module/code'},
+				{id:'m_scroll',text:'scroll滚动',link:'module/scroll'},
+				{id:'m_code',text:'code代码美化',link:'module/code'},
 				{id:'drag',text:'drag',link:'module/drag'},
 				{id:'form',text:'form表单验证',link:'module/form'},
 				{id:'upload',text:'upload文件上传',link:'module/upload'},

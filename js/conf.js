@@ -4,7 +4,7 @@ noJS.config({
 	global : ['nojs/jquery','nojs/ui'],
 	page : {
 		'main' : {
-			
+			'index' : 'main'
 		}
 	}
 })
