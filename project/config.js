@@ -21,13 +21,11 @@ define({
 					{id:'ui_slide',text:'ui.slide',link:'ui/slide'},
 					{id:'ui_menu',text:'ui.menu',link:'ui/menu'},
 					{id:'ui_ico',text:'ui.ico',link:'ui/ico'}
-				]},
-				{id:'ui_other',text:'扩展ui组件',open:0,data:[
-					{id:'ui_scroll',text:'ui.scroll',link:'ui/scroll'},
-					{id:'ui_code',text:'ui.code',link:'ui/code'}
 				]}
 			]},
-			{id:'other',text:'其他常用模块',open:1,data:[
+			{id:'other',text:'常用模块',open:1,data:[
+				{id:'m_scroll',text:'ui.scroll',link:'module/scroll'},
+				{id:'m_code',text:'ui.code',link:'module/code'},
 				{id:'drag',text:'drag',link:'module/drag'},
 				{id:'form',text:'form表单验证',link:'module/form'},
 				{id:'upload',text:'upload文件上传',link:'module/upload'},

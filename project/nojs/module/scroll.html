@@ -1,0 +1,75 @@
+<h4 class="p_tit">ui.scroll</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	设置元素滚动效果
+	<p>依赖模块：'nojs/module/scroll'</p>
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="menu">
+	noJS.use('nojs.ui/scroll',function($,ui,scroll){
+		new scroll( id, options );		
+	});	
+	</script>	
+</div>
+<h6 class="p_tit">实例：</h6>
+<div class="text_info clearfix">
+	<div id="test1" class="scroll_test">
+		<div class="nj_s_wrap">
+			<ul class="nj_s_con">
+				<li>1231313132</li>
+				<li>21231313132</li>
+				<li>3231313132</li>
+				<li>4231313132</li>
+			</ul>	
+		</div>	
+	</div>	
+	<div id="test2" class="scroll_test">
+		<div class="nj_s_wrap">
+			<ul class="nj_s_con">
+				<li>1231313132</li>
+				<li>21231313132</li>
+				<li>3231313132</li>
+				<li>4231313132</li>
+			</ul>	
+		</div>	
+	</div>	
+	<div id="test3" class="scroll_test">
+		<div class="nj_s_wrap">
+			<ul class="nj_s_con">
+				<li>1231313132</li>
+				<li>21231313132</li>
+				<li>3231313132</li>
+				<li>4231313132</li>
+			</ul>	
+		</div>	
+	</div>	
+</div>
+<style>
+.scroll_test{border:1px solid #ccc;width:200px;height:48px;overflow:hidden;float:left;margin:0 20px 20px 0}
+.scroll_test .nj_s_wrap{width:100%;height:100%;overflow:hidden}
+.scroll_test li{line-height:2;font-size:12px}	
+#test3{height:24px}
+#test3 li{float:left;width:200px}
+</style>	
+<script>
+noJS.use('nojs/module/scroll',function($,ui,scroll){
+	new scroll( 'test1', {
+		direction : 'y',
+		step : 0,
+		auto : true,
+		time : 40,
+		repeat : true
+	})
+	new scroll( 'test2', {
+		direction : 'y',
+		auto : true,
+		step : 2,
+		repeat : true
+	})
+	new scroll( 'test3', {
+		auto : true,
+		repeat : true
+	})
+});
+</script>

@@ -1,0 +1,30 @@
+<h4 class="p_tit">ui.code</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	格式化代码块
+	<p>依赖模块：'nojs/module/codeLight'</p>
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<p>html:</p>
+	<p class="mb10">code:代码类型 key:设置高亮关键字</p>
+	<script type="text/codelight" code="html">
+		<script type="text/codelight" code="javascript" key="code">
+		//code
+		< /script>
+	</script>	
+	<p>js:</p>
+	<script type="text/codelight" code="javascript" key="code">
+	noJS.use(function($,ui,code){
+		//@area: 设置该区域内带code属性的script标签内的代码格式化，默认为$('body')
+		new code(area);
+	});
+	</script>	
+	
+	
+</div>
+
+
+<script>
+
+</script>
