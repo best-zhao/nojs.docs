@@ -7,7 +7,7 @@ noJS.config({
 			'index' : 'main'
 		},
 		'nolure' : {
-			'index' : 'main'
+			'nojs.docs' : 'main'
 		}
 	}
 })
