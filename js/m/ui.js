@@ -933,7 +933,7 @@ define(function( require, $ ){
 		this.menu = null;
 		this.content = opt.content || '';//菜单内容
 		this.align = opt.align || 'left';//对齐方式
-		this.mode = opt.mode || 'mouseover';
+		this.mode = opt.mode || 'tap';
 		this.offset = opt.offset || [0,0];
 		this.autoWidth = opt.autoWidth === false ? false : true;
 		//this.pos = this.offset[2] && this.offset[2].length ? this.offset[2] : this.obj;
@@ -956,8 +956,6 @@ define(function( require, $ ){
 		},
 		bind : function(){
 			var T = this,
-				s = this.mode=='mouseover',
-				delay = s||this.mode=='focus'?60:0,
 				top,left,
 				A,B;
 			
@@ -966,27 +964,19 @@ define(function( require, $ ){
 					$.stopBubble(e);
 					return show( $(this) );
 				});
-				if(s){
-					this.obj.on('mouseout',function(){
-						A = window.clearTimeout(A);
-						hide();
-					})
-					this.menu.hover(function(){
-						B = window.clearTimeout(B);
-					},hide)
-				}else if(this.mode=='focus'){
+				if(this.mode=='focus'){
 					this.obj.on('blur',function(){
 						A = window.clearTimeout(A);
 						hide();
 					})				
 				}
 			}
-			if(!s){
-				this.menu.on('click',function(e){
+			if(this.mode=='tap'){
+				this.menu.on('tap',function(e){
 					B = window.clearTimeout(B);
 					$.stopBubble(e);
 				})
-				$(document).on('click',function(){
+				$(document).on('tap',function(){
 					T.menu.is(':visible') && hide();
 				});
 			}
@@ -1005,29 +995,18 @@ define(function( require, $ ){
 				}
 				T.now = pos;
 				
-				A = window.setTimeout(function(){
-					pos.addClass('nj_menu_hover');//.find('.nj_arrow').addClass('n_a_top');
-					T.setPos();
-					T.opt.onShow && T.opt.onShow.call(T,pos);
-				},delay);
-				if(!s){return false;}
+				pos.addClass('nj_menu_hover');//.find('.nj_arrow').addClass('n_a_top');
+				T.setPos();
+				T.opt.onShow && T.opt.onShow.call(T,pos);
+				return false;
 			}
 			
-			function hide(S){
-				function h(){
-					T.now.removeClass('nj_menu_hover');//.find('.nj_arrow').removeClass('n_a_top');
-					if( S!=true ){
-						T.menu.hide();
-					}
-					T.opt.onHide && T.opt.onHide.call(T,T.now);
+			function hide(){
+				T.now.removeClass('nj_menu_hover');//.find('.nj_arrow').removeClass('n_a_top');
+				if( S!=true ){
+					T.menu.hide();
 				}
-				if( S==true ){
-					h();
-				}else{
-					B = window.setTimeout(function(){
-						h();
-					},delay)
-				}
+				T.opt.onHide && T.opt.onHide.call(T,T.now);
 			}
 			this.show = show;
 			this.hide = hide;
