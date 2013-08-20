@@ -57,7 +57,7 @@ module.exports = function(grunt) {
         },
         uglify : {
         	options: {
-        		banner: '/*12*/',
+        		banner: '/*nolure@vip.qq.com http://nolure.github.io/nojs.docs*/',
 		    	mangle: {
 		        	except: ['require']
 		    	}
@@ -66,9 +66,9 @@ module.exports = function(grunt) {
                 files : [
                 	{
 	                	expand : true,
-	                	cwd: 'dist/',
-	                	src : "*.js",
-	                	dest : 'dist/',
+	                	cwd: 'dest/',
+	                	src : "**/*.js",
+	                	dest : 'dest/',
 	                	ext: ''
 	                }
                 ]
@@ -80,7 +80,7 @@ module.exports = function(grunt) {
 		watch: {			
 			another: {
 				files: ['js/**/*.js'],
-				tasks: ['transport','concat','clean'],
+				tasks: ['transport','concat','clean','uglify'],
 				options: {
 			    	// Start another live reload server on port 1337
 			        livereload: 1337,
@@ -91,9 +91,9 @@ module.exports = function(grunt) {
 	
 	grunt.loadNpmTasks('grunt-cmd-transport');
     grunt.loadNpmTasks('grunt-cmd-concat');
-    //grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
 	
-    //grunt.registerTask('default',['watch']);
+    grunt.registerTask('default',['watch']);
 };

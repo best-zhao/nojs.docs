@@ -9,7 +9,7 @@ if( $id!="" ){
 	}else{
 		$data = '{"status":1,"data":[
 			{"id":'.($id+11).',"text":"test'.($id+11).'","parent":'.$id.'},
-			{"id":'.($id+21).',"text":"test'.($id+11).'","parent":'.$id.'}
+			{"id":'.($id+21).',"text":"test'.($id+21).'","parent":'.$id.'}
 		]}';
 	}
 }else{

@@ -510,15 +510,13 @@
 			_config = nojsScript.getAttribute('data-config');
 		
 		
-		T.event( nojsScript, function(){
-			onReady && onReady();
-		});
 		
 		if( _config || _modules ){
 			//配置选项
 			if( _config ){
 				if( /\.js$/.test(_config) ){
-					//该事件会在config或nojs脚本加载完成之后触发
+					//该事件会在config方法执行之后或nojs脚本加载完成之后触发
+					//打包之后config.js会并入noJS.js
 					onReady = function(){
 						if( !config.pack ){
 							T.add( [_config], null, {fix:''} );
@@ -526,6 +524,8 @@
 						}
 						onReady = null;
 					}
+					T.event( nojsScript, onReady );
+					
 				}else{
 					_config = eval( '({' + _config + '})' );
 					noJS.config( _config );

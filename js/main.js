@@ -155,18 +155,18 @@ define(function(require,$,ui){
 	setMenu.display='hide';
 	
 	
-	
+	var fLink = $('<div class="f_link"></div>').appendTo(side);
 	if( window.Page=='mobile' ){
-		side.append('<div class="f_link"><a href="/">nojs</a></div>');
+		fLink.append('<a href="/">nojs</a>');
 		page.swipeRight(function(){
 			setMenu('show');
 		}).swipeLeft(function(){
 			setMenu('hide');
 		})
 	}else{
-		side.append('<div class="f_link"><a href="/m">nojs mobile</a></div>');
+		fLink.append('<a href="/m">nojs mobile</a>');
 	}
-	
+	fLink.append('<a href="http://nolure.com">blog: http://nolure.com</a>');
 	
 	return G;
 });

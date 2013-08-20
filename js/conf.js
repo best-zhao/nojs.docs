@@ -1,6 +1,6 @@
 noJS.config({
-	//base : 'dest/',
+	base : 'dest/',
+	pack : true,
 	global : ['nojs/jquery','nojs/ui'],
-	//pack : true,
 	page : 'main'
 })

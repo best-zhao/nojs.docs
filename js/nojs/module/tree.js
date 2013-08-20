@@ -601,7 +601,7 @@ define(function(require,$){
 				var id = item.value;
 				//box[0].id=='tree_test3' && console.log(id);
 				$(item).nextAll('select').remove();
-				if( !Data.all[id] ){
+				if( id==emptyID || !Data.all[id] ){
 					return;
 				}
 				if( ajaxMode && !Data.all[id].init ){
