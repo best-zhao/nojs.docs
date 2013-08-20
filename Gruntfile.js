@@ -55,23 +55,6 @@ module.exports = function(grunt) {
         		}
         	}
         },
-        concat123: {
-            dist: {
-            	options : {
-            		paths : [''],
-    				//include : 'relative',
-    				noncmd: true
-		        },
-		       
-		        files : {
-		        	'dist/jquery,nojs.ui-core.js' : 
-		        	['js/jquery.js','js/nojs.ui/core.js'],
-		        	
-		        	'dist/nojs.module-tree,nojs.ui-codelight,.-project-config.js' : 
-		        	['js/nojs.module/tree.js','js/nojs.ui/codelight.js','project/config.js']
-		        }
-            }
-        },
         uglify : {
         	options: {
         		banner: '/*12*/',

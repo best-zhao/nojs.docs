@@ -24,9 +24,9 @@
 		//配置选项
 		config = {
 			queue : true,//默认为串行加载，false为并行加载
-			fix : '.js',
-			pack : true
+			fix : '.js'
 		},
+		onReady,
 		configFile;
 	
 	//检测对象类型	
@@ -98,14 +98,12 @@
 			//创建script
 	        s = d.createElement("script");
 	        s.async = true;
-	        s.onload = s.onreadystatechange = function(){
-        		if( /^(?:loaded|complete|undefined)$/.test(this.readyState) ){
-        			end(this,1,src);
-        		}
-        	}
-	        s.onerror = function(){
-				end(this,2,src);
-	        }
+	        
+	        T.event( s, function(){
+	        	end(this,1,src);
+	        }, function(){
+	        	end(this,2,src);
+	        })
 	        
 	        s.src = src;
 	        head.appendChild(s);//插入文件到head中
@@ -237,6 +235,16 @@
 			}			
 		}
 		return rect;
+	}
+	load.event = function( script, success, error ){
+		script.onload = script.onreadystatechange = function(){
+    		if( /^(?:loaded|complete|undefined)$/.test(this.readyState) ){
+    			success && success.call(this);
+    		}
+    	}
+        script.onerror = function(){
+        	error && error.call(this);
+        };
 	}
 	
 	/*
@@ -376,6 +384,8 @@
 			config[i] = option[i];
 		}
 		configFile = null;
+		onReady && onReady();
+		
 		//打包
 		var pack = config.pack;
 		if( pack ){
@@ -395,6 +405,7 @@
 				
 				globalExports = [];
 				defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
+				//打包后，全局依赖模块都并入第一个文件,并使用point指向真实的模块
 				if( pack ){
 					var _global = global, m;
 					global = global.slice(0,1);
@@ -413,6 +424,10 @@
 			href, host, mainReg, hostReg, p, j;
 		
 		if( page ) {
+			if( typeof page=='string' ){
+				noJS.use( page );
+				return noJS;	
+			}
 			href = location.href.split(/[#?]/)[0]; 
 			host = location.host;
 			mainReg = (function(){
@@ -494,13 +509,22 @@
 			_modules = nojsScript.getAttribute('data-main'),
 			_config = nojsScript.getAttribute('data-config');
 		
+		
+		T.event( nojsScript, function(){
+			onReady && onReady();
+		});
+		
 		if( _config || _modules ){
 			//配置选项
 			if( _config ){
 				if( /\.js$/.test(_config) ){
-					if( !config.pack ){
-						T.add( [_config], null, {fix:''} );
-						configFile = true; 
+					//该事件会在config或nojs脚本加载完成之后触发
+					onReady = function(){
+						if( !config.pack ){
+							T.add( [_config], null, {fix:''} );
+							configFile = true; 
+						}
+						onReady = null;
 					}
 				}else{
 					_config = eval( '({' + _config + '})' );
@@ -526,8 +550,8 @@
 			src = getSrc( script[i] );
 			if( src ){
 				modules[ src ] = { id : src };
-				//获取默认路径为noJS所在目录
-				!baseUrl && (config.base = baseUrl = src.substring(0,src.lastIndexOf('/')+1));
+				//获取默认路径为noJS所在父目录
+				!baseUrl && ( config.base = baseUrl = src.split('/').slice(0,-2).join('/')+'/' );
 			}
 		}
 	}();
