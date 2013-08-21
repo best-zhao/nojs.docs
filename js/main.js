@@ -8,7 +8,7 @@ define(function(require,$,ui){
 		main = $('#main_content'),
 		head = $('#ui_head'),
 		win = $(window),
-		D = window.Page=='mobile' ? 'mb_intro' : 'noJS_info',
+		D = window.Page=='mobile' ? 'mb_intro' : 'nojs_info',
 		page = $('#ui_page'),
 		frame = $('#iframe_content'),
 		side = $('#side_menu'),

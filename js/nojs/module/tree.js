@@ -560,11 +560,19 @@ define(function(require,$){
 			tree.ajax({
 				url : options.data,
 				data : _data,
-				success : function(_data){
-					if( !_data || !_data.length ){
+				success : function(_data_){
+					if( !_data_ || !_data_.length ){
 						return;
 					}
-					Data = tree.format(_data, Data);
+					//获取子节点时，返回数据必须指定父id
+					if( _data && _data.id ){
+						var i, _par = tree.key['parent'];
+						for( i=0; i<_data_.length; i++ ){
+							_data_[i][_par] = _data.id;
+						}
+					}
+					
+					Data = tree.format(_data_, Data);
 					data = Data.level;
 					if( callback ){
 						callback();
