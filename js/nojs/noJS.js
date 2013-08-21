@@ -42,7 +42,7 @@
 			cf = T.now[2] || {},
 			num = 0,
 			len = file.length,
-			src, s, m, i, j, q, isPack, _file;
+			src, s, m, i, j, q;
 			
 		cf.base = typeof cf.base != 'undefined' ? cf.base : config.base;
 		cf.fix = typeof cf.fix != 'undefined' ? cf.fix : config.fix;
@@ -66,7 +66,6 @@
 		if(!len){
 			return;
 		}
-		//isPack = config.pack && len>1;
 		if( file.point ){
 			for( i=0;i<file.point.length;i++ ){
 				m = load.getPath(file.point[i]);
@@ -75,26 +74,17 @@
 			}
 		}
 		
-		if( isPack ){
-			_file = file;
-			file = load.pack( file, cf );
-			for( i=0; i<len; i++ ){
-				_file[i] = T.getPath( _file[i], cf );
-			}
-			len = 1;
-		}
-		
 		num = 0;
 		if( cf.queue===true ){
 			loader(0);
 		}
 		
 		function loader( index ){
-			append( isPack ? file[index] : T.getPath( file[index], cf ) );
+			append( T.getPath( file[index], cf ) );
 		}
 		
 		function append( src ){
-			T.point = file.point ? file.point : isPack ? _file : src;
+			T.point = file.point ? file.point : src;
 			//创建script
 	        s = d.createElement("script");
 	        s.async = true;
@@ -131,31 +121,6 @@
 			}
 			( s||state ) && check( modules[src] );
 		}
-	}
-	/*
-	 * 打包规则转换
-	 * 将多个模块array转换成一个打包后的[url],file为string时反之
-	 * pack = {
-	 * 	  base : 'http://-/min/?',
-	 * 	  path : 'js/',
-	 *    fix : '.js'
-	 * }
-	 */
-	load.pack = function( file ){
-		var rect = [],
-			pack = config.pack,
-			i;
-		if( type(file)=='array' ){
-			for( i=0; i<file.length; i++ ){
-				//rect.push( load.getPath(pack.path, file[i]) + pack.fix );
-				rect.push(file[i].replace(/\//g,'-'));
-			}
-			rect = [ pack.base + rect.join(',') + pack.fix ];
-		}else{
-			
-			
-		}
-		return rect;
 	}
 	
 	load.fileItem = [];		//存放文件数组队列
@@ -297,7 +262,6 @@
 			if( _modules.length ){
 				current['deps'] = [].concat( _modules );
 				
-				//console.log(load.point);
 				//设置打包后，当前模块所依赖模块会并入自身
 				if( config.pack && typeof load.point=='string' ){
 					load.point = load.getPaths(_modules); 
@@ -509,8 +473,6 @@
 			_modules = nojsScript.getAttribute('data-main'),
 			_config = nojsScript.getAttribute('data-config');
 		
-		
-		
 		if( _config || _modules ){
 			//配置选项
 			if( _config ){
@@ -556,7 +518,6 @@
 		}
 	}();
 	defaultLoad();
-	
 	
 	//noJS本身也通过异步加载的方式
 	if( _noJS && _noJS.args ){

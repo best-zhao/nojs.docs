@@ -109,7 +109,7 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 .nj_tree .ico{background-position:3px -40px}
 .nj_tree .first_ico{background-position:3px -18px}
 .nj_tree .no_child{background:none}
-.nj_tree .no_child .folder{background-position:-19px -110px;margin-right:0}
+.nj_tree .no_child .folder{background-position:-18px -109px}
 .nj_tree .no_child .ico{background-position:3px -194px}
 .nj_tree .no_child .first_ico{background-position:-17px -124px}
 .nj_tree .current,.nj_tree .current:hover{color:#f30;background:#e2e2e2;font-weight:800}

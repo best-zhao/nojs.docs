@@ -1,0 +1,75 @@
+
+<h4 class="p_tit">nojs简介</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	nojs是一个前端框架及工具包，分为3大块：noJS模块化管理框架、ui组件及常用模块。
+	<p>默认所有文件都放在一个名为'nojs'的文件夹中，如果你的项目js文件都放在'scripts'目录下，则文件目录结构如下：</p>
+	<div class="nj_tree" id="file_tree" style="font-size:12px"></div>
+</div>
+<h6 class="p_tit">noJS：</h6>
+<div class="text_info">
+	<p class="mb10">这是一个独立的模块化管理框架，与seajs非常相似，且更简洁，但有几点不同：</p>
+	<p class="mb10">1. 可以设置全局依赖模块，不用每次都重复引入</p>
+	<script type="text/templete" code="javascript">
+	noJS.config({
+		global : ['jquery','ui']
+	})
+	</script>
+	<p class="mb10">全局模块的接口通过工厂函数的参数来提供，use方法中也会提供</p>
+	<script type="text/templete" code="javascript">
+	define(function(require,$,ui){
+		//$,ui即是全局接口
+	})
+	</script>
+	<p class="mb10">2. use方法除了引入页面入口模块外，还可以直接执行一段代码块，在整个依赖链完全就绪后再执行；当使用use方法引入模块时，回调函数的参数中会包含全局模块的接口</p>
+	<script type="text/templete" code="javascript">
+	noJS.use(['a','b'],function($,ui,a,b){
+		//此处也可以方便调用全局接口
+	})
+	</script>
+	<p class="mb10">3. 除了通过script标签的data-config引入单独的配置文件外，还可以直接设置data-config为一段json字符串的形式来配置</p>
+	<script type="text/templete" code="html" key="data-config">
+	<script src="js/nojs/noJS.js" data-config="base:'js/',global:['jquery','ui']">< /script>
+	</script>
+	<p class="mb10">4. 模块的工厂函数默认只有一个参数'require',没有'exprots'及'modules',如有全局依赖模块，参数后面会跟上全局模块的接口；模块对外提供接口的方式只有一种，即'return'</p>
+	<script type="text/templete" code="javascript">
+	define(function(require){
+		var main = function(){};
+		main.a = 1;
+		return main;//向外提供接口
+	})
+	</script>
+</div>
+<h6 class="p_tit">ui组件：</h6>
+<div class="text_info">
+	<p class="mb10">依赖jQuery编写，引入['jquery.js','ui.js']即可使用，兼容常规script标签引入的方式</p>
+	<p>功能分为2大块：jQuery功能扩展和常用ui组件。</p>
+</div>
+<h6 class="p_tit">常用模块：</h6>
+<div class="text_info">
+	<p>也是使用jQuery编写，其中一部分模块也会依赖ui.js，标准模块，如需常规方式引入页面，稍加改装即可使用</p>
+</div>
+<script>
+noJS.use('nojs/module/tree',function($,ui,tree){
+	new tree('file_tree', {
+		defaultNode : 'ft2',
+		data : [
+			{id:'ft1',text:'scripts',open:1,data:[
+				{id:'ft8',text:'a.js'},
+				{id:'ft9',text:'b.js'},
+				{id:'ft2',text:'nojs',data:[
+					{id:'ft3',text:'noJS.js'},
+					{id:'ft4',text:'ui.js'},
+					{id:'ft5',text:'jquery.js'},
+					{id:'ft6',text:'module',data:[
+						{id:'ft7',text:'form'},
+						{id:'ft17',text:'tree'},
+						{id:'ft18',text:'....'}
+					]}
+				]},
+				{id:'ft19',text:'....'}
+			]}
+		]
+	})
+});
+</script>
