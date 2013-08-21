@@ -1,1 +1,0 @@
-/*nolure@vip.qq.com http://nolure.github.io/nojs.docs*/noJS.config({base:"dest/",global:["nojs/jquery","nojs/ui"],page:"main"});

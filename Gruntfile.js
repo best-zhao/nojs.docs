@@ -55,6 +55,9 @@ module.exports = function(grunt) {
         		}
         	}
         },
+        clean : {
+			build : ['.build','dest/**/*-debug.js'] //清除
+		},
         uglify : {
         	options: {
         		banner: '/*nolure@vip.qq.com http://nolure.github.io/nojs.docs*/',
@@ -74,9 +77,6 @@ module.exports = function(grunt) {
                 ]
 			}
         },
-		clean : {
-			build : ['.build','dest/**/*-debug.js'] //清除
-		},
 		watch: {			
 			another: {
 				files: ['js/**/*.js'],
@@ -95,6 +95,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
 	
-	grunt.registerTask('default',['transport','concat','clean','uglify']);
+	grunt.registerTask('default',['transport','concat','clean']);
     //grunt.registerTask('default',['watch']);
 };

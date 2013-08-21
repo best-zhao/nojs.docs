@@ -1,1 +1,1042 @@
-/*nolure@vip.qq.com http://nolure.github.io/nojs.docs*/define("m/ui",[],function(require,$){function instaceofFun(a,b){return a instanceof b.callee?!1:Extend(b.callee,Array.prototype.slice.call(b))}function Extend(a,b){function c(a,b){a.apply(this,b)}return c.prototype=a.prototype,isNew=null,new c(a,b)}function getDom(a){var b,c=typeof a;return"string"==c?b=$("#"+a):"object"==c&&(b=a.nodeType?$(a):a),b=b.length?b:null}var UI={};UI.init=function(area){area=area||$("body");var dom=area.find("[data-ui]"),i,elem,method,options;for(i=0;i<dom.length;i++)elem=dom[i],method=elem.getAttribute("data-ui"),UI[method]&&((options=elem.getAttribute("data-config"))&&(options=eval("({"+options+"})")||{}),UI[method](elem,options))};var isNew,cache={};return UI.data=function(a,b){return b?(cache[a]=b,void 0):cache[a]},UI.config={},$.fn.outerHeight=function(){return $(this).height()},$.extend($,{random:function(){return String(Math.ceil(1e5*Math.random())+String((new Date).getTime()))},stopDefault:function(a){a.preventDefault?a.preventDefault():a.returnValue=!1},stopBubble:function(a){a.stopPropagation?a.stopPropagation():a.cancelBubble=!0},onScroll:function(a,b){var c=function(a){a=a||window.event,a.wheelDelta||a.detail,$.stopDefault(a),b&&b(a)};document.addEventListener&&a.addEventListener("DOMMouseScroll",c,!1),a.onmousewheel=c},browser:function(){var a,b=navigator.userAgent.toLowerCase(),c={version:b.match(/(?:firefox|opera|safari|chrome|msie)[\/: ]([\d.]+)/)[0],safari:/version.+safari/.test(b),chrome:/chrome/.test(b),firefox:/firefox/.test(b),ie:/msie/.test(b),ie6:/msie 6.0/.test(b),ie7:/msie 7.0/.test(b),ie8:/msie 8.0/.test(b),ie9:/msie 9.0/.test(b),opera:/opera/.test(b)};return function(b){return a=!1,b=b.split(" "),$.each(b,function(b,d){return c[d]?(a=!0,!1):void 0}),a}}(),tmpl:function(){var a={};return function(b,c){var d=/\W/.test(b)?new Function("o","var p=[];with(o){p.push('"+b.replace(/[\r\t\n]/g," ").split("<%").join("	").replace(/((^|%>)[^\t]*)'/g,"$1\r").replace(/\t=(.*?)%>/g,"',$1,'").split("	").join("');").split("%>").join("p.push('").split("\r").join("\\'")+"');}return p.join('');"):a[b]=a[b]||$.tmpl(document.getElementById(b).innerHTML);return c?d(c):d}}(),cookie:function(a,b,c){if("undefined"==typeof b){var d=null;if(document.cookie&&""!=document.cookie)for(var e=document.cookie.split(";"),f=0;f<e.length;f++){var g=$.trim(e[f]);if(g.substring(0,a.length+1)==a+"="){d=decodeURIComponent(g.substring(a.length+1));break}}return d}c=c||{},null===b&&(b="",c.expires=-1);var h="";if(c.expires&&("number"==typeof c.expires||c.expires.toUTCString)){var i;"number"==typeof c.expires?(i=new Date,i.setTime(i.getTime()+1e3*60*60*24*c.expires)):i=c.expires,h="; expires="+i.toUTCString()}var j=c.path?"; path="+c.path:"",k=c.domain?"; domain="+c.domain:"",l=c.secure?"; secure":"";document.cookie=[a,"=",encodeURIComponent(b),h,j,k,l].join("")},addCss:function(a){if("string"==typeof a){var b;document.createStyleSheet?(window.style=a,document.createStyleSheet("javascript:style")):(b=document.createElement("style"),b.type="text/css",b.innerHTML=a,document.getElementsByTagName("HEAD")[0].appendChild(b))}}}),UI.setPos=function(a,b,c){function d(){h=n.width(),i=n.height(),j=u?0:n.scrollTop(),k=u?0:n.scrollLeft(),f=(q?(i-m)*o/100:parseInt(o,10))+j,g=(r?(h-l)*p/100:parseInt(p,10))+k,t[q||f>0?"top":"bottom"]=Math.abs(f),t[r||g>0?"left":"right"]=Math.abs(g)}function e(){a.is(":hidden")||(d(),1==s?a.stop().animate(t,180):2==s&&a.css(t))}if(a&&a.length){b=b||{};var f,g,h,i,j,k,l=a.outerWidth(),m=a.outerHeight(),n=$(window),o=void 0==b.top?50:b.top,p=void 0==b.left?50:b.left,q="number"==typeof o,r="number"==typeof p,s=0==c?0:c||2,t={},u=2==s&&!$.browser("ie6"),v=a.data("setpos");a.css("position",u?"fixed":"absolute"),d(),a.css(t),s&&(v?n.off("."+v):(v="setpos"+(new Date).getTime(),a.data("setpos",v)),n.on("scroll."+v+" resize."+v,e))}},UI.layer=function(){function a(){e=$("body").append('<div id="nj_layer"></div>').find("#nj_layer"),e.css({opacity:"0"}),S=function(){e.css({width:d.width(),height:d.height()})},S(),d.on("scroll resize",S),UI.setPos(e,{top:0,left:0},2),$.onScroll(e[0])}function b(){!e.length&&a(),e.is(":visible")||(f.self=e,f.isShow=!0,e.show().fadeTo(200,.5))}function c(){f.isShow=!1,e.fadeOut()}var d=$(window),e=$("#nj_layer"),f={show:b,hide:c,isShow:!1};return f}(),UI.win=function(a){a=$.extend(UI.config.win,a),this.w=a.width||400,this.self=null,this.close=null,this.tit=null,this.con=null,this.opt=null,this.stillLayer=a.stillLayer||!1,this.layer=0==a.layer?!1:!0,this.pos=a.pos||{left:50,top:50},this.Float=a.Float||0===a.Float?a.Float:2,this.bindEsc=0==a.bindEsc?!1:!0,this.onShow=a.onShow,this.onHide=a.onHide,this.scroll=0,this.init()},UI.win.prototype={init:function(){var a=this,b="nj_win_"+$.random(),c=['<div id="'+b+'" class="nj_win"><div class="win_wrap">','<span class="win_close"></span><div class="win_tit"></div>','<div class="win_con"></div>','<div class="win_opt"></div>',"</div></div>"];UI.win.item[b]=this,this.key=b,$("body").append(c.join("")),this.self=$("#"+b).css({width:a.w,opacity:"0"}),this.close=this.self.find(".win_close"),this.tit=this.self.find(".win_tit"),this.con=this.self.find(".win_con"),this.opt=this.self.find(".win_opt"),new UI.ico(this.close,{type:"close"}),this.bind()},bind:function(){var a=this;this.close.on("click",function(){a.hide()}),this.bindEsc&&$(window).on("keydown",function(b){a.self.is(":visible")&&27==b.keyCode&&a.hide()}),$.onScroll(this.con[0])},setCon:function(a,b,c){if(a&&this.tit.html(a),b&&this.con.html(b),this.button=[],c){this.opt.empty();for(var d=0;d<c.length;d++)this.addBtn.apply(this,c[d])}else""==this.opt.html().replace(/\s/g,"")&&this.opt.css("display","none")},addBtn:function(a,b,c){if(void 0!==a){this.opt.is(":hidden")&&this.opt.show();var d=this,e=$('<a href=""></a>'),c=c?c:"";"string"==typeof b&&"close"!=b&&(c=b,b=null),e.attr({"class":"no"==c?"":"nj_btn n_b_"+c}),e.html("<i>"+a+"</i>"),this.opt.append(e),this.button.push(e),b&&(b="close"==b?function(){d.hide()}:b,e.on("click",function(){return b.call(d),!1}))}},show:function(a){this.self.is(":visible")||(UI.setPos(this.self,this.pos,this.Float),this.layer&&UI.layer.show(),this.self.css({display:"block","margin-top":"-20px"}),this.self.stop().animate({"margin-top":"0",opacity:"1"},420),setTimeout(function(){a&&a()},100),this.onShow&&this.onShow())},hide:function(a){if(!this.self.is(":hidden")){var b=this;if(this.onbeforehide&&!this.onbeforehide[0]()&&this.onbeforehide[1])return!1;this.self.animate({"margin-top":"-20px",opacity:"0"},120,"easeOutExpo",function(){b.self.hide()}),setTimeout(function(){a&&a()},100),!this.stillLayer&&UI.layer.hide(),this.onHide&&this.onHide()}}},UI.win.item={},UI.win.clear=function(a){function b(a){a.self.remove(),a=null}if(a){var c=UI.win.item[a];c&&b(c)}else{for(var d in UI.win.item)b(UI.win.item[d]);UI.win.item={},UI.msg.win=null}},UI.msg=function(){var a={};return{show:function(b,c,d){d=d||{};var e=this,f=d.btn,g=d.time||1600,h="confirm"==b,i=h?"温馨提醒：":null,j=d.width||(h?400:"auto"),k=0==d.autoHide?!1:!0,l=a[b];this.hide(b,!0),this.hide(),c=c||"","loading"==b?c=c||"正在处理请求,请稍候……":h&&(f=f||[["确定",function(){l.hide(function(){try{d.ok()}catch(a){}})},"sb"],["取消","close"]]),l||(l=new UI.win({width:j,bindEsc:!1}),l.self.addClass("msg_tip_win"),l.self.find("div.win_wrap").attr({"class":"win_wrap msg_tip_"+b}),l.self.width(j),l.layer=h?!0:!1,l.stillLayer=h?!1:!0,l.setCon(i,'<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>'),new UI.ico(l.con.find("i.tip_ico"),{type:h?"warn":b}),a[b]=l),f||l.opt.hide().empty(),l.setCon(null,null,f),l.con.find(".tip_con").html(c),l.show(),h&&l.button[0].focus(),this.timeout=clearTimeout(e.timeout),k&&"confirm"!=b&&"loading"!=b&&(this.timeout=setTimeout(function(){l.hide()},g)),d.reload&&(e.timeout=clearTimeout(e.timeout),setTimeout(function(){d.reload===!0?window.location.reload():"string"==typeof d.reload&&(window.location.href=d.reload)},1500))},hide:function(b,c){if(b&&a[b])(c?a[b].self:a[b]).hide();else for(var d in a)a[d].hide(),c&&a[d].self.hide()}}}(),UI.Switch=function(a,b){this.box=$("#"+a),this.init(a,b)},UI.Switch.prototype={init:function(a,b){this.box=$("#"+a),this.box.length&&(this.M=this.box.find(".nj_s_menu").first(),this.menu=this.M.find(".nj_s_m"),this.C=this.box.find(".nj_s_con").first(),this.con=this.C.children(".nj_s_c"),this.length=this.con.length,this.length&&(this.opt=b||{},this.onChange=this.opt.onChange,this.index=this.opt.firstIndex||0,this.bind()))},bind:function(){var a,b,c=this;this.menu.on("tap",function(){return b=$(this),b.hasClass("current")?!1:(c.change(b.index()),!1)}).mouseout(function(){a=clearTimeout(a)}),this.change(this.index)},change:function(a){a=a>this.length-1?0:a,a=0>a?this.length-1:a,this.opt.rule?this.opt.rule.call(this,a):(this.con.eq(a).show().siblings().hide(),this.menu.eq(a).addClass("current").siblings().removeClass("current")),this.index=a,this.onChange&&this.onChange.call(this,a)}},UI.slide=function(a,b){this.init(a,b),this.box.length&&(this.getIndexNum=1==this.opt.getIndexNum?!0:!1,this.getIndexNum&&this.getNum(),this.play=null,this.time=this.opt.time||5e3,this.auto=0==this.opt.auto?!1:!0,this.start(!0))},UI.slide.prototype=new UI.Switch,UI.slide.prototype.constructor=UI.slide,UI.slide.prototype.getNum=function(){for(var a="",b=1;b<=this.length;b++)a+='<li class="nj_s_m">'+b+"</li>";this.M.append(a),this.menu=this.M.find(".nj_s_m"),this.bind()},UI.slide.prototype.rule=function(a){this.con.eq(a).fadeIn(300).siblings().hide(),this.menu.eq(a).addClass("current").siblings().removeClass("current"),this.index=a},UI.slide.prototype.start=function(a){function b(){window.clearInterval(c.play),c.play=window.setInterval(function(){c.change(++c.index)},c.time)}var c=this;this.auto&&this.length>1&&b(),a&&c.change(c.index)},UI.ico=function(a,b){return(isNew=instaceofFun(this,arguments))?isNew:(b=$.extend(UI.config.ico||{},b),this.hasCanvas=!!document.createElement("canvas").getContext,this.type=b.type||"ok",this.ico=$('<i class="nj_ico n_i_'+this.type+'"></i>'),a=getDom(a),a&&a.length&&a.empty(),this.obj=a||$("body:first"),this.obj.append(this.ico),this.canvas=null,this.ctx=null,this.width=b.width||this.ico.width(),this.height=b.height||this.ico.height(),this.ico.css("visibility","hidden"),this.width&&this.height&&(this.color=b.color||this.ico.css("color"),this.bgcolor=b.bgcolor||this.ico.css("background-color"),this.ico.removeAttr("style"),this.ico.css({background:"none",width:this.width,height:this.height}),this.createSpace()),void 0)},UI.ico.prototype={createSpace:function(){var a=document;if(this.hasCanvas)this.canvas=a.createElement("canvas"),this.ctx=this.canvas.getContext("2d"),this.canvas.width=this.width,this.canvas.height=this.height,this.ico.append(this.canvas);else{if(!UI.ico.iscreatevml){var b=a.createStyleSheet(),c=["polyline","oval","arc","stroke","shape"];a.namespaces.add("v","urn:schemas-microsoft-com:vml");for(var d=0;d<c.length;d++)b.addRule("v\\:"+c[d],"behavior:url(#default#VML);display:inline-block;");UI.ico.iscreatevml=!0}this.ico.css("position","relative")}this.draw()},drawLine:function(a,b,c){var d,e=a.length;if(this.hasCanvas){for(this.ctx.beginPath(),this.ctx.moveTo(a[0],a[1]),d=2;e>d;d+=2)this.ctx.lineTo(a[d],a[d+1]);this.ctx.stroke(),b&&this.ctx.fill()}else{var f="",g="";for(d=0;e>d;d+=2)f+=a[d]+","+a[d+1]+" ";g+='<v:polyline strokeWeight="'+c+'" filled="'+(b?"true":"false")+'" class="polyline" strokecolor="'+this.color+'" points="'+f+'" ',b&&(g+='fillcolor="'+this.color+'"'),g+="/>",$(this.canvas).after(g)}},draw:function(){function a(){n.hasCanvas?n.ico.hover(function(){k.clearRect(0,0,g,h),k.beginPath(),k.fillStyle=i,k.strokeStyle=j,k.arc(g/2,h/2,g/2,f,3*f,!1),k.fill(),k.stroke(),k.fillStyle=j,n.drawLine(e,!0)},function(){k.clearRect(0,0,g,h),k.beginPath(),k.fillStyle=j,k.strokeStyle=j,k.arc(g/2,h/2,g/2,f,3*f,!1),k.fill(),k.stroke(),k.fillStyle=i,k.strokeStyle=i,n.drawLine(e,!0)}):n.ico.hover(function(){var a=$(this).find(".oval")[0],b=$(this).find(".polyline")[0];a.fillcolor=a.strokecolor=i,b.fillcolor=b.strokecolor=j},function(){var a=$(this).find(".oval")[0],b=$(this).find(".polyline")[0];a.fillcolor=a.strokecolor=j,b.fillcolor=b.strokecolor=i})}var b,c,d,e,f=Math.PI,g=this.width,h=this.height,i=this.color,j=this.bgcolor,k=this.ctx,l=(this.canvas,this.type),m=document,n=this;"loading"==l?(d=3,this.hasCanvas?(b=f/180,c=200*f/180,k.strokeStyle=this.color,k.lineWidth=d,window.setInterval(function(){k.clearRect(0,0,g,h),b+=.1,c+=.1,k.beginPath(),k.arc(g/2,h/2,g/2-d+1,b,c,!1),k.stroke()},15)):(b=0,d--,this.canvas=m.createElement('<v:arc class="oval" filled="false" style="left:1px;top:1px;width:'+(g-2*d+1)+"px;height:"+(h-2*d+1)+'px" startangle="0" endangle="200"></v:arc>'),$(this.canvas).append('<v:stroke weight="'+d+'" color="'+i+'"/>'),this.ico.append(this.canvas),window.setInterval(function(){b+=6,b=b>360?b-360:b,n.canvas.rotation=b},15))):"ok"==l||"warn"==l||"error"==l||"close"==l?(this.hasCanvas?(k.beginPath(),k.fillStyle=j,k.arc(g/2,h/2,g/2,f,3*f,!1),k.fill(),k.fillStyle=i,k.strokeStyle=i):(this.canvas=m.createElement('<v:oval class="oval" fillcolor="'+j+'" style="width:'+(g-1)+"px;height:"+(h-1)+'px;"></v:oval>'),$(this.canvas).append('<v:stroke color="'+j+'"/>'),this.ico.append(this.canvas)),"ok"==l?(e=[.26*g,.43*h,.45*g,.59*h,.71*g,.33*h,.71*g,.47*h,.45*g,.73*h,.26*g,.57*h],this.drawLine(e,!0)):"warn"==l?(this.hasCanvas?(k.beginPath(),k.arc(.5*g,.73*h,.07*g,f,3*f,!1),k.stroke(),k.fill()):this.ico.append('<v:oval class="oval" fillcolor="#fff" style="width:'+.16*h+"px;height:"+.14*h+"px;left:"+h*($.browser("ie6 ie7")?.43:.4)+"px;top:"+.68*h+'px"><v:stroke color="#fff"/></v:oval>'),e=[.45*g,.22*h,.55*g,.22*h,.55*g,.54*h,.45*g,.54*h],this.drawLine(e,!0)):("error"==l||"close"==l)&&(this.hasCanvas||(g=.95*g,h=.95*h),e=[.33*g,.3*h,.5*g,.46*h,.68*g,.3*h,.72*g,.34*h,.55*g,.52*h,.71*g,.68*h,.68*g,.73*h,.5*g,.56*h,.34*g,.72*h,.29*g,.69*h,.46*g,.51*h,.29*g,.34*h],this.drawLine(e,!0),"close"==l&&a())):this["Draw"+l]&&this["Draw"+l]()}},UI.ico.batch=function(a,b){var c,d,e,f,g={},h=this;for(c in a){if(d=a[c],e=d.length,e>1)for(f=0;e>f;f++)new h(c,d.eq(f),b);else{if(1!=e)continue;new h(c,d,b)}g[c]=d}return g},UI.ico.add=function(a,b){UI.ico.prototype["Draw"+a]||(UI.ico.prototype["Draw"+a]=b)},UI.menu=function(a,b){return(isNew=instaceofFun(this,arguments))?isNew:(this.opt=b=$.extend(UI.config.menu,b),this.obj=a=getDom(a),this.menu=null,this.content=b.content||"",this.align=b.align||"left",this.mode=b.mode||"tap",this.offset=b.offset||[0,0],this.autoWidth=b.autoWidth===!1?!1:!0,this.now=a?this.obj.eq(0):null,this.agent=b.agent===!0?!0:!1,this.disable=!1,this.init(),void 0)},UI.menu.prototype={init:function(){this.mode="focus"==this.mode?"focus click":this.mode,this.menu=$('<div class="nj_menu"><div class="wrap clearfix"></div></div>'),$("body").append(this.menu),this.setCon(),this.bind(),this.opt.className&&this.menu.addClass(this.opt.className)},bind:function(){function a(a){if(e.disable)return!1;if(a=a||e.obj,"click"==e.mode&&e.menu.is(":visible")){if(e.now.is(a))return b(),!1;b(!0)}else d=window.clearTimeout(d);return e.now=a,a.addClass("nj_menu_hover"),e.setPos(),e.opt.onShow&&e.opt.onShow.call(e,a),!1}function b(){e.now.removeClass("nj_menu_hover"),1!=S&&e.menu.hide(),e.opt.onHide&&e.opt.onHide.call(e,e.now)}var c,d,e=this;this.agent||(this.obj.on(this.mode,function(b){return $.stopBubble(b),a($(this))}),"focus"==this.mode&&this.obj.on("blur",function(){c=window.clearTimeout(c),b()})),"tap"==this.mode&&(this.menu.on("tap",function(a){d=window.clearTimeout(d),$.stopBubble(a)}),$(document).on("tap",function(){e.menu.is(":visible")&&b()})),this.show=a,this.hide=b,$(window).on("scroll resize",function(){e.menu.is(":visible")&&e.setPos()}),this.menu.find(".close").on("click",function(a){e.hide(),$.stopBubble(a)}),function(){var a,b,c=e.opt.onSelect;if(c)for(a in c)b=e.menu.find("["+a+"]"),b.length&&function(a){b.bind("click",function(b){return c[a].call(e,$(this),b),!1})}(a)}()},setPos:function(){var a=this,b=this.now.outerHeight(),c=this.now.offset().top,d=this.now.offset().left,e=d+this.offset[0],f=c+b+this.offset[1];"right"==this.align&&(e-=this.menu.outerWidth()-this.now.outerWidth()),this.menu.removeAttr("style").css({left:e,top:f,"z-index":"999",display:"block"}),this.autoWidth||this.menu.width(this.now.outerWidth()),function(){var b=a.menu.outerHeight(),d=$(window),e=d.scrollTop(),g=$(window).height();f+b-e>g&&(f=c-b,0>f?(a.menu.css({top:0,overflow:"auto",height:c-2-a.offset[1]}),f=0):a.menu.css({top:f-a.offset[1]}))}()},setCon:function(a){a=a||this.content,this.menu.children(".wrap").empty().append(a)}},UI});
+/*
+ * nojs mobile UI
+ * 2013-8-04
+ * nolure@vip.qq.com
+ */
+define("m/ui", [], function(require, $) {
+    var UI = {};
+    /*
+	 * 触发方式
+	 * 1.普通：直接执行相关方法，
+	 * 2.区域初始化：通过在Elements上配置相应的属性初始化对应区域内所有ui组件，默认body区域
+	 */
+    UI.init = function(area) {
+        area = area || $("body");
+        var dom = area.find("[data-ui]"), i, elem, method, options;
+        for (i = 0; i < dom.length; i++) {
+            elem = dom[i];
+            method = elem.getAttribute("data-ui");
+            if (UI[method]) {
+                if (options = elem.getAttribute("data-config")) {
+                    options = eval("({" + options + "})") || {};
+                }
+                UI[method](elem, options);
+            }
+        }
+    };
+    var isNew, cache = {};
+    function instaceofFun(fun, arg) {
+        if (!(fun instanceof arg.callee)) {
+            return Extend(arg.callee, Array.prototype.slice.call(arg));
+        } else {
+            return false;
+        }
+    }
+    //结合new和apply的方式
+    function Extend(parent, args) {
+        function F(parent, args) {
+            parent.apply(this, args);
+        }
+        //F.constructor = parent;
+        F.prototype = parent.prototype;
+        isNew = null;
+        return new F(parent, args);
+    }
+    /*
+	 * 所有依赖dom的ui组件都可以通过id,element,jQuery来获取dom元素
+	 */
+    function getDom(selector) {
+        var type = typeof selector, elem;
+        if (type == "string") {
+            //通过id
+            elem = $("#" + selector);
+        } else if (type == "object") {
+            elem = selector.nodeType ? $(selector) : selector;
+        }
+        elem = elem.length ? elem : null;
+        return elem;
+    }
+    UI.data = function(id, Class) {
+        if (Class) {
+            //set
+            cache[id] = Class;
+        } else {
+            return cache[id];
+        }
+    };
+    UI.config = {};
+    $.fn.outerHeight = function() {
+        return $(this).height();
+    };
+    $.extend($, {
+        random: function() {
+            //得到一个随机数
+            return String(Math.ceil(Math.random() * 1e5) + String(new Date().getTime()));
+        },
+        stopDefault: function(e) {
+            //取消事件的默认动作
+            if (e.preventDefault) {
+                e.preventDefault();
+            } else {
+                e.returnValue = false;
+            }
+        },
+        stopBubble: function(e) {
+            //阻止冒泡
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            } else {
+                e.cancelBubble = true;
+            }
+        },
+        onScroll: function(obejct, onScroll) {
+            //自定义鼠标滚轮事件
+            var scrollFunc = function(e) {
+                e = e || window.event;
+                if (e.wheelDelta) {} else if (e.detail) {}
+                $.stopDefault(e);
+                onScroll && onScroll(e);
+            };
+            if (document.addEventListener) {
+                //firefox
+                obejct.addEventListener("DOMMouseScroll", scrollFunc, false);
+            }
+            obejct.onmousewheel = scrollFunc;
+        },
+        browser: function() {
+            //检测浏览器
+            var u = navigator.userAgent.toLowerCase(), fn = {
+                version: u.match(/(?:firefox|opera|safari|chrome|msie)[\/: ]([\d.]+)/)[0],
+                //浏览器版本号
+                safari: /version.+safari/.test(u),
+                chrome: /chrome/.test(u),
+                firefox: /firefox/.test(u),
+                ie: /msie/.test(u),
+                ie6: /msie 6.0/.test(u),
+                ie7: /msie 7.0/.test(u),
+                ie8: /msie 8.0/.test(u),
+                ie9: /msie 9.0/.test(u),
+                opera: /opera/.test(u)
+            }, state;
+            return function(name) {
+                //多个用逗号隔开 如'ie6 ie7'
+                state = false;
+                name = name.split(" ");
+                $.each(name, function(i, val) {
+                    if (fn[val]) {
+                        state = true;
+                        return false;
+                    }
+                });
+                return state;
+            };
+        }(),
+        tmpl: function() {
+            /*
+			 * js模版引擎
+			 * http://ejohn.org/blog/javascript-micro-templating/
+			 */
+            var c = {};
+            return function(s, d) {
+                var fn = !/\W/.test(s) ? c[s] = c[s] || $.tmpl(document.getElementById(s).innerHTML) : new Function("o", "var p=[];" + "with(o){p.push('" + s.replace(/[\r\t\n]/g, " ").split("<%").join("	").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("	").join("');").split("%>").join("p.push('").split("\r").join("\\'") + "');}return p.join('');");
+                return d ? fn(d) : fn;
+            };
+        }(),
+        cookie: function(name, value, options) {
+            /*
+			 * 读取cookie值: $.cookie("key"); 
+			 * 设置/新建cookie的值:	$.cookie("key", "value");
+			 * 新建一个cookie 包括有效期(天数) 路径 域名等:$.cookie("key", "value", {expires: 7, path: '/', domain: 'a.com', secure: true});
+			 * 删除一个cookie:$.cookie("key", null);	
+			 */
+            if (typeof value != "undefined") {
+                options = options || {};
+                if (value === null) {
+                    value = "";
+                    options.expires = -1;
+                }
+                var expires = "";
+                if (options.expires && (typeof options.expires == "number" || options.expires.toUTCString)) {
+                    var date;
+                    if (typeof options.expires == "number") {
+                        date = new Date();
+                        date.setTime(date.getTime() + options.expires * 24 * 60 * 60 * 1e3);
+                    } else {
+                        date = options.expires;
+                    }
+                    expires = "; expires=" + date.toUTCString();
+                }
+                var path = options.path ? "; path=" + options.path : "";
+                var domain = options.domain ? "; domain=" + options.domain : "";
+                var secure = options.secure ? "; secure" : "";
+                document.cookie = [ name, "=", encodeURIComponent(value), expires, path, domain, secure ].join("");
+            } else {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != "") {
+                    var cookies = document.cookie.split(";");
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = $.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) == name + "=") {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        },
+        addCss: function(css) {
+            //动态创建css @css:string
+            if (typeof css != "string") {
+                return;
+            }
+            var i, style;
+            if (document.createStyleSheet) {
+                window.style = css;
+                document.createStyleSheet("javascript:style");
+            } else {
+                style = document.createElement("style");
+                style.type = "text/css";
+                style.innerHTML = css;
+                document.getElementsByTagName("HEAD")[0].appendChild(style);
+            }
+        }
+    });
+    //***********ui组件***********//
+    UI.setPos = function(obj, pos, isFloat) {
+        /*
+		 * 设置浮动元素显示位置
+		 * @obj:设置对象
+		 * @pos:{top:top,left:left},默认{50,50}屏幕居中,top和left值范围0-100
+		 * @isFloat:是否浮动 0不浮动，1动画 2固定
+		 */
+        if (!obj || !obj.length) {
+            return;
+        }
+        pos = pos || {};
+        var W = obj.outerWidth(), H = obj.outerHeight(), win = $(window), T, L, top = pos.top == undefined ? 50 : pos.top, left = pos.left == undefined ? 50 : pos.left, isTop = typeof top == "number", isLeft = typeof left == "number", F = isFloat == 0 ? 0 : isFloat || 2, win_w, win_h, sTop, sLeft, css = {}, noIE6 = F == 2 && !$.browser("ie6"), ns = obj.data("setpos");
+        obj.css("position", noIE6 ? "fixed" : "absolute");
+        function getPos() {
+            win_w = win.width();
+            win_h = win.height();
+            sTop = noIE6 ? 0 : win.scrollTop();
+            sLeft = noIE6 ? 0 : win.scrollLeft();
+            T = (isTop ? (win_h - H) * top / 100 : parseInt(top, 10)) + sTop;
+            L = (isLeft ? (win_w - W) * left / 100 : parseInt(left, 10)) + sLeft;
+            css[isTop || T > 0 ? "top" : "bottom"] = Math.abs(T);
+            css[isLeft || L > 0 ? "left" : "right"] = Math.abs(L);
+        }
+        getPos();
+        obj.css(css);
+        function moveTo(resize) {
+            if (obj.is(":hidden")) {
+                return;
+            }
+            getPos();
+            if (F == 1) {
+                obj.stop().animate(css, 180);
+            } else if (F == 2) {
+                obj.css(css);
+            }
+        }
+        if (F) {
+            if (ns) {
+                win.off("." + ns);
+            } else {
+                ns = "setpos" + new Date().getTime();
+                obj.data("setpos", ns);
+            }
+            win.on("scroll." + ns + " resize." + ns, moveTo);
+        }
+    };
+    UI.layer = function() {
+        /*
+		 * 遮罩层
+		 */
+        var w = $(window), layer = $("#nj_layer"), arr = {
+            show: show,
+            hide: hide,
+            isShow: false
+        };
+        function init() {
+            layer = $("body").append('<div id="nj_layer"></div>').find("#nj_layer");
+            layer.css({
+                opacity: "0"
+            });
+            S = function() {
+                layer.css({
+                    width: w.width(),
+                    height: w.height()
+                });
+            };
+            S();
+            w.on("scroll resize", S);
+            UI.setPos(layer, {
+                top: 0,
+                left: 0
+            }, 2);
+            $.onScroll(layer[0]);
+        }
+        function show() {
+            !layer.length && init();
+            if (layer.is(":visible")) {
+                return;
+            }
+            arr.self = layer;
+            arr.isShow = true;
+            layer.show().fadeTo(200, .5);
+        }
+        function hide() {
+            arr.isShow = false;
+            layer.fadeOut();
+        }
+        return arr;
+    }();
+    UI.win = function(opt) {
+        /*
+		 * 弹窗
+		 */
+        opt = $.extend(UI.config.win, opt);
+        this.w = opt.width || 400;
+        //宽
+        this.self = null;
+        //弹窗对象本身
+        this.close = null;
+        //关闭按钮
+        this.tit = null;
+        //标题区
+        this.con = null;
+        //放置内容的容器对象    
+        this.opt = null;
+        //操作区		
+        this.stillLayer = opt.stillLayer || false;
+        //隐藏后是否继续显示遮罩层
+        this.layer = opt.layer == false ? false : true;
+        this.pos = opt.pos || {
+            left: 50,
+            top: 50
+        };
+        this.Float = opt.Float || opt.Float === 0 ? opt.Float : 2;
+        this.bindEsc = opt.bindEsc == false ? false : true;
+        this.onShow = opt.onShow;
+        this.onHide = opt.onHide;
+        this.scroll = 0;
+        this.init();
+    };
+    UI.win.prototype = {
+        init: function() {
+            var me = this, id = "nj_win_" + $.random(), win = [ '<div id="' + id + '" class="nj_win"><div class="win_wrap">', '<span class="win_close"></span><div class="win_tit"></div>', '<div class="win_con"></div>', '<div class="win_opt"></div>', "</div></div>" ];
+            UI.win.item[id] = this;
+            this.key = id;
+            $("body").append(win.join(""));
+            //插入到body中
+            this.self = $("#" + id).css({
+                width: me.w,
+                opacity: "0"
+            });
+            this.close = this.self.find(".win_close");
+            this.tit = this.self.find(".win_tit");
+            this.con = this.self.find(".win_con");
+            this.opt = this.self.find(".win_opt");
+            new UI.ico(this.close, {
+                type: "close"
+            });
+            this.bind();
+        },
+        bind: function() {
+            var T = this;
+            this.close.on("click", function() {
+                T.hide();
+            });
+            //绑定关闭按钮事件
+            if (this.bindEsc) {
+                $(window).on("keydown", function(e) {
+                    //按下esc键隐藏弹窗
+                    T.self.is(":visible") && e.keyCode == 27 && T.hide();
+                });
+            }
+            $.onScroll(this.con[0]);
+        },
+        setCon: function(tit, con, btns) {
+            /*
+				设置标题、内容
+		        @tit,con:会替换以前的
+		        @btns:设置操作区按钮，为一个数组，数组项格式同this.getButton,如不设置或设置null则隐藏操作区
+		    */
+            tit && this.tit.html(tit);
+            con && this.con.html(con);
+            this.button = [];
+            if (btns) {
+                this.opt.empty();
+                //重设操作区
+                for (var i = 0; i < btns.length; i++) {
+                    this.addBtn.apply(this, btns[i]);
+                }
+            } else if (this.opt.html().replace(/\s/g, "") == "") {
+                //不传入且未设置过操作区则隐藏操作区
+                this.opt.css("display", "none");
+            }
+        },
+        addBtn: function(text, callback, color) {
+            /*
+				增加一个操作区按钮
+				@text:按钮文字
+				@color:按钮样式，即class类名
+				@callBack:按钮click绑定的函数,"close"则为关闭
+			*/
+            if (text === undefined) {
+                return;
+            }
+            this.opt.is(":hidden") && this.opt.show();
+            var T = this, btn = $('<a href=""></a>'), color = color ? color : "";
+            if (typeof callback == "string" && callback != "close") {
+                //无回调时，第二个参数作为按钮颜色
+                color = callback;
+                callback = null;
+            }
+            btn.attr({
+                "class": color == "no" ? "" : "nj_btn n_b_" + color
+            });
+            btn.html("<i>" + text + "</i>");
+            this.opt.append(btn);
+            this.button.push(btn);
+            if (callback) {
+                callback = callback == "close" ? function() {
+                    T.hide();
+                } : callback;
+                btn.on("click", function() {
+                    callback.call(T);
+                    return false;
+                });
+            }
+        },
+        show: function(callBack) {
+            /*
+				显示弹窗
+		        @callBack:可选参数，回调函数
+		    */
+            if (this.self.is(":visible")) {
+                return;
+            }
+            UI.setPos(this.self, this.pos, this.Float);
+            //重新计算高度并设置居中 
+            this.layer && UI.layer.show();
+            this.self.css({
+                display: "block",
+                "margin-top": "-20px"
+            });
+            this.self.stop().animate({
+                "margin-top": "0",
+                opacity: "1"
+            }, 420);
+            setTimeout(function() {
+                callBack && callBack();
+            }, 100);
+            this.onShow && this.onShow();
+        },
+        /*
+			隐藏弹窗
+	        @callBack:可选参数，回调函数
+	    */
+        hide: function(callBack) {
+            if (this.self.is(":hidden")) {
+                return;
+            }
+            var T = this;
+            /*
+			 * onbeforehide:关闭之前确认，传入一个数组[fn,true/false]
+			 * fn返回的布尔值;第二个参数true表示是否只有当fn为true时才关闭窗口,false均关闭
+			 */
+            if (this.onbeforehide && !this.onbeforehide[0]()) {
+                if (this.onbeforehide[1]) {
+                    return false;
+                }
+            }
+            //关闭之前确认
+            this.self.animate({
+                "margin-top": "-20px",
+                opacity: "0"
+            }, 120, "easeOutExpo", function() {
+                T.self.hide();
+            });
+            setTimeout(function() {
+                callBack && callBack();
+            }, 100);
+            !this.stillLayer && UI.layer.hide();
+            this.onHide && this.onHide();
+        }
+    };
+    UI.win.item = {};
+    //保存所有弹框实例对象
+    UI.win.clear = function(key) {
+        //清空弹框对象
+        if (key) {
+            var win = UI.win.item[key];
+            win && clear(win);
+        } else {
+            for (var i in UI.win.item) {
+                clear(UI.win.item[i]);
+            }
+            UI.win.item = {};
+            UI.msg.win = null;
+        }
+        function clear(win) {
+            win.self.remove();
+            win = null;
+        }
+    };
+    UI.msg = function() {
+        /*
+		 * 消息提示框
+		 */
+        var Win = {};
+        return {
+            show: function(type, tip, opt) {
+                opt = opt || {};
+                var T = this, btn = opt.btn, time = opt.time || 1600, C = type == "confirm", tit = C ? "温馨提醒：" : null, w = opt.width || (C ? 400 : "auto"), autoHide = opt.autoHide == false ? false : true, win = Win[type];
+                //隐藏其他
+                this.hide(type, true);
+                this.hide();
+                tip = tip || "";
+                if (type == "loading") {
+                    tip = tip || "正在处理请求,请稍候……";
+                } else if (C) {
+                    btn = btn || [ [ "确定", function() {
+                        win.hide(function() {
+                            try {
+                                opt.ok();
+                            } catch (e) {}
+                        });
+                    }, "sb" ], [ "取消", "close" ] ];
+                }
+                if (!win) {
+                    win = new UI.win({
+                        width: w,
+                        bindEsc: false
+                    });
+                    win.self.addClass("msg_tip_win");
+                    win.self.find("div.win_wrap").attr({
+                        "class": "win_wrap msg_tip_" + type
+                    });
+                    win.self.width(w);
+                    win.layer = C ? true : false;
+                    win.stillLayer = C ? false : true;
+                    win.setCon(tit, '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
+                    new UI.ico(win.con.find("i.tip_ico"), {
+                        type: C ? "warn" : type
+                    });
+                    Win[type] = win;
+                }
+                if (!btn) {
+                    win.opt.hide().empty();
+                }
+                win.setCon(null, null, btn);
+                win.con.find(".tip_con").html(tip);
+                win.show();
+                if (C) {
+                    win.button[0].focus();
+                }
+                //自动隐藏
+                this.timeout = clearTimeout(T.timeout);
+                if (autoHide && type != "confirm" && type != "loading") {
+                    this.timeout = setTimeout(function() {
+                        win.hide();
+                    }, time);
+                }
+                if (opt.reload) {
+                    T.timeout = clearTimeout(T.timeout);
+                    setTimeout(function() {
+                        if (opt.reload === true) {
+                            window.location.reload();
+                        } else if (typeof opt.reload == "string") {
+                            window.location.href = opt.reload;
+                        }
+                    }, 1500);
+                }
+            },
+            hide: function(type, now) {
+                if (type && Win[type]) {
+                    (now ? Win[type].self : Win[type]).hide();
+                } else {
+                    for (var i in Win) {
+                        Win[i].hide();
+                        now && Win[i].self.hide();
+                    }
+                }
+            }
+        };
+    }();
+    UI.Switch = function(id, opt) {
+        /*
+		 * switch原型超类|幻灯片、选项卡等
+		 * @id:容器id
+		 * 子类不能通过该构造函数传递参数，所以使用init方法来传递
+		 */
+        this.box = $("#" + id);
+        this.init(id, opt);
+    };
+    UI.Switch.prototype = {
+        init: function(id, opt) {
+            this.box = $("#" + id);
+            if (!this.box.length) {
+                return;
+            }
+            this.M = this.box.find(".nj_s_menu").first();
+            this.menu = this.M.find(".nj_s_m");
+            this.C = this.box.find(".nj_s_con").first();
+            this.con = this.C.children(".nj_s_c");
+            this.length = this.con.length;
+            if (!this.length) {
+                return;
+            }
+            this.opt = opt || {};
+            this.onChange = this.opt.onChange;
+            this.index = this.opt.firstIndex || 0;
+            this.bind();
+        },
+        bind: function() {
+            var T = this, A, m;
+            this.menu.on("tap", function() {
+                m = $(this);
+                if (m.hasClass("current")) {
+                    return false;
+                }
+                T.change(m.index());
+                return false;
+            }).mouseout(function() {
+                A = clearTimeout(A);
+            });
+            this.change(this.index);
+        },
+        change: function(index) {
+            index = index > this.length - 1 ? 0 : index;
+            index = index < 0 ? this.length - 1 : index;
+            if (this.opt.rule) {
+                this.opt.rule.call(this, index);
+            } else {
+                this.con.eq(index).show().siblings().hide();
+                this.menu.eq(index).addClass("current").siblings().removeClass("current");
+            }
+            this.index = index;
+            if (this.onChange) {
+                this.onChange.call(this, index);
+            }
+        }
+    };
+    UI.slide = function(id, opt) {
+        /*
+		 * switch扩展: slide幻灯片
+		 */
+        this.init(id, opt);
+        if (!this.box.length) {
+            return;
+        }
+        this.getIndexNum = this.opt.getIndexNum == true ? true : false;
+        this.getIndexNum && this.getNum();
+        this.play = null;
+        this.time = this.opt.time || 5e3;
+        this.auto = this.opt.auto == false ? false : true;
+        this.start(true);
+    };
+    UI.slide.prototype = new UI.Switch();
+    UI.slide.prototype.constructor = UI.slide;
+    UI.slide.prototype.getNum = function() {
+        var list = "";
+        for (var i = 1; i <= this.length; i++) {
+            list += '<li class="nj_s_m">' + i + "</li>";
+        }
+        this.M.append(list);
+        this.menu = this.M.find(".nj_s_m");
+        this.bind();
+    };
+    UI.slide.prototype.rule = function(index) {
+        //切换规则		
+        this.con.eq(index).fadeIn(300).siblings().hide();
+        this.menu.eq(index).addClass("current").siblings().removeClass("current");
+        this.index = index;
+    };
+    UI.slide.prototype.start = function(startNow) {
+        //自动播放
+        var T = this;
+        this.auto && this.length > 1 && s();
+        startNow && T.change(T.index);
+        function s() {
+            window.clearInterval(T.play);
+            T.play = window.setInterval(function() {
+                T.change(++T.index);
+            }, T.time);
+        }
+    };
+    UI.ico = function(dom, opt) {
+        /*
+		 * canvas/vml绘制的图标
+		 */
+        if (isNew = instaceofFun(this, arguments)) {
+            return isNew;
+        }
+        opt = $.extend(UI.config.ico || {}, opt);
+        this.hasCanvas = !!document.createElement("canvas").getContext;
+        this.type = opt.type || "ok";
+        this.ico = $('<i class="nj_ico n_i_' + this.type + '"></i>');
+        dom = getDom(dom);
+        dom && dom.length && dom.empty();
+        this.obj = dom || $("body:first");
+        this.obj.append(this.ico);
+        this.canvas = null;
+        this.ctx = null;
+        this.width = opt.width || this.ico.width();
+        this.height = opt.height || this.ico.height();
+        this.ico.css("visibility", "hidden");
+        if (!this.width || !this.height) {
+            return;
+        }
+        this.color = opt.color || this.ico.css("color");
+        this.bgcolor = opt.bgcolor || this.ico.css("background-color");
+        this.ico.removeAttr("style");
+        this.ico.css({
+            background: "none",
+            width: this.width,
+            height: this.height
+        });
+        this.createSpace();
+    };
+    UI.ico.prototype = {
+        createSpace: function() {
+            var d = document;
+            if (this.hasCanvas) {
+                this.canvas = d.createElement("canvas");
+                this.ctx = this.canvas.getContext("2d");
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.ico.append(this.canvas);
+            } else {
+                if (!UI.ico["iscreatevml"]) {
+                    //只创建 一次vml
+                    var s = d.createStyleSheet(), shapes = [ "polyline", "oval", "arc", "stroke", "shape" ];
+                    d.namespaces.add("v", "urn:schemas-microsoft-com:vml");
+                    //创建vml命名空间
+                    for (var i = 0; i < shapes.length; i++) {
+                        s.addRule("v\\:" + shapes[i], "behavior:url(#default#VML);display:inline-block;");
+                    }
+                    UI.ico["iscreatevml"] = true;
+                }
+                this.ico.css("position", "relative");
+            }
+            this.draw();
+        },
+        drawLine: function(point, fill, border) {
+            var i, n = point.length;
+            if (this.hasCanvas) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(point[0], point[1]);
+                for (i = 2; i < n; i += 2) {
+                    this.ctx.lineTo(point[i], point[i + 1]);
+                }
+                this.ctx.stroke();
+                fill && this.ctx.fill();
+            } else {
+                var path = "", v = "";
+                for (i = 0; i < n; i += 2) {
+                    path += point[i] + "," + point[i + 1] + " ";
+                }
+                v += '<v:polyline strokeWeight="' + border + '" filled="' + (fill ? "true" : "false") + '" class="polyline" strokecolor="' + this.color + '" points="' + path + '" ';
+                if (fill) {
+                    v += 'fillcolor="' + this.color + '"';
+                }
+                v += "/>";
+                $(this.canvas).after(v);
+            }
+        },
+        draw: function() {
+            var startAngle, endAngle, border, point, p = Math.PI, width = this.width, height = this.height, color = this.color, bgcolor = this.bgcolor, ctx = this.ctx, canvas = this.canvas, type = this.type, d = document, T = this;
+            if (type == "loading") {
+                border = 3;
+                if (this.hasCanvas) {
+                    startAngle = p / 180;
+                    endAngle = 200 * p / 180;
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = border;
+                    window.setInterval(function() {
+                        ctx.clearRect(0, 0, width, height);
+                        startAngle += .1;
+                        endAngle += .1;
+                        ctx.beginPath();
+                        ctx.arc(width / 2, height / 2, width / 2 - border + 1, startAngle, endAngle, false);
+                        ctx.stroke();
+                    }, 15);
+                } else {
+                    startAngle = 0;
+                    border--;
+                    this.canvas = d.createElement('<v:arc class="oval" filled="false" style="left:1px;top:1px;width:' + (width - border * 2 + 1) + "px;height:" + (height - border * 2 + 1) + 'px" startangle="0" endangle="200"></v:arc>');
+                    $(this.canvas).append('<v:stroke weight="' + border + '" color="' + color + '"/>');
+                    this.ico.append(this.canvas);
+                    window.setInterval(function() {
+                        startAngle += 6;
+                        startAngle = startAngle > 360 ? startAngle - 360 : startAngle;
+                        T.canvas.rotation = startAngle;
+                    }, 15);
+                }
+            } else if (type == "ok" || type == "warn" || type == "error" || type == "close") {
+                if (this.hasCanvas) {
+                    ctx.beginPath();
+                    ctx.fillStyle = bgcolor;
+                    ctx.arc(width / 2, height / 2, width / 2, p, 3 * p, false);
+                    ctx.fill();
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = color;
+                } else {
+                    this.canvas = d.createElement('<v:oval class="oval" fillcolor="' + bgcolor + '" style="width:' + (width - 1) + "px;height:" + (height - 1) + 'px;"></v:oval>');
+                    $(this.canvas).append('<v:stroke color="' + bgcolor + '"/>');
+                    this.ico.append(this.canvas);
+                }
+                if (type == "ok") {
+                    point = [ .26 * width, .43 * height, .45 * width, .59 * height, .71 * width, .33 * height, .71 * width, .47 * height, .45 * width, .73 * height, .26 * width, .57 * height ];
+                    this.drawLine(point, true);
+                } else if (type == "warn") {
+                    if (this.hasCanvas) {
+                        ctx.beginPath();
+                        ctx.arc(width * .5, height * .73, width * .07, p, 3 * p, false);
+                        ctx.stroke();
+                        ctx.fill();
+                    } else {
+                        this.ico.append('<v:oval class="oval" fillcolor="#fff" style="width:' + height * .16 + "px;height:" + height * .14 + "px;left:" + height * ($.browser("ie6 ie7") ? .43 : .4) + "px;top:" + height * .68 + 'px"><v:stroke color="#fff"/></v:oval>');
+                    }
+                    point = [ .45 * width, .22 * height, .55 * width, .22 * height, .55 * width, .54 * height, .45 * width, .54 * height ];
+                    this.drawLine(point, true);
+                } else if (type == "error" || type == "close") {
+                    if (!this.hasCanvas) {
+                        width = width * .95;
+                        height = height * .95;
+                    }
+                    point = [ .33 * width, .3 * height, .5 * width, .46 * height, .68 * width, .3 * height, .72 * width, .34 * height, .55 * width, .52 * height, .71 * width, .68 * height, .68 * width, .73 * height, .5 * width, .56 * height, .34 * width, .72 * height, .29 * width, .69 * height, .46 * width, .51 * height, .29 * width, .34 * height ];
+                    this.drawLine(point, true);
+                    function bind() {
+                        if (T.hasCanvas) {
+                            T.ico.hover(function() {
+                                ctx.clearRect(0, 0, width, height);
+                                ctx.beginPath();
+                                ctx.fillStyle = color;
+                                ctx.strokeStyle = bgcolor;
+                                ctx.arc(width / 2, height / 2, width / 2, p, 3 * p, false);
+                                ctx.fill();
+                                ctx.stroke();
+                                ctx.fillStyle = bgcolor;
+                                T.drawLine(point, true);
+                            }, function() {
+                                ctx.clearRect(0, 0, width, height);
+                                ctx.beginPath();
+                                ctx.fillStyle = bgcolor;
+                                ctx.strokeStyle = bgcolor;
+                                ctx.arc(width / 2, height / 2, width / 2, p, 3 * p, false);
+                                ctx.fill();
+                                ctx.stroke();
+                                ctx.fillStyle = color;
+                                ctx.strokeStyle = color;
+                                T.drawLine(point, true);
+                            });
+                        } else {
+                            T.ico.hover(function() {
+                                var a = $(this).find(".oval")[0], b = $(this).find(".polyline")[0];
+                                a.fillcolor = a.strokecolor = color;
+                                b.fillcolor = b.strokecolor = bgcolor;
+                            }, function() {
+                                var a = $(this).find(".oval")[0], b = $(this).find(".polyline")[0];
+                                a.fillcolor = a.strokecolor = bgcolor;
+                                b.fillcolor = b.strokecolor = color;
+                            });
+                        }
+                    }
+                    type == "close" && bind();
+                }
+            } else {
+                //自定义绘图方法
+                this["Draw" + type] && this["Draw" + type]();
+            }
+        }
+    };
+    UI.ico.batch = function(obj, opt) {
+        /*
+		 * 批量生成图标
+		 */
+        var i, m, len, j, ico = {}, T = this;
+        for (i in obj) {
+            m = obj[i];
+            len = m.length;
+            if (len > 1) {
+                for (j = 0; j < len; j++) {
+                    new T(i, m.eq(j), opt);
+                }
+            } else if (len == 1) {
+                new T(i, m, opt);
+            } else {
+                continue;
+            }
+            ico[i] = m;
+        }
+        return ico;
+    };
+    UI.ico.add = function(type, draw) {
+        /*
+		 * 添加自定义绘图方法
+		 */
+        if (!UI.ico.prototype["Draw" + type]) {
+            UI.ico.prototype["Draw" + type] = draw;
+        }
+    };
+    UI.menu = function(obj, opt) {
+        /*
+		 * 下拉菜单，动态创建html
+		 */
+        if (isNew = instaceofFun(this, arguments)) {
+            return isNew;
+        }
+        //if(!obj||!obj.length){return;}
+        this.opt = opt = $.extend(UI.config.menu, opt);
+        this.obj = obj = getDom(obj);
+        this.menu = null;
+        this.content = opt.content || "";
+        //菜单内容
+        this.align = opt.align || "left";
+        //对齐方式
+        this.mode = opt.mode || "tap";
+        this.offset = opt.offset || [ 0, 0 ];
+        this.autoWidth = opt.autoWidth === false ? false : true;
+        //this.pos = this.offset[2] && this.offset[2].length ? this.offset[2] : this.obj;
+        this.now = obj ? this.obj.eq(0) : null;
+        this.agent = opt.agent === true ? true : false;
+        //是否为事件代理模式
+        this.disable = false;
+        //是否禁用菜单
+        this.init();
+    };
+    UI.menu.prototype = {
+        init: function() {
+            this.mode = this.mode == "focus" ? "focus click" : this.mode;
+            this.menu = $('<div class="nj_menu"><div class="wrap clearfix"></div></div>');
+            $("body").append(this.menu);
+            this.setCon();
+            this.bind();
+            if (this.opt.className) {
+                this.menu.addClass(this.opt.className);
+            }
+        },
+        bind: function() {
+            var T = this, top, left, A, B;
+            if (!this.agent) {
+                this.obj.on(this.mode, function(e) {
+                    $.stopBubble(e);
+                    return show($(this));
+                });
+                if (this.mode == "focus") {
+                    this.obj.on("blur", function() {
+                        A = window.clearTimeout(A);
+                        hide();
+                    });
+                }
+            }
+            if (this.mode == "tap") {
+                this.menu.on("tap", function(e) {
+                    B = window.clearTimeout(B);
+                    $.stopBubble(e);
+                });
+                $(document).on("tap", function() {
+                    T.menu.is(":visible") && hide();
+                });
+            }
+            function show(pos) {
+                if (T.disable) {
+                    return false;
+                }
+                pos = pos || T.obj;
+                if (T.mode == "click" && T.menu.is(":visible")) {
+                    if (T.now.is(pos)) {
+                        hide();
+                        return false;
+                    }
+                    hide(true);
+                } else {
+                    B = window.clearTimeout(B);
+                }
+                T.now = pos;
+                pos.addClass("nj_menu_hover");
+                //.find('.nj_arrow').addClass('n_a_top');
+                T.setPos();
+                T.opt.onShow && T.opt.onShow.call(T, pos);
+                return false;
+            }
+            function hide() {
+                T.now.removeClass("nj_menu_hover");
+                //.find('.nj_arrow').removeClass('n_a_top');
+                if (S != true) {
+                    T.menu.hide();
+                }
+                T.opt.onHide && T.opt.onHide.call(T, T.now);
+            }
+            this.show = show;
+            this.hide = hide;
+            $(window).on("scroll resize", function() {
+                T.menu.is(":visible") && T.setPos();
+            });
+            this.menu.find(".close").on("click", function(e) {
+                T.hide();
+                $.stopBubble(e);
+            });
+            (function() {
+                //为列表项添加自定义事件
+                var bind = T.opt.onSelect, i, m;
+                if (!bind) {
+                    return;
+                }
+                for (i in bind) {
+                    m = T.menu.find("[" + i + "]");
+                    if (m.length) {
+                        (function(i) {
+                            m.bind("click", function(e) {
+                                bind[i].call(T, $(this), e);
+                                return false;
+                            });
+                        })(i);
+                    }
+                }
+            })();
+        },
+        setPos: function() {
+            var T = this, ph = this.now.outerHeight(), pt = this.now.offset().top, pl = this.now.offset().left, left = pl + this.offset[0], top = pt + ph + this.offset[1];
+            if (this.align == "right") {
+                left -= this.menu.outerWidth() - this.now.outerWidth();
+            }
+            this.menu.removeAttr("style").css({
+                left: left,
+                top: top,
+                "z-index": "999",
+                display: "block"
+            });
+            if (!this.autoWidth) {
+                this.menu.width(this.now.outerWidth());
+            }
+            (function() {
+                var h = T.menu.outerHeight(), win = $(window), stop = win.scrollTop(), H = $(window).height();
+                if (top + h - stop > H) {
+                    top = pt - h;
+                    if (top < 0) {
+                        T.menu.css({
+                            top: 0,
+                            overflow: "auto",
+                            height: pt - 2 - T.offset[1]
+                        });
+                        top = 0;
+                    } else {
+                        T.menu.css({
+                            top: top - T.offset[1]
+                        });
+                    }
+                }
+            })();
+        },
+        setCon: function(con) {
+            con = con || this.content;
+            this.menu.children(".wrap").empty().append(con);
+        }
+    };
+    return UI;
+});

@@ -13,6 +13,7 @@ body{font-family:'微软雅黑'}
 .menu_tree .nj_tree{padding:15px 0;border-bottom:1px solid #d8d8d8;border-top:1px solid #FDFDFD}
 .menu_tree .nj_tree:first-child{border-top:none}
 .menu_tree .add_project{color:#999;display:block;font-size:12px}
+.menu_tree .nj_tree .current,.menu_tree .nj_tree .current:hover,.menu_tree .nj_tree .item:hover{background:#e2e2e2}
 .main_content{height:100%;overflow:auto;zoom:1;font:14px/1.8 '微软雅黑'}
 #show_menu{display:none;text-indent:-99em}
 .f_link{border-top:1px solid #fff;padding:2em}
@@ -96,10 +97,10 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 
 /*tree*/
 .nj_tree{line-height:2}
-.nj_tree li{width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.nj_tree li{width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin:0 0 1px}
 .nj_tree ul ul{display:none}
 .nj_tree .item{display:block;color:#333;-webkit-transition:background .2s linear;-moz-transition:background .2s linear;padding:0 20px}
-.nj_tree .item:hover{background:#e2e2e2;text-decoration:none}
+.nj_tree .item:hover{background:#f4f4f4;text-decoration:none}
 .nj_tree .folder,.nj_tree .ico,.nj_tree .line{float:left;width:17px;height:24px;background:url(../img/tree.png) no-repeat 3px -40px;overflow:hidden}
 .nj_tree .line{background-position:3px -172px}
 .nj_tree .folder{width:15px;height:15px;background-position:-20px -86px;margin:4px 3px 0 0}
@@ -112,7 +113,7 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 .nj_tree .no_child .folder{background-position:-18px -109px}
 .nj_tree .no_child .ico{background-position:3px -194px}
 .nj_tree .no_child .first_ico{background-position:-17px -124px}
-.nj_tree .current,.nj_tree .current:hover{color:#f30;background:#e2e2e2;font-weight:800}
+.nj_tree .current,.nj_tree .current:hover{color:#f30;background:#f4f4f4;font-weight:800}
 .nj_tree .item .last_ico{background-position:3px -214px!important}
 .nj_tree .item .last_ico1{background-position:3px -60px}
 .nj_tree .open .last_ico1{background-position:3px -148px}

@@ -342,8 +342,14 @@
 	
 	//手动配置选项
 	noJS.config = function( option ){
-		var i;
 		option = option || {};
+		
+		if( !option.pack && onReady ){
+			//线上模式时，模板中引入的noJS.js是合并了conf.js的，当切换到开发模式时，noJS的路径并不容易切换，所以需要阻止noJS.config的执行(只限于修改了conf.js而没有重新构建的情况下)
+			//return;
+		}
+		
+		var i;
 		for( i in option ){
 			config[i] = option[i];
 		}
