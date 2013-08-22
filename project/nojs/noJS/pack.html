@@ -1,8 +1,8 @@
 <h4 class="p_tit">noJS打包</h4>
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
+	<p class="mb10">开发阶段，可以将所有js源文件都放在src目录下，而线上目录则放在js目录下（自动构建），通过设置一个开关就可以方便的在开发模式及线上模式间自由切换。</p>
 	<p class="mb10">项目上线时，可以通过<a href="http://www.gruntjs.org/" target="_blank">grunt</a>构建工具进行合并、压缩等操作，构建完成后，通过设置'noJS.config.pack=true'即可。</p>
-	<p>开发阶段，可以将所有js源文件都放在src目录下，而线上目录则放在js目录下，通过设置一个开关就可以方便的在开发模式及线上模式间自由切换。</p>
 </div>
 <h6 class="p_tit">配置：</h6>
 <div class="text_info">
@@ -30,10 +30,11 @@
 </div>
 <h6 class="p_tit">注意：</h6>
 <div class="text_info">
-	<p class="mb10">1. 如果设置了打包，conf.js必须要并入noJS.js中，noJS会自动忽略conf.js的请求，所以grunt配置中要添加一条此规则。</p>
+	<p class="mb10">1. 如果设置了打包且配置文件独立，则配置文件conf.js必须要并入noJS.js中，noJS会自动忽略conf.js的请求，所以grunt配置中要添加一条此规则。</p>
 	<p class="mb10">2. src和js两个文件夹除了名称不一样外，里面的目录结构必须保持一致。</p>
 	<p class="mb10">3. 如果src目录中存在非标准模块，则需要手动将其移入js目录中（使用grunt添加规则即可）</p>
 	<p class="mb10">4. 如果设置了全局依赖模块，则也必须要在grunt中手动添加一条规则：将该组模块合并为一个模块，合并后的模块必须和第一个模块名称相同，如['jquery','ui','global']合并之后的模块必须命名为'jquery'</p>
+	<p class="mb10">5. 在模板中noJS.js最好直接调用js目录下的，因为该文件目录无法配置，修改起来也没那么轻松。</p>
 </div>
 <script>
 noJS.use(function($,ui){

@@ -8,7 +8,6 @@
 		base : debug ? 'js/' : 'dest/',
 		pack : !debug && true,
 		global : ['nojs/jquery','nojs/ui'],
-		fix : '.js?t='+(+new Date),
 		page : 'main'
 	});
 }();

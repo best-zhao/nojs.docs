@@ -2,7 +2,7 @@ define({
 	'nojs' : {
 		data : [
 			{id:'nojs_info',text:'nojs简介',link:'index'},
-			{id:'noJS',text:'noJS模块管理',data:[
+			{id:'noJS',text:'noJS模块管理',open:1,data:[
 				{id:'noJS_info',text:'使用介绍',link:'noJS/index'},
 				{id:'noJS_config',text:'参数配置',link:'noJS/config'},
 				{id:'noJS_module',text:'模块',link:'noJS/module'},

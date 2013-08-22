@@ -1,10 +1,7 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
-        transport: {
-        	options : {
-		        //alias: '<%= pkg.spm.alias %>',
-		    },
+        transport: {        	
             dialog: {
             	options : {
             		paths : ['js']
@@ -57,7 +54,7 @@ module.exports = function(grunt) {
 		},
         uglify : {
         	options: {
-        		banner: '/*nolure@vip.qq.com http://nolure.github.io/nojs.docs*/',
+        		banner: '/*<%= pkg.author %>|<%= pkg.docs %>*/',
 		    	mangle: {
 		        	except: ['require']
 		    	}
@@ -79,7 +76,6 @@ module.exports = function(grunt) {
 				files: ['js/**/*.js'],
 				tasks: ['transport','concat','clean','uglify'],
 				options: {
-			    	// Start another live reload server on port 1337
 			        livereload: 1337,
 				},
 			}

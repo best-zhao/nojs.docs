@@ -10,7 +10,8 @@
     "type": "git",
     "url": "https://github.com/nolure/nojs.docs.git"
   },
-  "author": "",
+  "author": "nolure@vip.qq.com",
+  "docs": "http://nolure.github.io/nojs.docs",
   "license": "BSD",
   "bugs": {
     "url": "https://github.com/nolure/nojs.docs/issues"
