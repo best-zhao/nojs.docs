@@ -358,7 +358,7 @@
 			config[i] = option[i];
 		}
 		configFile = null;
-		//onReady && onReady();
+		
 		
 		//设置全局依赖模块,会在其他模块之前引入，只能设置一次
 		var global = config.global;
