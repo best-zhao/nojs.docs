@@ -548,6 +548,7 @@
 		base : debug ? 'js/' : 'dest/',
 		pack : !debug && true,
 		global : ['nojs/jquery','nojs/ui'],
-		page : 'main'	
+		fix : '.js'+(+new Date),
+		page : 'main'
 	});
 }();
