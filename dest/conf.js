@@ -1,1 +1,0 @@
-/*nolure@vip.qq.com|http://nolure.github.io/nojs.docs*/!function(){var a="nolure.github.io"!=location.host,b=/[?&]nojs-debug=(true|false)(?:&|$|#)/.exec(location.href);b&&(a="true"==b[1]?!0:!1),noJS.config({base:a?"js/":"dest/",pack:!a&&!0,global:["nojs/jquery","nojs/ui"],page:"main"})}();

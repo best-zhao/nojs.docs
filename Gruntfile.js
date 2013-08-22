@@ -4,12 +4,12 @@ module.exports = function(grunt) {
         transport: {        	
             dialog: {
             	options : {
-            		paths : ['js']
+            		paths : ['src']
 		        },
                 files : [
                     {	
                     	expand: true,
-                    	cwd: 'js/',
+                    	cwd: 'src/',
                         src : '**/*.js',
                         dest : '.build'
                     }
@@ -22,13 +22,13 @@ module.exports = function(grunt) {
         			noncmd : true
         		},
         		files : {
-        			'dest/nojs/noJS.js' : ['js/nojs/noJS.js','js/conf.js'],
-        			'dest/conf.js' : ['js/conf.js']
+        			'js/nojs/noJS.js' : ['src/nojs/noJS.js','src/conf.js'],
+        			'js/conf.js' : ['src/conf.js']
         		}
         	},
             dist: {
             	options : {
-            		paths : ['js'],
+            		paths : ['src'],
             		include : 'all'
 		        },
 		        files : [
@@ -36,7 +36,7 @@ module.exports = function(grunt) {
 		        		expand: true,
 		        		cwd: '.build/',
 		        		src : '**/*.js',
-		        		dest : 'dest'
+		        		dest : 'js'
 		        	}
 		        ]
             },
@@ -45,12 +45,13 @@ module.exports = function(grunt) {
         			noncmd : true
         		},
         		files : {
-        			'dest/nojs/jquery.js':['.build/nojs/jquery.js','.build/nojs/ui.js']
+        			'js/nojs/jquery.js':['.build/nojs/jquery.js','.build/nojs/ui.js'],
+        			'js/m/zepto.js':['.build/m/zepto.js','.build/m/ui.js']
         		}
         	}
         },
         clean : {
-			build : ['.build','dest/**/*-debug.js'] //清除
+			build : ['.build','js/**/*-debug.js'] //清除
 		},
         uglify : {
         	options: {
@@ -63,9 +64,9 @@ module.exports = function(grunt) {
                 files : [
                 	{
 	                	expand : true,
-	                	cwd: 'dest/',
+	                	cwd: 'js/',
 	                	src : "**/*.js",
-	                	dest : 'dest/',
+	                	dest : 'js/',
 	                	ext: ''
 	                }
                 ]
@@ -73,7 +74,7 @@ module.exports = function(grunt) {
         },
 		watch: {			
 			another: {
-				files: ['js/**/*.js'],
+				files: ['src/**/*.js'],
 				tasks: ['transport','concat','clean','uglify'],
 				options: {
 			        livereload: 1337,

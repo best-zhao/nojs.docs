@@ -1,13 +1,1 @@
-!function(){
-	var debug = location.host!='nolure.github.io',
-		_debug = /[?&]nojs-debug=(true|false)(?:&|$|#)/.exec(location.href);
-	if( _debug ){
-		debug = _debug[1]=='true' ? true : false;
-	}
-	noJS.config({
-		base : debug ? 'js/' : 'dest/',
-		pack : !debug && true,
-		global : ['nojs/jquery','nojs/ui'],
-		page : 'main'
-	});
-}();
+/*nolure@vip.qq.com|http://nolure.github.io/nojs.docs*/!function(){var a="nolure.github.io"!=location.host,b=/[?&]nojs-debug=(true|false)(?:&|$|#)/.exec(location.href);b&&(a="true"==b[1]?!0:!1),noJS.config({base:a?"src/":"js/",pack:!a&&!0,global:location.href.indexOf("m.html")>0?["m/zepto.min","m/ui"]:["nojs/jquery","nojs/ui"],page:"main"})}();
