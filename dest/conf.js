@@ -4,6 +4,7 @@
 	if( url && url.indexOf('debug=true')>0 ){
 		debug = true;
 	}	
+	console.log(1)
 	noJS.config({
 		base : debug ? 'js/' : 'dest/',
 		pack : !debug && true,
