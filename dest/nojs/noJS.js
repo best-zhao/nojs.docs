@@ -542,7 +542,7 @@
 })( this );
 
 !function(){
-	var debug = location.host!='nolure.github.io' || location.url.split('?')[1].indexOf('debug=true')>0;
+	var debug = location.host!='nolure.github.io' || location.href.split('?')[1].indexOf('debug=true')>0;
 	
 	noJS.config({
 		base : debug ? 'js/' : 'dest/',
