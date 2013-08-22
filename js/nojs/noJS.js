@@ -27,7 +27,7 @@
 			fix : '.js'
 		},
 		onReady,
-		configFile;
+		configFile = 0;
 	
 	//检测对象类型	
 	function type( obj ){		
@@ -142,7 +142,7 @@
 		}
 	}
 	load.begin = function(){
-		if( configFile ){
+		if( configFile==3 ){//配置文件正在载入，暂停队列
 			return;
 		}
 		load.state = true;
@@ -342,6 +342,10 @@
 	
 	//手动配置选项
 	noJS.config = function( option ){
+		console.log(configFile)
+		if( configFile==1 ){//配置文件为外部调用，载入之前禁用配置，避免重复
+			return;
+		}
 		option = option || {};
 		
 		if( !option.pack && onReady ){
@@ -354,7 +358,7 @@
 			config[i] = option[i];
 		}
 		configFile = null;
-		onReady && onReady();
+		//onReady && onReady();
 		
 		//打包
 		var pack = config.pack;
@@ -479,20 +483,24 @@
 			_modules = nojsScript.getAttribute('data-main'),
 			_config = nojsScript.getAttribute('data-config');
 		
+		
 		if( _config || _modules ){
 			//配置选项
 			if( _config ){
 				if( /\.js$/.test(_config) ){
+					configFile = 1; //
 					//该事件会在config方法执行之后或nojs脚本加载完成之后触发
 					//打包之后config.js会并入noJS.js
 					onReady = function(){
+						console.log(config.pack)
 						if( !config.pack ){
+							configFile = 2; //
 							T.add( [_config], null, {fix:''} );
-							configFile = true; 
+							configFile = 3; //
 						}
 						onReady = null;
 					}
-					T.event( nojsScript, onReady );
+					T.event( nojsScript, onReady);
 					
 				}else{
 					_config = eval( '({' + _config + '})' );
