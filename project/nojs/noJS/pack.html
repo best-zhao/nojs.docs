@@ -1,0 +1,42 @@
+<h4 class="p_tit">noJS打包</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	<p class="mb10">项目上线时，可以通过<a href="http://www.gruntjs.org/" target="_blank">grunt</a>构建工具进行合并、压缩等操作，构建完成后，通过设置'noJS.config.pack=true'即可。</p>
+	<p>开发阶段，可以将所有js源文件都放在src目录下，而线上目录则放在js目录下，通过设置一个开关就可以方便的在开发模式及线上模式间自由切换。</p>
+</div>
+<h6 class="p_tit">配置：</h6>
+<div class="text_info">
+	<p class="mb10">建议将noJS.config配置放在一个单独的js文件中，通过以下方式调用配置文件即可。</p>
+	<script type="text/templete" code="html">
+		<script src="js/nojs/noJS.js" data-config="./conf.js">< /script>
+	</script>
+	<p class="mb10">conf.js建议做如下设置：</p>
+	<script type="text/templete" code="javascript">
+	!function(){
+		var debug = location.host!='abc.com',
+			_debug = /[?&]nojs-debug=(true|false)(?:&|$|#)/.exec(location.href);
+		if( _debug ){
+			debug = _debug[1]=='true' ? true : false;
+		}
+		noJS.config({
+			base : debug ? 'src/' : 'js/',
+			pack : !debug && true
+		});
+	}();	
+	</script>
+	<p class="mb10 orange">conf.js中必须执行一次noJS.config方法。</p>
+	<p class="mb10">其中debug变量就是一个自定义的开关，假设你的线上域名是'abc.com'，这就代表只有线上才会自动调用合并压缩后的代码，而开发环境调用的就是源文件。</p>
+	<p class="mb10">而_debug变量则更方便，在url中加入一个参数'nojs-debug=true/false'，即可在任何环境下自由切换是否为开发模式，而且不用修改配置文件。如访问abc.com?nojs-debug=true即可在线上环境切换为开发模式，方便定位bug所在位置。</p>
+</div>
+<h6 class="p_tit">注意：</h6>
+<div class="text_info">
+	<p class="mb10">1. 如果设置了打包，conf.js必须要并入noJS.js中，noJS会自动忽略conf.js的请求，所以grunt配置中要添加一条此规则。</p>
+	<p class="mb10">2. src和js两个文件夹除了名称不一样外，里面的目录结构必须保持一致。</p>
+	<p class="mb10">3. 如果src目录中存在非标准模块，则需要手动将其移入js目录中（使用grunt添加规则即可）</p>
+	<p class="mb10">4. 如果设置了全局依赖模块，则也必须要在grunt中手动添加一条规则：将该组模块合并为一个模块，合并后的模块必须和第一个模块名称相同，如['jquery','ui','global']合并之后的模块必须命名为'jquery'</p>
+</div>
+<script>
+noJS.use(function($,ui){
+	
+});
+</script>

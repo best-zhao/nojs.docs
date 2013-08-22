@@ -2,7 +2,9 @@
 <h4 class="p_tit">noJS.config 参数配置</h4>
 <h6 class="p_tit">其他参数配置：</h6>
 <div class="text_info">
-	<p class="mb10">参数配置可以直接写在页面上；也可以通过data-config设置在script标签上；还可以将配置独立成一个文件如conf.js，通过script标签的data-config="conf.js"即可，该文件的位置是相对于noJS.js的，如上级目录表示为'./conf.js'，<b class="orange">外部引入的配置文件后缀必须是'.js'</b></p>
+	<p class="mb10">参数配置可以直接写在页面上；也可以通过data-config设置在script标签上；还可以将配置独立成一个文件如conf.js，通
+		过script标签的data-config="conf.js"即可，该文件的位置是相对于noJS.js的，如上级目录表示为'./conf.js'，
+		<b class="orange">外部引入的配置文件后缀必须是'.js'，且必须执行一次noJS.config方法</b></p>
 	<p class="mb10">除最基本参数配置外，还可以设置以下参数</p>
 	<script type="text/codelight" code="javascript" key="config">
 	noJS.config({

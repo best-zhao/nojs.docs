@@ -1,10 +1,6 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
-		dirs: {  
-			src: 'js/nojs.module',  
-		    dest: 'dist' 
-		},  
         transport: {
         	options : {
 		        //alias: '<%= pkg.spm.alias %>',
