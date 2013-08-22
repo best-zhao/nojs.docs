@@ -29,7 +29,8 @@ module.exports = function(grunt) {
         			noncmd : true
         		},
         		files : {
-        			'dest/nojs/noJS.js' : ['js/nojs/noJS.js','js/conf.js']
+        			'dest/nojs/noJS.js' : ['js/nojs/noJS.js','js/conf.js'],
+        			'dest/conf.js' : ['js/conf.js']
         		}
         	},
             dist: {

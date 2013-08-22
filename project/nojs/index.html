@@ -52,9 +52,10 @@
 <script>
 noJS.use('nojs/module/tree',function($,ui,tree){
 	new tree('file_tree', {
+		openAll : true,
 		defaultNode : 'ft2',
 		data : [
-			{id:'ft1',text:'scripts',open:1,data:[
+			{id:'ft1',text:'scripts',data:[
 				{id:'ft8',text:'a.js'},
 				{id:'ft9',text:'b.js'},
 				{id:'ft2',text:'nojs',data:[
