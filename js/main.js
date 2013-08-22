@@ -157,14 +157,14 @@ define(function(require,$,ui){
 	
 	var fLink = $('<div class="f_link"></div>').appendTo(side);
 	if( window.Page=='mobile' ){
-		fLink.append('<a href="/">nojs</a>');
+		fLink.append('<a href="index.html">nojs</a>');
 		page.swipeRight(function(){
 			setMenu('show');
 		}).swipeLeft(function(){
 			setMenu('hide');
 		})
 	}else{
-		fLink.append('<a href="/m">nojs mobile</a>');
+		fLink.append('<a href="m">nojs mobile</a>');
 	}
 	fLink.append('<a href="http://nolure.com">blog: http://nolure.com</a>');
 	
