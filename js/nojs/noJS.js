@@ -344,7 +344,7 @@
 	noJS.config = function( option ){
 		option = option || {};
 		
-		if( option.global && configFile==1 ){//配置文件为外部调用，载入之前禁用配置全局，避免重复
+		if( !option.pack && configFile==1 ){//配置文件为外部调用，载入之前禁用配置全局，避免重复
 			return;
 		}
 		
