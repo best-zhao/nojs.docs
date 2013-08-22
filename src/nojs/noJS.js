@@ -369,7 +369,7 @@
 				globalExports = [];
 				defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
 				//打包后，全局依赖模块都并入第一个文件,并使用point指向真实的模块
-				if( pack ){
+				if( config.pack ){
 					var _global = global, m;
 					global = global.slice(0,1);
 					global.point = _global;
