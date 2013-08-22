@@ -360,17 +360,6 @@
 		configFile = null;
 		//onReady && onReady();
 		
-		//打包
-		var pack = config.pack;
-		if( pack ){
-			if( type( pack ) != 'object' || typeof pack.base != 'string' ){
-				//pack = null;
-			}else{
-				pack.path = pack.path || '';
-				pack.fix = pack.fix || config.fix;
-			}
-		}
-		
 		//设置全局依赖模块,会在其他模块之前引入，只能设置一次
 		var global = config.global;
 		if( !globalExports && global ){
