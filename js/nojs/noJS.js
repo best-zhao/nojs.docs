@@ -142,7 +142,7 @@
 		}
 	}
 	load.begin = function(){
-		if( configFile==3 ){//配置文件正在载入，暂停队列
+		if( configFile==2 ){//配置文件正在载入，暂停队列
 			return;
 		}
 		load.state = true;
@@ -344,7 +344,7 @@
 	noJS.config = function( option ){
 		option = option || {};
 		
-		if( !option.pack && configFile==1 ){//配置文件为外部调用，载入之前禁用配置，避免重复
+		if( option.global && configFile==1 ){//配置文件为外部调用，载入之前禁用配置全局，避免重复
 			return;
 		}
 		
@@ -493,9 +493,8 @@
 					//打包之后config.js会并入noJS.js
 					onReady = function(){
 						if( !config.pack ){
-							configFile = 2; //
 							T.add( [_config], null, {fix:''} );
-							configFile = 3; //
+							configFile = 2; //
 						}
 						onReady = null;
 					}
