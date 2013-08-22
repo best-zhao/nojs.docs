@@ -342,11 +342,11 @@
 	
 	//手动配置选项
 	noJS.config = function( option ){
-		console.log(configFile)
-		if( configFile==1 ){//配置文件为外部调用，载入之前禁用配置，避免重复
+		option = option || {};
+		
+		if( !option.pack && configFile==1 ){//配置文件为外部调用，载入之前禁用配置，避免重复
 			return;
 		}
-		option = option || {};
 		
 		if( !option.pack && onReady ){
 			//线上模式时，模板中引入的noJS.js是合并了conf.js的，当切换到开发模式时，noJS的路径并不容易切换，所以需要阻止noJS.config的执行(只限于修改了conf.js而没有重新构建的情况下)
@@ -489,10 +489,9 @@
 			if( _config ){
 				if( /\.js$/.test(_config) ){
 					configFile = 1; //
-					//该事件会在config方法执行之后或nojs脚本加载完成之后触发
+					//该事件会在nojs脚本加载完成之后触发
 					//打包之后config.js会并入noJS.js
 					onReady = function(){
-						console.log(config.pack)
 						if( !config.pack ){
 							configFile = 2; //
 							T.add( [_config], null, {fix:''} );
