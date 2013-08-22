@@ -164,7 +164,7 @@ define(function(require,$,ui){
 			setMenu('hide');
 		})
 	}else{
-		fLink.append('<a href="m">nojs mobile</a>');
+		fLink.append('<a href="m.html">nojs mobile</a>');
 	}
 	fLink.append('<a href="http://nolure.com">blog: http://nolure.com</a>');
 	
