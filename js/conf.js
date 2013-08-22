@@ -1,5 +1,9 @@
 !function(){
-	var debug = location.host!='nolure.github.io' || /[?&]nojs-debug=true/.test(location.href);
+	var debug = location.host!='nolure.github.io',
+		_debug = /[?&]nojs-debug=(true|false)(?:&|$|#)/.exec(location.href);
+	if( _debug ){
+		debug = _debug[1]=='true' ? true : false;
+	}
 	noJS.config({
 		base : debug ? 'js/' : 'dest/',
 		pack : !debug && true,
