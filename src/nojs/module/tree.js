@@ -216,14 +216,14 @@ define(function(require,$){
 			for( i=data['break']; i<data.length; i++ ){
 				if( i>=T.max+data['break'] ){
 					data['break'] += T.max;
-					item += '<li class="no_child more"><a href="" id="more_'+(isChild?node:tree.rootID)+'_'+level+'" class="item" pid="'+(isChild?node:tree.rootID)+'" data-action="more">'+line+'<i class="ico last_ico"></i><i class="folder"></i>more</a></li>';
+					item += '<li class="no_child more" level="'+level+'"><a href="" id="more_'+(isChild?node:tree.rootID)+'_'+level+'" class="item" pid="'+(isChild?node:tree.rootID)+'" data-action="more">'+line+'<i class="ico last_ico"></i><i class="folder"></i>more</a></li>';
 					break;
 				}
 				m = data[i];				
 				m = isChild ? all[m] : m;
 				id = m[_id];
 				
-				m.init = 1;//标记节点本身已初始化
+				m.init = 1;//标记节点本身初始化
 				item += '<li level="'+level+'">';
 				link = m[_link] ? m[_link] : '';
 				
@@ -235,7 +235,7 @@ define(function(require,$){
 				if(  m[ _child ].length ){
 					//暂不加载子节点，除默认打开节点外
 					if( m[_open]==1 || T.options.openAll ){
-						m.init = 2;//标记其子节点已初始化
+						m.init = 2;//标记其子节点初始化
 						item += '<ul data-init="true">';
 						item += this.init(id,false);
 					}else{
@@ -265,6 +265,7 @@ define(function(require,$){
 					this.rootWrap.append(item);
 					this.addClass(area,true);
 				}
+				
 				
 				this.replaceLink(area);
 				
@@ -456,7 +457,7 @@ define(function(require,$){
 				node = parents.find('a['+by+'="'+ID+'"]').eq(0);
 				if( !node.length ){//超出了max
 					while(!all[ID].init){
-						parents.find('li[level='+all[ID].level+'].more a').click();
+						$('#more_'+all[ID][_parent]+'_'+all[ID].level).click();
 					}
 					node = parents.find('a['+by+'="'+ID+'"]').eq(0);
 				}
