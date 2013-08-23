@@ -97,9 +97,9 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 
 /*tree*/
 .nj_tree{line-height:2}
-.nj_tree li{width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin:0 0 1px}
+.nj_tree li{width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .nj_tree ul ul{display:none}
-.nj_tree .item{display:block;color:#333;-webkit-transition:background .2s linear;-moz-transition:background .2s linear;padding:0 20px}
+.nj_tree .item{display:block;color:#333;margin:0 0 1px;-webkit-transition:background .2s linear;-moz-transition:background .2s linear;padding:0 20px}
 .nj_tree .item:hover{background:#f4f4f4;text-decoration:none}
 .nj_tree .folder,.nj_tree .ico,.nj_tree .line{float:left;width:17px;height:24px;background:url(../img/tree.png) no-repeat 3px -40px;overflow:hidden}
 .nj_tree .line{background-position:3px -172px}
