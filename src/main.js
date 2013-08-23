@@ -13,7 +13,8 @@ define(function(require,$,ui){
 		frame = $('#iframe_content'),
 		side = $('#side_menu'),
 		wrap = page.children('div.ui_wrap'),
-		showMenu = $('#show_menu');
+		showMenu = $('#show_menu'),
+		first = true;
 	
 	function setUrl(id){
 		var url = location.href.split('#'), hash = url[1];
@@ -26,7 +27,7 @@ define(function(require,$,ui){
 		window.onhashchange = function(){
 			var hash = location.hash, i, m;
 			hash = hash.substring(1, hash.length);
-			if( hash ){
+			if( hash && first ){
 				for( i=0;i<G.project.length;i++ ){
 					m = G.project[i];
 					if( m.data.all[hash] ){
@@ -46,9 +47,9 @@ define(function(require,$,ui){
 		onSelect : function(data){		
 			var link = data.link,
 				id = data.id;	
-			//$.cookie('currentPage',id);
 			
 			setUrl(id);
+			first = null;
 			if(!link){return;}
 			frame.html('<i class="load"></i>');
 			new ui.ico( frame.find('i.load'), {
