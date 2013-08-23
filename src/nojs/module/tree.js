@@ -216,7 +216,7 @@ define(function(require,$){
 			for( i=data['break']; i<data.length; i++ ){
 				if( i>=T.max+data['break'] ){
 					data['break'] += T.max;
-					item += '<li class="no_child more" level="'+level+'"><a href="" id="more_'+(isChild?node:tree.rootID)+'_'+level+'" class="item" pid="'+(isChild?node:tree.rootID)+'" data-action="more">'+line+'<i class="ico last_ico"></i><i class="folder"></i>more</a></li>';
+					item += '<li class="no_child more"><a href="" id="more_'+(isChild?node:tree.rootID)+'_'+level+'" class="item" pid="'+(isChild?node:tree.rootID)+'" data-action="more">'+line+'<i class="ico last_ico"></i><i class="folder"></i>more</a></li>';
 					break;
 				}
 				m = data[i];				
@@ -265,7 +265,6 @@ define(function(require,$){
 					this.rootWrap.append(item);
 					this.addClass(area,true);
 				}
-				
 				
 				this.replaceLink(area);
 				
