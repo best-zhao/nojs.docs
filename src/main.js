@@ -14,23 +14,28 @@ define(function(require,$,ui){
 		side = $('#side_menu'),
 		wrap = page.children('div.ui_wrap'),
 		showMenu = $('#show_menu'),
-		first = true;
+		first = 0;
 	
 	function setUrl(id){
 		var url = location.href.split('#'), hash = url[1];
 		if( id==undefined ){
 			return hash;
 		}
+		if(hash==id){
+			return;
+		}
+		first = 1;
 		location.href = url[0] + '#' + id;
 	}	
 	if( typeof onhashchange!='undefined' ){
 		window.onhashchange = function(){
 			var hash = location.hash, i, m;
 			hash = hash.substring(1, hash.length);
-			if( hash && first ){
+			if( hash ){
 				for( i=0;i<G.project.length;i++ ){
 					m = G.project[i];
 					if( m.data.all[hash] ){
+						first = 0;
 						m.select(hash);
 						break;
 					}
@@ -47,9 +52,12 @@ define(function(require,$,ui){
 		onSelect : function(data){		
 			var link = data.link,
 				id = data.id;	
-			
+				
 			setUrl(id);
-			first = null;
+			if( first>0 ){
+				return;
+			}
+			
 			if(!link){return;}
 			frame.html('<i class="load"></i>');
 			new ui.ico( frame.find('i.load'), {
@@ -126,6 +134,7 @@ define(function(require,$,ui){
 		var t = new tree( id, {
 			openAll : name=='nojs' ? false : true,
 			data : data,
+			max : 6,
 			onSelect : treeOptions.onSelect,
 			defaultNode : treeOptions.defaultNode
 		});

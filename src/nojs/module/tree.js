@@ -8,7 +8,7 @@ define(function(require,$){
 	function tree( box, options ){
 		var date1 = (+new Date)
 		this.box = typeof box=='string' ? $('#'+box) : box;
-		this.options = options || {};
+		this.options = options = options || {};
 		this._data = options.data;
 		//@data: string即为ajax获取数据
 		this.ajaxMode = typeof this._data=='string';
@@ -17,8 +17,8 @@ define(function(require,$){
 		if( !this.box.length || !this.ajaxMode && !this.data ){
 			return;
 		}	
-		//var date2 = (+new Date);
-		//console.log(date2-date1);	
+		this.max = options.max || tree.max;
+		
 		//ajax模式获取数据后，所有节点都应先初始化为包含子节点的节点
 		if( this.ajaxMode ){
 			var T = this;			
@@ -26,14 +26,12 @@ define(function(require,$){
 				url : this._data,
 				tree : this,
 				success : function(){
-					T.init( null, true );
+					T.init( null, true, true );
 				}
 			})
 		}else{
-			this.init( null, true );
+			this.init( null, true, true );
 		}
-		//date2 = (+new Date);
-		//console.log(date2-date1);
 	}
 	tree.key = {};
 	tree.max = 100;//一次一级最多能处理的节点数
@@ -120,6 +118,8 @@ define(function(require,$){
 					if( _level>0 ){
 						_data[id][ key['parent'] ] = _parent;//指定其父节点
 						_data[_parent][child].push(id);
+					}else{
+						_data[id][ key['parent'] ] = tree.rootID;
 					}
 					
 					if( m[child] && m[child].length ){
@@ -183,7 +183,7 @@ define(function(require,$){
 	}
 	
 	tree.prototype = {
-		init : function( node, set ){
+		init : function( node, set, setDefault ){
 			//@node:节点id，初始化该节点下所有一级子节点，为空表示初始化根节点
 			var T = this,
 			
@@ -201,30 +201,30 @@ define(function(require,$){
 				isCheck = this.options.isCheck,
 				item = '', i, j, now, m, link, line, id, open, check, more;
 			
-			//this.box[0].id=='tree_test1' && console.log(node)
 			if( !data.length ){
 				return;
 			}
 			data['break'] = data['break'] || 0;
 			
+			line = '';
+			if( level ){
+				for( j=0; j<level; j++ ){
+					line += '<i class="line"></i>';
+				}
+			}
+			
 			for( i=data['break']; i<data.length; i++ ){
-				if( i>=tree.max+data['break'] ){
-					data['break'] += tree.max;
-					item += '<li class="more"><a href="" pid="'+(isChild?node:tree.rootID)+'" data-action="more" style="margin-left:'+level*15+'px">more</a></li>';
+				if( i>=T.max+data['break'] ){
+					data['break'] += T.max;
+					item += '<li class="no_child more" level="'+level+'"><a href="" id="more_'+(isChild?node:tree.rootID)+'_'+level+'" class="item" pid="'+(isChild?node:tree.rootID)+'" data-action="more">'+line+'<i class="ico last_ico"></i><i class="folder"></i>more</a></li>';
 					break;
 				}
 				m = data[i];				
 				m = isChild ? all[m] : m;
 				id = m[_id];
 				
+				m.init = 1;//标记节点本身初始化
 				item += '<li level="'+level+'">';
-				//m.init = true;
-				line = '';
-				if( level ){
-					for( j=0; j<level; j++ ){
-						line += '<i class="line"></i>';
-					}
-				}
 				link = m[_link] ? m[_link] : '';
 				
 				open = typeof m[_open]!=='undefined' ? 'open="'+m[_open]+'"' : '';
@@ -235,9 +235,10 @@ define(function(require,$){
 				if(  m[ _child ].length ){
 					//暂不加载子节点，除默认打开节点外
 					if( m[_open]==1 || T.options.openAll ){
+						m.init = 2;//标记其子节点初始化
 						item += '<ul data-init="true">';
+						//console.log(id)
 						item += this.init(id,false);
-						m.init = true;
 					}else{
 						item += '<ul>';
 					}
@@ -287,18 +288,23 @@ define(function(require,$){
 						return this.getAttribute('open')=='1';
 					}).addClass('open').next('ul').show();
 				})(area);
-				!isChild && this.select(this.options.defaultNode);
+				!this.selected && setDefault && this.select(this.options.defaultNode);
 			}
 			return item;
 		},
 		bind : function(){
 			var T = this,
-				tag, sec, link, t;
+				tag, par, sec, link, t;
 			this.box.off('click.tree').on( 'click.tree', function(e){
 				t = e.target;
 				tag = $( t );
-				
-				if( tag.hasClass('ico') && !tag.parent().hasClass('no_child') ){//折叠
+				par = tag.parent();
+				if( tag.attr('data-action')=='more' || par.attr('data-action')=='more' ){
+					
+					tag = par.attr('data-action')=='more' ? par : tag;
+					T.init( tag.attr('pid'), true );
+					tag.parent().remove();					
+				}else if( tag.hasClass('ico') && !tag.parent().hasClass('no_child') ){//折叠
 					
 					tag = tag.parent('.item');
 					sec = tag.next('ul');
@@ -374,9 +380,6 @@ define(function(require,$){
 					T.options.onCheck && T.options.onCheck.call( T, t.id );
 					
 					return true;
-				}else if( t.tagName.toLowerCase()=='a' && tag.attr('data-action')=='more' ){
-					T.init( tag.attr('pid'), true );
-					tag.parent().remove();
 				}
 				
 				return false;
@@ -425,26 +428,47 @@ define(function(require,$){
 			by = by || 'id';
 			var T = this,
 				node = this.box.find('a['+by+'="'+ID+'"]').eq(0),
+				all = this.data.all,
 				_parent = tree.key['parent'],
-				parents = [];
+				parents = [],
+				i, _node;
 					
-			if(!this.data.all[ID]){return;}
+			if(!all[ID]){return;}
 			
 			if( !node || !node.length ){
+				
 				//从当前节点依次往上寻找父节点，直到找到已经初始化的节点为止
 				parents = tree.parents( ID, this.data.all, function(parent){
-					return parent.init;
+					return parent.init==2;
 				})
-				
-				//然后从最外层的父节点开始初始化
-				for( var i=parents.length-1; i>=0; i-- ){
-					this.init( parents[i], true );
+				if( parents.length ){
+					//然后从最外层的父节点开始初始化
+					//this.box[0].id=='menu_nojs' && console.log(parents)
+					for( i=parents.length-1; i>=0; i-- ){
+						_node = all[parents[i]];
+						while(!_node.init){
+							$('#more_'+_node[_parent]+'_'+_node.level).click();
+							//this.box.find('li[level='+_node.level+'].more a').click();
+						}
+						$('#'+parents[i]).find('i.ico').click();
+					}
+					parents = $('#'+parents[0]).next();
+				}else{
+					parents = $('#'+all[ID][_parent]).next();
 				}
-				node = this.box.find('a['+by+'="'+ID+'"]').eq(0);
+				//所有父节点展开后再获取该节点
+				node = parents.find('a['+by+'="'+ID+'"]').eq(0);
+				if( !node.length ){//超出了max
+					while(!all[ID].init){
+						parents.find('li[level='+all[ID].level+'].more a').click();
+					}
+					node = parents.find('a['+by+'="'+ID+'"]').eq(0);
+				}
 			}
 			
 			this.box.find('a.current').removeClass('current');
 			
+			T.selected = ID;//当前选中节点
 			if( node.parents('ul').first().is(':visible') ){
 				return set();
 			}
@@ -455,6 +479,7 @@ define(function(require,$){
 			function set(){
 				node.addClass('current');
 				T.options.onSelect && T.options.onSelect.call( T, T.data.all[ID] );//执行事件
+				
 				return false;
 			}
 			function s(i){

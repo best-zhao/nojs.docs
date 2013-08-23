@@ -120,6 +120,8 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 .nj_tree .item .last_line{background:none}
 .nj_tree input{float:left;vertical-align:-2px;margin:5px 5px 0 2px}
 .nj_tree .no_child input{margin-right:0}
+.nj_tree .more{position:relative;overflow:visible}
+.nj_tree .more a{color:#bbb}
 
 #nj_color{position:absolute;background:#f5f5f5;padding:15px;border:1px solid;border-color:#e4e4e4 #ccc #ccc #e4e4e4;display:none}
 #nj_color .mask{border:1px solid;border-color:#bbb #fff #fff #bbb;width:255px;height:255px;position:relative;float:left;background:red}
