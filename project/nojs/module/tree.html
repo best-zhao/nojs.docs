@@ -148,7 +148,7 @@ noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
 	
 	var number = $('#data_number'),
 		total = $('#total_number'),
-		_data = testData(20000);
+		_data = testData(number.val);
 	number.keyup(function(){
 		if( isNaN(this.value) ){
 			this.value = parseInt(this.value,10);
