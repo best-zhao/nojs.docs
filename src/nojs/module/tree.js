@@ -64,7 +64,13 @@ define(function(require,$){
 			child,
 			key,
 			_data = _Data && _Data.all ? _Data.all : {};
-		
+			
+		if( dataType!='array' || !data.length || $.type(data[0])!='object' ){
+			return {
+				all : _data,
+				level : level
+			};
+		}
 		tree.key = key = $.extend({
 			'id' : 'id',
 			'name' : 'name',
@@ -72,17 +78,9 @@ define(function(require,$){
 			'children' : 'children',
 			'open' : 'open',
 			'link' : 'link'
-		}, tree.key);		
-		
+		}, tree.key);
 		child = key['children'];	
-		if( dataType!='array' || !data.length || $.type(data[0])!='object' ){
-			return {
-				all : _data,
-				level : level
-			};
-		}
-		//_data = _data || {};
-		//console.log(_data)
+		
 		dataType = data[0][ key['parent'] ]==undefined ? 1 : 2;
 		
 		function each( Data, _level, _parent ){
@@ -95,11 +93,6 @@ define(function(require,$){
 				id = m[ key['id'] ];
 				_n++;
 				if( id==undefined || _data[id] ){//没有id或者重复数据
-					if( _Data ){//追加数据
-						//Data.splice(i,1);
-						//i--;
-						//n--;
-					}
 					continue;
 				}
 				_data[id] = m;
@@ -123,7 +116,6 @@ define(function(require,$){
 					}
 					
 					if( m[child] && m[child].length ){
-						
 						each( m[child], _level+1, id );
 					}
 				}else if( pid==tree.rootID ){//一级根节点
@@ -142,8 +134,6 @@ define(function(require,$){
 					}
 				}
 				
-				//level[_level] = level[_level] || {};
-				//level[_level][id] = _data[id];
 				level[_level] = level[_level] || [];
 				level[_level].push(_data[id]);
 			}
@@ -219,7 +209,7 @@ define(function(require,$){
 					item += '<li class="no_child more"><a href="" id="more_'+(isChild?node:tree.rootID)+'_'+level+'" class="item" pid="'+(isChild?node:tree.rootID)+'" data-action="more">'+line+'<i class="ico last_ico"></i><i class="folder"></i>more</a></li>';
 					break;
 				}
-				m = data[i];				
+				m = data[i];
 				m = isChild ? all[m] : m;
 				id = m[_id];
 				

@@ -134,7 +134,7 @@ define(function(require,$,ui){
 		var t = new tree( id, {
 			openAll : name=='nojs' ? false : true,
 			data : data,
-			max : 6,
+			max : 5,
 			onSelect : treeOptions.onSelect,
 			defaultNode : treeOptions.defaultNode
 		});
