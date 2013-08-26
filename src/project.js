@@ -34,6 +34,7 @@ define({
 				{id:'tree',text:'tree树形菜单',link:'module/tree'},
 				{id:'color',text:'color取色器',link:'module/color'},
 				{id:'face',text:'face表情选择',link:'module/face'},
+				{id:'rate',text:'rate星级打分',link:'module/rate'},
 				{id:'calendar',text:'calendar日历',link:'module/calendar'}
 			]},
 	

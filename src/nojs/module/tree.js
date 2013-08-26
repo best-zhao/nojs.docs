@@ -386,14 +386,13 @@ define(function(require,$){
 		addClass : function(area,root){
 			area = area || this.box;
 			var list = area.find('a.item'),
-				i, j, q, l,
 				n = list.length,
-				m, o,
-				li,
-				level;
+				i, j, q, l, m, o, li, level;
+			
+			root && list.eq(0).find('.ico').addClass('first_ico');
+				
 			for( i=0; i<n; i++ ){
 				m = list.eq(i);
-				root && i==0 && m.find('.ico').addClass('first_ico');
 				li = m.closest('li');
 				if(!m.next('ul').length){//无子节点
 					!this.ajaxMode && m.addClass('no_child');

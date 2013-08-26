@@ -19,7 +19,7 @@
 		<div id="set_tree_data" class="clearfix gray9" style="padding:0 9px 9px">
 			<span class="p_txt">
 				<input value="20000" style="width:50px;text-align:center" class="text" id="data_number" />
-				<i class="t"> *5(层级)= </i><b class="t orange" id="total_number">100000</b><i class="t">(节点数)</i>
+				<i class="t"> *5(层级)= </i><b class="t orange" id="total_number"></b><i class="t">(节点数)</i>
 			</span>
 			<input type="button" id="render_tree" value="生成" class="nj_btn" />
 		</div>
@@ -147,13 +147,19 @@ noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
 	
 	
 	var number = $('#data_number'),
-		total = $('#total_number');
+		total = $('#total_number'),
+		_data = testData(20000);
 	number.keyup(function(){
 		if( isNaN(this.value) ){
 			this.value = parseInt(this.value,10);
 		}
-		total.text( this.value*5 );	
-	})	
+		setTotal(this.value);
+	}).keyup();	
+	function setTotal(n){
+		n *= 5;	
+		n = n>=10000 ? n/10000+'万' : n;
+		total.text( n );
+	}	
 	$('#render_tree').click(function(){
 		$('#tree_test2').empty();
 		setTimeout(function(){
@@ -161,11 +167,9 @@ noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
 				n = parseInt(number.val(),10),
 				data = testData(n),
 				date2;
-			total.text( n*5 );	
-			
+			setTotal(n);
 			date2 = (+new Date);
 			//console.log(date2-date1);
-			
 			new tree( 'tree_test2', {
 				data : data,
 				isCheck : true,
@@ -184,7 +188,5 @@ noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
 		select3 = tree.select( $('#tree_test5'), {
 			data : 'tree.php?act=select'
 		});
-		
-	
 });
 </script>
