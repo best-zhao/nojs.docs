@@ -814,18 +814,21 @@ define(function( require, $ ){
 		return arr;
 	}
 	
-	UI.Switch = function(id,opt){
+	UI.Switch = function(dom,opt){
 		/*
 		 * switch原型超类|幻灯片、选项卡等
 		 * @id:容器id
 		 * 子类不能通过该构造函数传递参数，所以使用init方法来传递
 		 */
-		this.box = $("#"+id);
+		if( isNew = instaceofFun(this,arguments) ){
+			return isNew;
+		}
+		this.box = getDom(dom);
 		this.init(id,opt);
 	}
 	UI.Switch.prototype = {
-		init : function(id,opt){
-			this.box = $("#"+id);
+		init : function(dom,opt){
+			this.box = getDom(dom);
 			if(!this.box.length){return;}
 			this.M = this.box.find(".nj_s_menu").first();
 			this.menu = this.M.find(".nj_s_m");
