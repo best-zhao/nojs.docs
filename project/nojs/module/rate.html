@@ -12,34 +12,49 @@
 </div>
 <h6 class="p_tit">demo:</h6>
 <div class="text_info">
-	<span id="test_rate1" class="p_rate"><input type="hidden" /></span>
-</div>
-<h6 class="p_tit">使用:</h6>
-<div class="text_info">
-	<script type="text/templete" code="html">
-	<span id="test_rate1" class="p_rate"><input type="hidden" /></span>	
-	</script>
-	<script type="text/templete" code="html">
-	.p_rate{height:12px;overflow:hidden;background:url(/img/rate.png) repeat-x;display:inline-block;position:relative}
-	.p_rate i{position:absolute;top:0;left:0;cursor:pointer;width:13px;height:12px;background:url(/img/rate.png) repeat-x 0 12px;vertical-align:top}
-	.p_rate .write{width:13px;position:absolute;background-position:0 -999em }
-	.p_rate .current{background-position:0 -24px}
-	.p_rate .hover{background-position:0 -12px}	
-	</script>
-	<script type="text/templete" code="javascript">
-	noJS.use('nojs/module/rate',function( $, ui, rate ){
-		var Rate = rate(dom, options);
-	});
-	</script>
-	<p class="mb10">options选项</p>
-	<script type="text/templete" code="javascript">
-	options = {
-		level : number, 	//级数，默认5级
-		start : number, 	//初始值
-		onSelect : fn 		//回调，默认会将选中值赋给dom中的隐藏域
-		title : Array 		//title提示文字，数组个数不能少于level
-	}
-	</script>
+	<div class="mb10"><span id="test_rate1" class="p_rate"><input type="hidden" /></span></div>
+	<div id="demo_tab" data-ui="Switch">
+		<ul class="nj_s_menu clearfix">
+			<li class="nj_s_m">js</li>
+			<li class="nj_s_m">html</li>
+			<li class="nj_s_m">css</li>
+		</ul>
+		<div class="nj_s_con">
+			<div class="nj_s_c">
+			<script type="text/templete" code="javascript">
+			noJS.use('nojs/module/rate',function( $, ui, rate ){
+				var Rate = rate(dom, options);
+			});
+			</script>	
+			<p class="mb10">options选项</p>
+			<script type="text/templete" code="javascript">
+			options = {
+				level : number, 	//级数，默认5级
+				start : number, 	//初始值
+				onSelect : fn 		//回调，默认会将选中值赋给dom中的隐藏域
+				title : Array 		//title提示文字，数组个数不能少于level
+			}
+			</script>
+			</div>
+			
+			<div class="nj_s_c">
+			<script type="text/templete" code="html">
+			<span id="test_rate1" class="p_rate"><input type="hidden" /></span>	
+			</script>	
+			</div>
+			
+			<div class="nj_s_c">
+			<script type="text/templete" code="html">
+			.p_rate{height:12px;overflow:hidden;background:url(/img/rate.png) repeat-x;display:inline-block;position:relative}
+			.p_rate i{position:absolute;top:0;left:0;cursor:pointer;width:13px;height:12px;background:url(/img/rate.png) repeat-x 0 12px;vertical-align:top}
+			.p_rate .write{width:13px;position:absolute;background-position:0 -999em }
+			.p_rate .current{background-position:0 -24px}
+			.p_rate .hover{background-position:0 -12px}	
+			</script>	
+			</div>
+		</div>
+	</div>
+	
 </div>
 <h6 class="p_tit">方法属性:</h6>
 <div class="text_info">
@@ -54,6 +69,5 @@ noJS.use('nojs/module/rate',function( $, ui, rate ){
 			//console.log(Rate.index)
 		}
 	});
-	//console.log(Rate.index)
 });
 </script>
