@@ -57,6 +57,7 @@ define(function( require, $ ){
 	 * 所有依赖dom的ui组件都可以通过id,element,jQuery来获取dom元素
 	 */
 	function getDom( selector ){
+		if( !selector ){return;} 
 		var type = typeof selector, elem;
 		if( type=='string' ){//通过id
 			elem = $('#'+selector);
@@ -829,7 +830,7 @@ define(function( require, $ ){
 	UI.Switch.prototype = {
 		init : function(dom,opt){
 			this.box = getDom(dom);
-			if(!this.box.length){return;}
+			if(!this.box){return;}
 			this.M = this.box.find(".nj_s_menu").first();
 			this.menu = this.M.find(".nj_s_m");
 			this.C = this.box.find(".nj_s_con").first();
