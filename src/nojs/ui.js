@@ -837,6 +837,7 @@ define(function( require, $ ){
 			this.mode = this.opt.mode=='click'?'click':'mouseover';
 			this.onChange = this.opt.onChange;
 			this.index = this.opt.firstIndex || 0;
+			this.rule = this.rule || opt.rule;
 			this.bind();
 		},
 		bind : function(){
@@ -858,8 +859,8 @@ define(function( require, $ ){
 		change : function(index){
 			index = index>(this.length-1) ? 0 : index;
 			index = index<0 ? (this.length-1) : index;
-			if(this.opt.rule){
-				this.opt.rule.call(this,index);
+			if(this.rule){
+				this.rule.call(this,index);
 			}else{
 				this.con.eq(index).show().siblings().hide();
 				this.menu.eq(index).addClass("current").siblings().removeClass("current");

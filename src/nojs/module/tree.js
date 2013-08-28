@@ -14,7 +14,7 @@ define(function(require,$){
 		this.ajaxMode = typeof this._data=='string';
 		this.data = this.ajaxMode ? null : tree.format( this._data );
 		
-		if( !this.box.length || !this.ajaxMode && !this.data ){
+		if( !this.box.length || !this.ajaxMode && !this.data.level.length ){
 			return;
 		}	
 		this.max = options.max || tree.max;
@@ -41,13 +41,24 @@ define(function(require,$){
 	 */
 	tree.ajax = function( options ){
 		options = options || {};
-		$.getJSON( options.url, options.data, function(json){
+		var _data = options.data;
+		
+		$.getJSON( options.url, _data, function(json){
 			if( json.status==1 ){
-				var Tree = options.tree;
-				if( Tree && json.data ){
-					Tree.data = tree.format(json.data, Tree.data);
+				var Tree = options.tree,
+					_data_ = json.data;
+				
+				//获取子节点时，返回数据必须指定父id
+				if( _data && _data.id ){
+					var i, _par = tree.key['parent'];
+					for( i=0; i<_data_.length; i++ ){
+						_data_[i][_par] = _data.id;
+					}
 				}
-				options.success && options.success(json.data);
+				if( Tree && _data_ ){
+					Tree.data = tree.format(_data_, Tree.data);
+				}
+				options.success && options.success(_data_);
 			}
 		})
 	}
@@ -79,8 +90,8 @@ define(function(require,$){
 			'open' : 'open',
 			'link' : 'link'
 		}, tree.key);
-		child = key['children'];	
 		
+		child = key['children'];		
 		dataType = data[0][ key['parent'] ]==undefined ? 1 : 2;
 		
 		function each( Data, _level, _parent ){
@@ -119,9 +130,11 @@ define(function(require,$){
 						each( m[child], _level+1, id );
 					}
 				}else if( pid==tree.rootID ){//一级根节点
+					
 					m.level = _level = 0;
 					m[ child ] = [];
 				}else{//子节点
+					
 					m[ child ] = [];
 					if( _data[pid] ){//其所属父节点
 						_data[pid][ child ] = _data[pid][ child ] || [];
@@ -133,7 +146,6 @@ define(function(require,$){
 						continue;
 					}
 				}
-				
 				level[_level] = level[_level] || [];
 				level[_level].push(_data[id]);
 			}
@@ -573,15 +585,7 @@ define(function(require,$){
 				success : function(_data_){
 					if( !_data_ || !_data_.length ){
 						return;
-					}
-					//获取子节点时，返回数据必须指定父id
-					if( _data && _data.id ){
-						var i, _par = tree.key['parent'];
-						for( i=0; i<_data_.length; i++ ){
-							_data_[i][_par] = _data.id;
-						}
-					}
-					
+					}	
 					Data = tree.format(_data_, Data);
 					data = Data.level;
 					if( callback ){
@@ -617,7 +621,6 @@ define(function(require,$){
 			}
 			function change(item){
 				var id = item.value;
-				//box[0].id=='tree_test3' && console.log(id);
 				$(item).nextAll('select').remove();
 				if( id==emptyID || !Data.all[id] ){
 					return;

@@ -3,8 +3,6 @@
 .test_tree select{padding:5px;margin:4px 0 0 15px;width:80%}
 .test_tree h6{text-indent:1em;font-weight:400;color:#999}
 .p_txt .t{margin:0}
-
-
 </style>
 <h4 class="p_tit">tree</h4>
 <h6 class="p_tit">说明：</h6>
@@ -146,9 +144,11 @@ noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
 	});
 	
 	
-	var number = $('#data_number'),
-		total = $('#total_number'),
-		_data = testData(number.val);
+	var date1 = (+new Date),
+		date2,
+		number = $('#data_number'),
+		total = $('#total_number');
+	
 	number.keyup(function(){
 		if( isNaN(this.value) ){
 			this.value = parseInt(this.value,10);
@@ -163,13 +163,11 @@ noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
 	$('#render_tree').click(function(){
 		$('#tree_test2').empty();
 		setTimeout(function(){
-			var date1 = (+new Date),
-				n = parseInt(number.val(),10),
-				data = testData(n),
-				date2;
+			date1 = (+new Date);
+			var n = parseInt(number.val(),10),
+				data = testData(n);
 			setTotal(n);
-			date2 = (+new Date);
-			//console.log(date2-date1);
+			
 			new tree( 'tree_test2', {
 				data : data,
 				isCheck : true,
@@ -177,7 +175,7 @@ noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
 					//console.log(this.checked);
 				}
 			});
-			date2 = (+new Date);
+			//date2 = (+new Date);
 			//console.log(date2-date1);
 		},0)
 		return false;
