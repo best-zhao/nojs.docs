@@ -833,10 +833,10 @@ define(function( require, $ ){
 			this.con = this.C.children(".nj_s_c");
 			this.length = this.con.length;
 			if(!this.length){return;}
-			this.opt = opt || {};
-			this.mode = this.opt.mode=='click'?'click':'mouseover';
-			this.onChange = this.opt.onChange;
-			this.index = this.opt.firstIndex || 0;
+			this.opt = opt = opt || {};
+			this.mode = opt.mode=='click'?'click':'mouseover';
+			this.onChange = opt.onChange;
+			this.index = opt.firstIndex || 0;
 			this.rule = this.rule || opt.rule;
 			this.bind();
 		},
