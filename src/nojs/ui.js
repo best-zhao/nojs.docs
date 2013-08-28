@@ -825,7 +825,7 @@ define(function( require, $ ){
 			return isNew;
 		}
 		this.box = getDom(dom);
-		this.init(id,opt);
+		this.init(dom,opt);
 	}
 	UI.Switch.prototype = {
 		init : function(dom,opt){
