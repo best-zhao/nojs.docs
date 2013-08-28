@@ -847,6 +847,7 @@ define(function( require, $ ){
 			var T = this,
 				A,m,
 				delay = T.mode=='mouseover'?100:0;//延迟触发
+				
 			this.menu.on(this.mode,function(){
 				m = $(this);
 				if(m.hasClass('current')){return false;}
