@@ -66,7 +66,7 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 .codelight_box .set_opt{position:absolute;top:-1px;right:0;padding:0 8px;font:12px/1.6 'arial';display:none;background:#ededed;box-shadow:-2px 2px 5px #ddd;border-bottom-left-radius:3px}
 .codelight_box .set_opt a{padding:0 4px;vertical-align:top;color:#666}
 .codelight_box .set_opt .copy{position:relative}
-.code_hide{height:22px;overflow:hidden}
+.code_hide{height:22px;overflow:hidden;background:#fafafa}
 .code_hide .rs_item{display:none}
 .codelight_box .open{color:#666;padding:1px 9px;cursor:default;display:none}
 .codelight_box .edit{box-shadow:inset 1px 1px 1px #999;cursor:text;padding-top:1px}

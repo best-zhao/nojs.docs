@@ -74,7 +74,7 @@ define(function(require,$,ui){
 			
 			frame.load( url, function(){
 				//代码高亮
-				new codeLight({parent:frame});
+				new codeLight({parent:frame,autoHide:true});
 				//扩展应用
 				frame.find('#about_link,.about_link').on('click',function(e){
 					var t = e.target, i ,m;

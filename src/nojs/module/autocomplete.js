@@ -19,7 +19,8 @@ define(function(require,$){
 		this.noResult = opt.noResult;
 		this.state = false;//是否有匹配结果
 		this.searchOnSelect = opt.searchOnSelect==false?false:true;//选中立即搜索
-		this.bind();
+		this.async = opt.async;
+		this.rule && this.bind();
 	}
 	autoComplete.prototype = {
 		bind : function(){
@@ -60,7 +61,7 @@ define(function(require,$){
 			$(document).click(function(){
 				T.showBox("hide");
 			})
-			this.autoComplete.bind("click",function(e){
+			this.autoComplete.click(function(e){
 				var t = e.target,
 					tag = t.tagName.toLowerCase(),
 					m = $(t);
@@ -93,22 +94,34 @@ define(function(require,$){
 		},		
 		//自动完成
 		complete : function(v,id){
-			var val = typeof v=='undefined' ? this.text.val() : v,
-				html = this.rule ? this.rule.call(this,val):'',
-				t = this.autoComplete.find("dt");
-			if( html && html!='' ){
-				this.showBox("show");
-				t.siblings().remove().end().after(html);
-				//该处传入id，当显示全部结果时，输入框当前结果
-				//this.move('down',id);
-				this.state = true;
-			}else{//无匹配项
-				t.siblings().remove();
-				this.showBox('hide');
-				this.text.data("id",null);
-				this.text.data("text",null);
-				this.state = false;
-			}			
+			var T = this,
+				val = typeof v=='undefined' ? this.text.val() : v,
+				t = this.autoComplete.find("dt"),
+				html;
+			
+			if( this.async==false ){//ajax异步模式
+				this.rule.call(this,val, function(html){
+					call(html);
+				})
+			}else{
+				call( this.rule.call(this,val) );
+			}
+			
+			function call(html){
+				if( html && html!='' ){
+					T.showBox("show");
+					t.siblings().remove().end().after(html);
+					//该处传入id，当显示全部结果时，输入框当前结果
+					//this.move('down',id);
+					T.state = true;
+				}else{//无匹配项
+					t.siblings().remove();
+					T.showBox('hide');
+					T.text.data("id",null);
+					T.text.data("text",null);
+					T.state = false;
+				}
+			}	
 		},
 		//键盘移动及选择
 		move : function(d,id){
@@ -168,7 +181,7 @@ define(function(require,$){
 				v = this.text.val();
 			if(!text){
 				//if(v.replace(/\s/g,"")==""){return false;}
-				this.noResult && this.noResult(encodeURIComponent(v));
+				//this.noResult && this.noResult(encodeURIComponent(v));
 			}else{
 				this.onSelect && this.onSelect( text, this.autoComplete.find('.current') );
 			}
