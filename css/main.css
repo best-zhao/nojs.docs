@@ -26,10 +26,10 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
 .p_con{padding:0 20px 10px}
 .text_info{padding:0 0 1em 2em}
 
-#demo_tab .nj_s_menu{}
-#demo_tab .nj_s_m{float:left;padding:3px 12px}
-#demo_tab .nj_s_menu .current{background:#FAFAFA;font-weight:800;padding-bottom:5px;margin:0 0 -2px;border:1px solid #ddd;border-bottom-color:#fafafa}
-#demo_tab .nj_s_con{background:#FAFAFA;margin:0 0 9px;border:1px solid #ddd;padding:15px;box-shadow:inset 1px 1px 1px #fff}
+.demo_tab .nj_s_menu{}
+.demo_tab .nj_s_m{float:left;padding:3px 12px}
+.demo_tab .nj_s_menu .current{background:#FAFAFA;font-weight:800;padding-bottom:5px;margin:0 0 -2px;border:1px solid #ddd;border-bottom-color:#fafafa}
+.demo_tab .nj_s_con{background:#FAFAFA;margin:0 0 9px;border:1px solid #ddd;padding:15px;box-shadow:inset 1px 1px 1px #fff}
 
 @media all and (max-width:660px){
 	#ui_page,.menu_tree{-webkit-transition:all .2s linear;-moz-transition:all .2s linear}
