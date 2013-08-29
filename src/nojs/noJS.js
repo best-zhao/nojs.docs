@@ -267,7 +267,8 @@
 					load.point = load.getPaths(_modules); 
 					var i, m; 
 					for( i=0;i<_modules.length;i++ ){
-						m = load.getPath(_modules[i]);
+						//m = load.getPath(_modules[i]);
+						m = load.point[i];
 						modules[m] = {id:m};
 					}
 					return;

@@ -4,6 +4,18 @@
  * 2013-8-29
  */
 define(function(require,$){
+	function moveEnd(obj){ 
+		obj.focus(); 
+		var len = obj.value.length; 
+		if (document.selection) { 
+			var sel = obj.createTextRange(); 
+			sel.moveStart('character',len); 
+			sel.collapse(); 
+			sel.select(); 
+		}else if(typeof obj.selectionStart == 'number' && typeof obj.selectionEnd == 'number') { 
+			obj.selectionStart = obj.selectionEnd = len; 
+		} 
+	}
 	var autoComplete = function(text,opt){
 		if(!text||!text.length){return;}
 		this.text = text;
@@ -19,6 +31,7 @@ define(function(require,$){
 		this.noResult = opt.noResult;
 		this.state = false;//是否有匹配结果
 		this.searchOnSelect = opt.searchOnSelect==false?false:true;//选中立即搜索
+		this.rewriteOnMove = opt.rewriteOnMove==false?false:true;//键盘上下选择的时候是否重写文本框的值
 		this.async = opt.async;
 		this.rule && this.bind();
 	}
@@ -31,10 +44,9 @@ define(function(require,$){
 	                case 13://enter
 						T.move('enter');
 						return false;//阻止触发表单事件
-	                    break;
 	                case 38://up
 	                    T.move("up");
-	                    break;
+	                    return false;
 	                case 40://down
 	                    T.move("down");
 	                    break;
@@ -165,8 +177,10 @@ define(function(require,$){
 				//this.text.data("id",null);
 				this.text.data("text",null);
 			}
-			this.text.val(now.text());
-			if(d=='enter'){
+			
+			(d=='enter' || this.rewriteOnMove) && this.text.val(now.text());
+			
+			if( d=='enter' ){
 				this.onChoose && this.onChoose();
 				this.searchOnSelect && this.search();
 			}			
