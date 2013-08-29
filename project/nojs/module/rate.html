@@ -1,7 +1,6 @@
 <style>
 .p_rate{height:12px;overflow:hidden;background:url(/img/rate.png) repeat-x;display:inline-block;position:relative}
 .p_rate i{position:absolute;top:0;left:0;cursor:pointer;width:13px;height:12px;background:url(/img/rate.png) repeat-x 0 12px;vertical-align:top}
-.p_rate .write{width:13px;position:absolute;background-position:0 -999em }
 .p_rate .current{background-position:0 -24px}
 .p_rate .hover{background-position:0 -12px}
 </style>
@@ -47,7 +46,6 @@
 			<script type="text/templete" code="html">
 			.p_rate{height:12px;overflow:hidden;background:url(/img/rate.png) repeat-x;display:inline-block;position:relative}
 			.p_rate i{position:absolute;top:0;left:0;cursor:pointer;width:13px;height:12px;background:url(/img/rate.png) repeat-x 0 12px;vertical-align:top}
-			.p_rate .write{width:13px;position:absolute;background-position:0 -999em }
 			.p_rate .current{background-position:0 -24px}
 			.p_rate .hover{background-position:0 -12px}	
 			</script>	
@@ -64,7 +62,7 @@
 <script>
 noJS.use('nojs/module/rate',function( $, ui, rate ){
 	var Rate = rate($('#test_rate1'), {
-		title : [11,22,33,44,55],
+		//title : [11,22,33,44,55],
 		onSelect : function(index){
 			//console.log(Rate.index)
 		}
