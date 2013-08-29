@@ -1,0 +1,116 @@
+<style>
+.auto_complete{position:absolute;display:none;border:1px solid #ccc;background:#fff;width:397px;z-index:9999}
+.auto_complete{line-height:28px;margin-top:-1px}
+.auto_complete dt{background:#f6f6f6;padding:0 10px;border-bottom:1px dotted #ddd;color:#999}
+.auto_complete dd{text-indent:0.75em;cursor:pointer;font-family:'microsoft yahei';font-size:12px;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.auto_complete dd:hover{background:#F2F8FF}
+.auto_complete dd .r{color:#999;float:right;font-size:12px}
+.auto_complete dd.current{background:#FFE3F2}
+.auto_complete .orange{color:red}	
+</style>
+<h4 class="p_tit">autocomplete 自动完成</h4>
+<h6 class="p_tit">说明:</h6>
+<div class="text_info">
+	<p>依赖模块：'nojs/module/autocomplete'</p>
+	<p>自定义匹配规则</p>
+</div>
+<h6 class="p_tit">demo:</h6>
+<div class="text_info">
+	<div class="clearfix mb10">
+		<span class="p_txt"><input id="auto_complete" class="text" /></span>
+	</div>
+	<script type="text/templete" code="javascript">
+	//模拟数据
+	var data = [
+		[1,'aa'],[11,'ab'],[111,'abc'],[2,'bb'],[3,'cc'],[4,'dd'],[5,'ee'],[6,'ff'],[7,'gg']
+	]
+	</script>
+	<div class="demo_tab" data-ui="Switch">
+		<ul class="nj_s_menu clearfix">
+			<li class="nj_s_m">js</li>
+			<li class="nj_s_m">css</li>
+		</ul>
+		<div class="nj_s_con">
+			<div class="nj_s_c">
+				<script type="text/templete" code="javascript">
+				noJS.use('nojs/module/autocomplete',function( $, ui, autocomplete ){
+					var S = new autocomplete( text, options );
+				});
+				</script>
+			</div>
+			<div class="nj_s_c">
+				
+			</div>
+		</div>
+	</div><!--demo_tab-->
+</div>
+<h6 class="p_tit">options选项:</h6>
+<div class="text_info">
+	<p class="mb10">1. rule(fn): 设置匹配规则，遍历数据返回html片段即可，传入的参数即为文本框value值</p>
+	<script type="text/templete" code="javascript">
+	function rule(value){
+		var i=0, c=0, n = data.length, html = '', m, v, 
+			re = new RegExp('('+value.replace(/([\(\)\-])/g,'\\$1')+')','i');
+		if( !value ){return html;}
+		for( ; i<n; i++ ){
+			if( c>=this.max ){break;}//如果设置了最大显示条数，需在此处跳出循环
+			m = data[i];
+			if( re.test(m[1]) ){
+				c++;
+				v = m[1].replace( re, '<i style="color:red;font-weight:800">$1</i>' );//添加高亮
+				html += '<dd id="'+m[0]+'" title="'+m[1]+'">'+v+'</dd>';//此处约定了使用dd标签
+			}
+		}
+		return html;
+	}
+	</script>
+	<p class="mb10">如果rule函数中使用ajax来获取数据，则ajax设置参数'async=false'即可转为同步返回html。或者设置'options.async=false'使用回调模式返回html(适合跨域的情况)，此时rule函数会有2个参数，rule(value,callback)，ajax回调中执行callback(html)。</p>
+	<script type="text/templete" code="javascript">
+	function rule(value, callback){		
+		var html = '';
+		if( !value ){return html;}
+		$.getJSON( 'url?key=value', function(json){
+			var data = json.data;
+			//……此处遍历data，组合html
+			callback && callback(html);//通过这里返回html
+		})
+		return html;
+	}
+	</script>
+	<p class="mb10">2. async: ajax返回数据时，设置为false,rule函数就可以使用回调模式返回html。</p>
+	<p class="mb10">3. max(number): 设置数据最大显示条数，默认20条</p>
+	<p class="mb10">4. onSelect(fn): 选中数据时触发的事件</p>
+</div>
+<script>
+noJS.use('nojs/module/autocomplete',function( $, ui, autocomplete ){
+	var S = new autocomplete( $('#auto_complete'), {
+		rule : rule,
+		max : 15,
+		onSelect : function( val, obj ){
+			
+		}
+	}),
+	data = [
+		[1,'aa'],[11,'ab'],[111,'abc'],[2,'bb'],[3,'cc'],[4,'dd'],[5,'ee'],[6,'ff'],[7,'gg']
+	];
+	function rule(value){
+		var i=0, c=0, n = data.length, html = '', m, v, 
+			re = new RegExp('('+value.replace(/([\(\)\-])/g,'\\$1')+')','i');
+		if( !value ){
+			return html;
+		}
+		for( ; i<n; i++ ){
+			if( c>=this.max ){
+				break;
+			}
+			m = data[i];
+			if( re.test(m[1]) ){
+				c++;
+				v = m[1].replace( re, '<i style="color:red;font-weight:800">$1</i>' );
+				html += '<dd id="'+m[0]+'" title="'+m[1]+'">'+v+'</dd>';
+			}
+		}
+		return html;
+	}
+});
+</script>
