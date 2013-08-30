@@ -83,14 +83,17 @@
 			//……此处遍历data，组合html
 			callback && callback(html);//通过这里返回html
 		})
-		return html;
 	}
 	</script>
 	<p class="mb10">2. async(boolean): ajax返回数据时，设置为false,rule函数就可以使用回调模式返回html。</p>
 	<p class="mb10">3. max(number): 设置数据最大显示条数，默认20条</p>
 	<p class="mb10">4. onSelect(fn): 选中数据时触发的事件</p>
-	<p class="mb10">5. searchOnSelect(boolean): 选中后时候立即执行onSelect事件，默认true</p>
+	<p class="mb10">5. searchOnSelect(boolean): 选中后是否立即执行onSelect事件，默认true</p>
 	<p class="mb10">6. rewriteOnMove(boolean): 键盘上下选择的时候是否重写文本框的值，默认true</p>
+</div>
+<h6 class="p_tit">扩展应用:</h6>
+<div id="about_link" class="text_info">
+	<a href="" id="email">邮箱自动补全</a>
 </div>
 <script>
 noJS.use('nojs/module/autocomplete',function( $, ui, autocomplete ){

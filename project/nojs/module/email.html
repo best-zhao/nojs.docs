@@ -1,0 +1,41 @@
+<style>
+.auto_complete{position:absolute;display:none;border:1px solid #ccc;background:#fff;width:397px;z-index:9999}
+.auto_complete{line-height:28px;margin-top:-1px}
+.auto_complete dt{background:#f6f6f6;padding:0 10px;border-bottom:1px dotted #ddd;color:#999}
+.auto_complete dd{text-indent:0.75em;cursor:pointer;font-family:'microsoft yahei';font-size:12px;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.auto_complete dd:hover{background:#F2F8FF}
+.auto_complete dd .r{color:#999;float:right;font-size:12px}
+.auto_complete dd.current{background:#FFE3F2}
+.auto_complete .orange{color:red}	
+</style>
+<h4 class="p_tit">email 自动补全</h4>
+<h6 class="p_tit">说明:</h6>
+<div class="text_info">
+	<p>依赖模块：'nojs/module/email'</p>
+	<p>邮箱地址自动补全，扩展自autocomplete</p>
+</div>
+<h6 class="p_tit">demo:</h6>
+<div class="text_info">
+	<div class="clearfix mb10">
+		<span class="p_txt"><input id="email_complete" class="text" /></span>
+	</div>
+	<script type="text/templete" code="javascript">
+	noJS.use('nojs/module/email',function( $, ui, email ){
+		email(text,options);
+	});
+	</script>
+	
+</div>
+<h6 class="p_tit">options选项:</h6>
+<div class="text_info">
+	<p class="mb10">1. data(Array): 自定义常用邮箱数据，如：</p>
+	<script type="text/templete" code="javascript">
+	var data = ['163.com','126.com'];
+	</script>
+	
+</div>
+<script>
+noJS.use('nojs/module/email',function( $, ui, email ){
+	email($('#email_complete'));
+});
+</script>

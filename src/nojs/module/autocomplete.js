@@ -37,7 +37,7 @@ define(function(require,$){
 	}
 	autoComplete.prototype = {
 		bind : function(){
-			var T = this,A,key;
+			var T = this, A, key;
 			this.text.keydown(function(e){//选择
 				key = e.keyCode;
 				switch(key){
@@ -68,7 +68,11 @@ define(function(require,$){
 						},99);
 	            }
 			}).click(function(e){
-				$.stopBubble(e);
+				if ( e.stopPropagation ){
+					e.stopPropagation();
+				}else{
+					e.cancelBubble = true;
+				}
 			})
 			$(document).click(function(){
 				T.showBox("hide");
@@ -82,7 +86,11 @@ define(function(require,$){
 					m.addClass('current').siblings().removeClass('current');
 					T.move('enter');
 				}
-				$.stopBubble(e);
+				if ( e.stopPropagation ){
+					e.stopPropagation();
+				}else{
+					e.cancelBubble = true;
+				}
 			})			
 		},
 		/*
@@ -92,15 +100,16 @@ define(function(require,$){
 		 */
 		showBox : function(display,obj){	
 			display = display=='show'?'show':'hide';
-			obj = obj||this.autoComplete;
-			if(display=="show"&&obj.is(":hidden")){
+			obj = obj || this.autoComplete;
+			
+			if( display=="show" && obj.is(":hidden") ){
 				obj.css({
 					"left" : this.text.offset().left,
-					"top" : this.text.offset().top+this.text.outerHeight(),
+					"top" : this.text.offset().top + this.text.outerHeight(),
 					"display" : 'block',
 					"width" : this.text.innerWidth()
 				});
-			}else if(display=="hide"&&obj.is(":visible")){
+			}else if( display=="hide" && obj.is(":visible") ){
 				obj.hide();
 			}
 		},		
