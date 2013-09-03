@@ -120,7 +120,7 @@ define(function(require,$){
 				t = this.autoComplete.find("dt"),
 				html;
 			
-			if( this.async==false ){//ajax异步模式
+			if( this.async==true ){//ajax异步模式
 				this.rule.call(this,val, function(html){
 					call(html);
 				})

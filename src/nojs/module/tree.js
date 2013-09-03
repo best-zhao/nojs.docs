@@ -49,7 +49,7 @@ define(function(require,$){
 					_data_ = json.data;
 				
 				//获取子节点时，返回数据必须指定父id
-				if( _data && _data.id ){
+				if( _data_ && _data && _data.id ){
 					var i, _par = tree.key['parent'];
 					for( i=0; i<_data_.length; i++ ){
 						_data_[i][_par] = _data.id;
