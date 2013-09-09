@@ -2,9 +2,10 @@
 <h4 class="p_tit">noJS.config 参数配置</h4>
 <h6 class="p_tit">其他参数配置：</h6>
 <div class="text_info">
-	<p class="mb10">参数配置可以直接写在页面上；也可以通过<code>data-config</code>设置在script标签上；还可以将配置独立成一个文件如<code>conf.js</code>，通
-		过script标签的<code>data-config="conf.js"</code>即可，该文件的位置是相对于<code>noJS.js</code>的，如上级目录表示为<code>./conf.js</code>，
-		<b class="orange">外部引入的配置文件后缀必须是'.js'，且必须执行一次noJS.config方法</b></p>
+	<p class="mb10">参数配置可以直接写在页面上；也可以通过script标签的<code>data-config</code>属性设置；
+		还可以将配置独立成一个文件如<code>conf.js</code>，通过script标签的<code>data-config="conf.js"</code>引入即可，
+		该文件的位置是相对于<code>noJS.js</code>的，如上级目录表示为<code>./conf.js</code>，
+		<b class="orange">外部引入的配置文件后缀必须是'.js'，且必须执行一次<code>noJS.config</code>方法</b></p>
 	<p class="mb10">除最基本参数配置外，还可以设置以下参数</p>
 	<script type="text/codelight" code="javascript" key="config">
 	noJS.config({
@@ -29,16 +30,19 @@
 		}
 	})
 	</script>
+	<p>注：<code>global</code>只能设置一次，多次无效</p>
 	<p class="orange mb10">注：如果参数配置比较简单，可直接写入script标签的data-config属性</p>
 	<script type="text/codelight" code="html">
 		<script src="js/nojs/noJS.js" 
 			data-config=" global : ['jquery','nojs.ui'], base : 'js/' " >
 		< /script>
 	</script>
-	<p class="mb10">通过引入外部配置文件的方式</p>
+	<p class="mb10">如果配置比较多，可以通过引入外部配置文件的方式统一管理</p>
 	<script type="text/codelight" code="html">
-		<script src="js/nojs/noJS.js" data-config="./conf.js">< /script>
+		<script src="js/nojs/noJS.js" data-config="./conf.js" id="nojs">< /script>
 	</script>
+	<p>为了快速获取配置，在引入<code>noJS</code>的script上最好加上<code>id="nojs"</code>，否则会读取head中最后一个script。获取该script后，'src'中文件所在目录的上一级会作为默认的base目录</p>
+	
 </div>
 <h6 class="p_tit"></h6>
 <div class="text_info">

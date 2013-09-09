@@ -3,7 +3,14 @@
  * 2013-7-30
  * nolure@vip.qq.com
  */
-define(function( require, $ ){
+!function(window, factory){
+	if( typeof define=='function' && define.cmd ){
+		define(factory);
+	}else{
+		window.ui = factory();
+	}
+}(this, function( require, $ ){
+	
 	var UI = {};
 	
 	/*
@@ -11,7 +18,6 @@ define(function( require, $ ){
 	 * 1.普通：直接执行相关方法，
 	 * 2.区域初始化：通过在Elements上配置相应的属性初始化对应区域内所有ui组件，默认body区域
 	 */
-	
 	
 	UI.init = function( area ){
 		area = area || $('body');
@@ -41,7 +47,6 @@ define(function( require, $ ){
 		}
 	}
 	
-	//结合new和apply的方式
 	function Extend( parent, args ) {
 	    function F( parent,args ) {
 	    	parent.apply( this, args );
@@ -245,29 +250,34 @@ define(function( require, $ ){
 	})
 	
 	//***********ui组件***********//
-	UI.setPos = function( obj, pos, isFloat ){
+	UI.setPos = function( dom, options ){
 		/*
 		 * 设置浮动元素显示位置
-		 * @obj:设置对象
-		 * @pos:{top:top,left:left},默认{50,50}屏幕居中,top和left值范围0-100
-		 * @isFloat:是否浮动 0不浮动，1动画 2固定
+		 * @dom:设置对象
+		 * options.pos:{top:top,left:left},默认{50,50}屏幕居中,top和left值范围0-100
+		 * options.isFloat:是否浮动 0不浮动，1动画 2固定
 		 */
-		if(!obj||!obj.length){return;}
-		pos = pos || {};
-		var W = obj.outerWidth(),
-			H = obj.outerHeight(),
+		dom = getDom(dom);
+		if(!dom||!dom.length){return;}
+		
+		options = options || {};
+		
+		var pos = options.position || {},
+			isFloat = options.isFloat==undefined ? 2 : options.isFloat,
+			F = isFloat==0 ? 0 : isFloat || 2,
+			W = dom.outerWidth(),
+			H = dom.outerHeight(),
 			win = $(window),
 			T,L,
 			top = pos.top==undefined ? 50 : pos.top,
 			left = pos.left==undefined ? 50 : pos.left,
 			isTop = typeof top=='number',
 			isLeft = typeof left=='number',
-			F = isFloat==0 ? 0 : isFloat || 2,
 			win_w, win_h, sTop, sLeft, css = {},
 			noIE6 = F==2 && !$.browser('ie6'),
-			ns = obj.data('setpos');
+			ns = dom.data('setpos');
 		
-		obj.css('position' , noIE6 ? "fixed" : "absolute");
+		dom.css('position' , noIE6 ? "fixed" : "absolute");
 		
 		function getPos(){
 			win_w = win.width();
@@ -281,16 +291,16 @@ define(function( require, $ ){
 		}
 		getPos();
 		
-		obj.css(css);
+		dom.css(css);
 		function moveTo( resize ){
-			if( obj.is(':hidden') ){
+			if( dom.is(':hidden') ){
 				return;
 			}
 			getPos();
 			if(F==1){
-				obj.stop().animate( css, 180 );
+				dom.stop().animate( css, 180 );
 			}else if(F==2){
-				obj.css(css);
+				dom.css(css);
 			}
 		}
 		if( F ){
@@ -298,7 +308,7 @@ define(function( require, $ ){
 				win.off( '.'+ns );
 			}else{
 				ns = 'setpos'+(new Date()).getTime();
-				obj.data('setpos',ns);
+				dom.data('setpos',ns);
 			}
 			win.on( 'scroll.'+ns+' resize.'+ns, moveTo );
 		}
@@ -326,7 +336,7 @@ define(function( require, $ ){
 			
 			w.on( 'scroll resize', S );
 			
-			UI.setPos( layer, {top:0,left:0}, 2 );
+			UI.setPos( layer, {position:{top:0,left:0}} );
 			
 			$.onScroll( layer[0] );
 		}
@@ -362,8 +372,8 @@ define(function( require, $ ){
 		this.opt = null;//操作区		
 		this.stillLayer = opt.stillLayer || false;//隐藏后是否继续显示遮罩层
 		this.layer = opt.layer==false ? false : true;
-		this.pos = opt.pos || { left:50 , top:50 };
-		this.Float = opt.Float||opt.Float===0?opt.Float:2;
+		this.pos = opt.pos;
+		this.Float = opt.Float;
 		this.bindEsc = opt.bindEsc==false?false:true;
 		this.onShow = opt.onShow;
 		this.onHide = opt.onHide;
@@ -463,7 +473,7 @@ define(function( require, $ ){
 		        @callBack:可选参数，回调函数
 		    */
 			if( this.self.is(":visible") ){return;}
-			UI.setPos( this.self, this.pos, this.Float );	//重新计算高度并设置居中 
+			UI.setPos( this.self, {position:this.pos, isFloat:this.Float} );	//重新计算高度并设置居中 
 			
 			this.layer && UI.layer.show();
 			

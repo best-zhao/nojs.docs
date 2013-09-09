@@ -281,6 +281,7 @@
 			current['exports'] = factory;
 		}
 	}
+	define.cmd = true;
 	
 	function check( mod ){
 		//mod.state = mod.state || 0;
