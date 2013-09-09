@@ -1,6 +1,6 @@
 <style>
 #test_lazyload{border:1px solid #ccc;padding:15px;width:400px;height:200px;overflow:auto}
-#test_lazyload img{display:block;margin:0 0 15px;width:100%;height:250px;background:#eee}	
+#test_lazyload img{display:block;margin:0 0 15px;width:100%;min-height:200px;background:#eee}	
 </style>
 <h4 class="p_tit">lazyload</h4>
 <h6 class="p_tit">说明：</h6>
@@ -36,10 +36,16 @@
 			<th>默认值</th>
 		</tr>
 		<tr>
+			<td>scroll</td>
+			<td>element</td>
+			<td>指定触发滚动事件的对象</td>
+			<td>$(window)</td>
+		</tr>
+		<tr>
 			<td>area</td>
 			<td>element</td>
-			<td>指定需要延迟加载图片的区域。<br />如果是整个页面即$(window)时，函数初始化可在任何位置，所有图片加载完成且所有dom就绪后才会解绑scroll事件</td>
-			<td>$(window)</td>
+			<td>指定需要延迟加载图片的区域。默认与scroll相同(scroll为window时对应document对象)</td>
+			<td>$(document)</td>
 		</tr>
 		<tr>
 			<td>attr</td>
@@ -57,7 +63,7 @@ noJS.use('nojs/module/lazyload',function($,ui,lazyload){
 	//console.log($(document).scrollTop());
 	var area = $('#test_lazyload').scrollTop(220),
 	lazy = new lazyload({
-		area : area
+		scroll : area
 	});
 	$('#clear_cache').click(function(){
 		area.scrollTop(0).find('img').each(function(){

@@ -9,7 +9,8 @@ define(function(require,$){
 	
 	function lazyload(options){
 		this.options = options = options || {};
-		this.area = options.area || _window;
+		this.scroll = options.scroll || _window;//滚动区域
+		this.area = options.area || (this.scroll[0]===window?_document:this.scroll);//获取图片的区域，默认同滚动区域
 		this.attr = options.attr || 'data-lazyload';
 		this.init();
 	}
@@ -17,7 +18,7 @@ define(function(require,$){
 		init : function(){
 			var _this = this, A;
 			
-			this.area.on("scroll.lazyload resize.lazyload", function(){
+			this.scroll.on("scroll.lazyload resize.lazyload", function(){
 				clearTimeout(A);
 				A = setTimeout(function(){
 					_this.load();
@@ -26,19 +27,18 @@ define(function(require,$){
 			this.load();
 		},
 		load : function(f,isCtrl){
-			var area = this.area[0]===window ? _document : this.area;
-			f = f || area.find('img['+this.attr+']').css('opacity',0.2);
+			f = f || this.area.find('img['+this.attr+']').css('opacity',0.2);
 			
 			//如全部加载完则解除绑定滚动事件
 			if( !f.length && $.isReady ){
-				this.area.off("scroll.lazyload resize.lazyload");
+				this.scroll.off("scroll.lazyload resize.lazyload");
 				return;
 			}
 			var _this = this,
 				m, top, h, src,
 				P = this.position(),
 				t1, t2, t3,
-				Top = this.area[0]===window ? 0 : this.area.offset().top;
+				Top = this.scroll[0]===window ? 0 : this.scroll.offset().top;
 				
 			function show(i){
 				m = f.eq(i);
@@ -46,11 +46,6 @@ define(function(require,$){
 				src = m.attr(_this.attr);
 				
 				if( src ){
-					m.off('load.lazyload').on('load.lazyload',function(){
-						$(this).removeAttr(_this.attr).fadeTo(200,1);
-						_this.options.onload && _this.options.onload.call(this);
-						$(this).off('load.lazyload');
-					})
 					if( !isCtrl ){
 						if( Top>0 ){
 							P.top = 0;
@@ -61,23 +56,31 @@ define(function(require,$){
 						t3 = top<=0 && (m.outerHeight()+top)>P.height; 
 						
 						if( t1 || t2 || t3  ){
-							m.attr("src", src);
+							set(m, src);
 						}
 					}else{
-						m.attr("src",src);
+						set(m, src);
 					}
 				}
 				i++;
 				//重新获取未加载图片
-				file = area.find('img['+_this.attr+']');
+				file = _this.area.find('img['+_this.attr+']');
 				setTimeout(function(){
 					show(i);
 				}, 10)
 			}
+			function set(m, src){
+				m.off('load.lazyload error.lazyload').on('load.lazyload error.lazyload',function(){
+					$(this).fadeTo(200,1);
+					_this.options.onload && _this.options.onload.call(this);
+					$(this).off('load.lazyload error.lazyload');
+				})
+				m.attr("src",src).removeAttr(_this.attr);
+			}
 			show(0);
 		},
 		position : function(){
-			var area = this.area;
+			var area = this.scroll;
 			return {
 				width : area.width(),
 				height : area.innerHeight(),

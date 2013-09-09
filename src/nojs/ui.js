@@ -335,9 +335,7 @@
 			S();
 			
 			w.on( 'scroll resize', S );
-			
-			UI.setPos( layer, {position:{top:0,left:0}} );
-			
+			UI.setPos( layer );
 			$.onScroll( layer[0] );
 		}
 		function show(){
@@ -353,8 +351,6 @@
 			arr.isShow = false;
 			layer.fadeOut();
 		}
-		
-		
 		
 		return arr;
 	}();
