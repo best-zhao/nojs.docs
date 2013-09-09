@@ -67,7 +67,7 @@ define(function( require, $ ){
 			this.A = clearInterval(this.A);
 		},
 		scroll : function(a){
-			if(this.box.is(":animated")) {return;}
+			if(this.wrap.is(":animated")) {return;}
 			var T = this,
 				m,timer,a = a || "+";//每次滚动距离，连续-每次增加1px，间隔-每次增加n个元素的宽高
 			if (this.step == 0) {

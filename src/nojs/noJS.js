@@ -287,6 +287,7 @@
 		//mod.state++;
 		//当最后一个依赖模块加载完毕时
 		if( !load.state ){
+			
 			var i, j, _mod, rect = [], call;
 			for( i in modules ){
 				_mod = modules[i];
@@ -416,10 +417,17 @@
 		return noJS;
 	}
 	
+	var _use = [];
 	/*
 	 * 载入入口模块，或者执行一段依赖全局模块的代码块
 	 */
 	noJS.use = function( path, fun, opt ){
+		if( configFile==2 ){
+			_use.push(Array.prototype.slice.call(arguments));
+			return noJS;
+		}
+		
+		
 		var T = load,
 			t = type(path);
 		
@@ -473,6 +481,7 @@
 			_modules = nojsScript.getAttribute('data-main'),
 			_config = nojsScript.getAttribute('data-config');
 		
+		config.base = nojsSrc.split('/').slice(0,-2).join('/')+'/';
 		
 		if( _config || _modules ){
 			//配置选项
@@ -483,7 +492,13 @@
 					//打包之后config.js会并入noJS.js
 					onReady = function(){
 						if( !config.pack ){
-							T.add( [_config], null, {fix:''} );
+							T.add( [_config], function(){
+								//配置文件加载完毕
+								for( var i=0; i<_use.length; i++ ){
+									noJS.use.apply(null,_use[i]);
+								}
+								_use = null;
+							}, {fix:''} );
 							configFile = 2; //
 						}
 						onReady = null;
@@ -515,7 +530,7 @@
 			if( src ){
 				modules[ src ] = { id : src };
 				//获取默认路径为noJS所在父目录
-				!baseUrl && ( config.base = baseUrl = src.split('/').slice(0,-2).join('/')+'/' );
+				//!baseUrl && ( config.base = baseUrl = src.split('/').slice(0,-2).join('/')+'/' );
 			}
 		}
 	}();

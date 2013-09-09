@@ -36,8 +36,9 @@ define({
 				{id:'face',text:'face表情选择',link:'module/face'},
 				{id:'rate',text:'rate星级打分',link:'module/rate'},
 				{id:'autocomplete',text:'autocomplete自动完成',link:'module/autocomplete'},
-				{id:'email',text:'email邮箱自动补全',link:'module/email'}
-				//{id:'calendar',text:'calendar日历',link:'module/calendar'}
+				{id:'email',text:'email邮箱自动补全',link:'module/email'},
+				//{id:'calendar',text:'calendar日历',link:'module/calendar'},
+				{id:'lazyload',text:'lazyload延迟加载',link:'module/lazyload'}
 			]},
 	
 			{id:'test_page',text:'小测试',open:0,data:[

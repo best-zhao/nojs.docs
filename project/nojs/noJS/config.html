@@ -2,19 +2,31 @@
 <h4 class="p_tit">noJS.config 参数配置</h4>
 <h6 class="p_tit">其他参数配置：</h6>
 <div class="text_info">
-	<p class="mb10">参数配置可以直接写在页面上；也可以通过data-config设置在script标签上；还可以将配置独立成一个文件如conf.js，通
-		过script标签的data-config="conf.js"即可，该文件的位置是相对于noJS.js的，如上级目录表示为'./conf.js'，
+	<p class="mb10">参数配置可以直接写在页面上；也可以通过<code>data-config</code>设置在script标签上；还可以将配置独立成一个文件如<code>conf.js</code>，通
+		过script标签的<code>data-config="conf.js"</code>即可，该文件的位置是相对于<code>noJS.js</code>的，如上级目录表示为<code>./conf.js</code>，
 		<b class="orange">外部引入的配置文件后缀必须是'.js'，且必须执行一次noJS.config方法</b></p>
 	<p class="mb10">除最基本参数配置外，还可以设置以下参数</p>
 	<script type="text/codelight" code="javascript" key="config">
 	noJS.config({
 		//设置全局依赖模块，即在所有模块加载之前会提前引入该组模块，没有可不设置
-		//注：全局模块组内模块之间可相互依赖，但是不可依赖其他模块
+		//注：全局模块之间可相互依赖，但是不可依赖其他模块
 		global : ['jquery','ui','global'],
 					
 		//是否打包，目前兼容的方式是使用grunt打包
 		//设置为true后需要在Gruntfile.js中手动配置2条规则：一是将conf.js并入noJS.js(如果是独立配置文件的)；二是将全局模块打包成一个文件(如果存在全局模块的)，且以第一个文件命名，如['jquery','ui','global']全部并入jquery即可
-		pack : true
+		pack : true,
+		
+		//统一配置页面入口模块，二维关联数组，通过url匹配子域和页面
+		page : {
+			'host1' :　{
+				'page1' : 'module1',
+				'page2' : 'module2'
+			},
+			'host2' :　{
+				'page1' : 'module1',
+				'page2' : 'module2'
+			}
+		}
 	})
 	</script>
 	<p class="orange mb10">注：如果参数配置比较简单，可直接写入script标签的data-config属性</p>

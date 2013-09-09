@@ -451,7 +451,7 @@ define(function( require, $, ui ){
 			}
 			$.ajax({
 				url : param.url,
-				type : param.type || "post",
+				type : param.type || "get",
 				data : data,
 				dataType : param.dataType || "json",
 				success : function(json){

@@ -21,40 +21,114 @@
 <div class="text_info">
 	<p>依赖模块：'nojs/module/upload'</p>
 </div>
-<h6 class="p_tit">使用</h6>
-<div class="text_info">
-	<script type="text/codelight" code="javascript" key="upload">
-	noJS.use('nojs.module/upload',function($,ui,upload){
-		//@button: input文件域按钮对象
-		//@options: 配置选项
-		new upload( button, options );
-	})	
-	</script>
-	<p class="mb10">options参数也可以通过全局变量来设置，设置选项完全一样，在初始化的时候相同的参数会覆盖全局设置。</p>
-	<script type="text/codelight" code="javascript" key="config">
-	upload.config = {
-		uploader : 'upload.php',		//后台上传处理地址
-		getProgressUrl : 'upload.php',	//部分浏览器使用ajax来获取上传进度，此处传入该ajax地址
-		fileDomain : '',				//上传后文件保存的域名设置
-		limit : 4,						//文件数量限制
-		fileSize : 2,					//单个文件大小限制，单位MB
-		auto : false,					//选中文件后是否立即上传
-		tip : function( con, type ){	//自定义提示函数，默认alert
-			ui.msg.show( type, con );
-		},
-		onSelect : null,
-		onSuccess : null,
-		onError : null
-	}	
-	</script>
-</div>
-
 <h6 class="p_tit">实例</h6>
 <div class="text_info">
 	<span class="mb10 nj_btn nj_up_btn">上传本地图片<input type="file" name="filedata" id="up_file" /></span>
 	<a href="" id="start_up">开始上传</a>
 	<div id="drag_up"><p class="tip">拖拽图片到此处开始上传</p></div>
 	<ul id="preview"></ul>
+</div>
+<h6 class="p_tit">使用</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="upload">
+	noJS.use('nojs.module/upload',function($,ui,upload){
+		new upload( button, options );
+	})	
+	</script>
+	<p class="mb10">options参数也可以通过全局变量<code>upload.config</code>来设置，设置选项完全一样，在初始化的时候相同的参数会覆盖全局设置。</p>
+</div>
+<h6 class="p_tit">参数</h6>
+<div class="text_info">
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr class="required">
+			<td>button</td>
+			<td>element</td>
+			<td>必须是input文件域按钮对象</td>
+			<td></td>
+		</tr>
+		<tr class="required">
+			<td>options</td>
+			<td>object</td>
+			<td>options选项</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
+	<p class="mb10">options选项：</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr class="required">
+			<td>uploader</td>
+			<td>string</td>
+			<td>后台上传处理地址</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>getProgressUrl</td>
+			<td>string</td>
+			<td>部分浏览器使用ajax来获取上传进度，此处传入该ajax地址</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>fileDomain</td>
+			<td>string</td>
+			<td>上传后文件保存的域名设置</td>
+			<td>''</td>
+		</tr>
+		<tr>
+			<td>limit</td>
+			<td>number</td>
+			<td>文件数量限制</td>
+			<td>10</td>
+		</tr>
+		<tr>
+			<td>fileSize</td>
+			<td>number</td>
+			<td>单个文件大小限制，单位MB</td>
+			<td>2</td>
+		</tr>
+		<tr>
+			<td>auto</td>
+			<td>boolean</td>
+			<td>选中文件后是否立即上传</td>
+			<td>true</td>
+		</tr>
+		<tr>
+			<td>tip</td>
+			<td>function</td>
+			<td>自定义提示函数，传入2个参数,tip(con,type),提示内容提示类型('ok/error/warn')</td>
+			<td>alert</td>
+		</tr>
+		<tr>
+			<td>onSelect</td>
+			<td>function</td>
+			<td>选择文件后的回调</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onSuccess</td>
+			<td>function</td>
+			<td>上传成功后的回调</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onError</td>
+			<td>function</td>
+			<td>上传失败后的回调</td>
+			<td></td>
+		</tr>
+	</table>
 </div>
 
 <script>

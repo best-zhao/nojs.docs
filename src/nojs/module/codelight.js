@@ -33,7 +33,7 @@ define(function(require,$){
 				}
 				code = this.str(code,type);
 				code = setKey(key,code);
-				m.css({"display":"none"}).after('<pre title="双击编辑" class="codelight_box"><ol class="rs_item" tabindex="-1">'+code+'</ol><p class="open">+code</p></pre>');
+				m.css({"display":"none"}).after('<pre title="双击编辑" expand="'+(m.attr('expand')==0?0:1)+'" class="codelight_box"><ol class="rs_item" tabindex="-1">'+code+'</ol><p class="open">+code</p></pre>');
 				box = m.next('.codelight_box');
 				box.find('.rs_item').on('dblclick',function(){
 					if(box.hasClass('code_hide')){
@@ -160,7 +160,7 @@ define(function(require,$){
 				}
 				return false;
 			})
-			if(this.opt.autoHide && box.find("ol.rs_item").height()>180){
+			if(this.opt.autoHide && box.find("ol.rs_item").height()>180 || box.attr('expand')==0 ){
 				hide.click();
 			}
 		}

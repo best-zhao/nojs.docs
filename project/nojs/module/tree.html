@@ -31,26 +31,76 @@
 <div class="text_info">
 	<script type="text/codelight" code="javascript" key="tree">
 	noJS.use('nojs.module/tree', function($,ui,tree){
-		/*
-		 * @dom: 容器id或容器对象
-		 * @options: 配置选项
-		 */
 		var testTree = new tree(dom, options);
 	})	
 	</script>	
+</div>
+<h6 class="p_tit">参数：</h6>
+<div class="text_info">
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr class="required">
+			<td>dom</td>
+			<td>string | element</td>
+			<td>容器id或容器对象</td>
+			<td></td>
+		</tr>
+		<tr class="required">
+			<td>options</td>
+			<td>object</td>
+			<td>options选项</td>
+			<td></td>
+		</tr>
+	</table>
+	<br />
 	<p class="mb10">options选项：</p>
-	<script type="text/codelight" code="javascript">
-	options = {
-		data : string|object, 	//传入的json Array数据, ajax模式时传入url地址
-		defaultNode : string, 	//设置默认选中的节点id
-		isCheck : boolean,		//是否为checkbox模式
-		onCheck : fn,			//checkbox回调，返回一个参数为当前所选节点id,	通过this.checked可获取所有被选id的一个数组
-		onSelect : fn 			//当选择节点时的回调，返回一个参数为当前选择节点的data
-	}	
-	</script>	
-	<p class="mb10">非ajax模式下可接受2种形式的数据格式，且均为json Array对象</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr>
+			<td class="required">data</td>
+			<td>object | string</td>
+			<td>传入的json Array数据, ajax模式时传入url地址</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>defaultNode</td>
+			<td>string</td>
+			<td>设置默认选中的节点id</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>isCheck</td>
+			<td>boolean</td>
+			<td>是否为checkbox模式</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>onCheck</td>
+			<td>function</td>
+			<td>checkbox回调，返回一个参数为当前所选节点id,	通过this.checked可获取所有被选id的一个数组</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onSelect</td>
+			<td>function</td>
+			<td>当选择节点时的回调，返回一个参数为当前选择节点的data</td>
+			<td></td>
+		</tr>
+	</table>
+	
+	<p class="mb10 mt10">非ajax模式下可接受2种形式的数据格式，且均为json Array对象</p>
 	<p>1. 树状结构</p>
-	<script type="text/codelight" code="javascript">
+	<script type="text/codelight" code="javascript" expand="0">
 	data = [
 		{id:1,name:'一级根节点',children:[
 			{id:11,name:'二级节点'}
@@ -63,7 +113,7 @@
 	]
 	</script>
 	<p>2. 并列结构，必须为每个节点指定parent即父id，根节点默认使用-1(可通过公共属性tree.rootID更改)</p>
-	<script type="text/codelight" code="javascript">
+	<script type="text/codelight" code="javascript" expand="0">
 	data = [
 		{id:1,name:'一级根节点',parent:-1},
 		{id:11,name:'二级节点',parent:1},
@@ -76,7 +126,7 @@
 <div class="text_info">
 	<p>1. <b>tree.rootID</b> 指定根节点的父id，默认-1 </p>
 	<p>2. <b>tree.key</b> 统一key名</p>
-	<script type="text/codelight" code="javascript" key="key">
+	<script type="text/codelight" code="javascript" key="key" expand="0">
 	tree.key = {
 		'id' : 'tid',			//节点id
 		'name' : 'text',		//节点名称
@@ -98,7 +148,7 @@
 	</script>
 	<p class="mb10">格式化后的数据包含2个对象，newData = { all:{}, level:[] }; all存放所有数据，通过id可快速索引任何节点；level为一个2维数组，分别存放每级的节点，如level[0]就是所有根节点的一个Array.</p>
 	<p>2. <b>tree.parents</b> 通过一个节点id找到其所有父节点的id集合，可设置查询终止条件</p>
-	<script type="text/codelight" code="javascript" key="parents">
+	<script type="text/codelight" code="javascript" key="parents" expand="0">
 	//@node: 当前节点id
 	//@data: newData.all
 	//@until: fn,通过return false来终止查询，带一个参数为当前查询到的父节点data
@@ -106,16 +156,41 @@
 	</script>
 	<p>3. <b>tree.select</b> 生成一个树状select或者级联菜单</p>
 	<script type="text/codelight" code="javascript" key="select">
-	tree.select(dom, options);
+	tree.select(dom, options);//参数同tree
 	</script>
-	<script type="text/codelight" code="javascript">
-	options = {
-		data : string|object, //传入的json Array数据, ajax模式时传入url地址
-		level : 0,			//设为0时会生成一个树状select, 否则为级联菜单
-		selected : Array, 	//默认选中的节点id
-		empty : id 			//缺省项空id
-	}	
-	</script>
+	<p>options选项：</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr class="required">
+			<td>data</td>
+			<td>object | string</td>
+			<td>传入的json Array数据, ajax模式时传入url地址</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>level</td>
+			<td>number</td>
+			<td>设为0时会生成一个树状select, 否则为级联菜单</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>selected</td>
+			<td>Array</td>
+			<td>默认选中的节点id</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>empty</td>
+			<td>string</td>
+			<td>缺省项空id</td>
+			<td>''</td>
+		</tr>
+	</table>
 </div>
 <script>
 noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){

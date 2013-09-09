@@ -10,28 +10,217 @@
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
 	<script type="text/codelight" code="javascript" key="form">
-		new ui.form( btn, rules, options );
+	noJS.use('nojs/module/form', function($,ui,form){
+		new form( button, rules, options );
+	});
 	</script>	
-	<h6>参数：</h6>
-	<p>1. btn: 表单submit按钮对象，或者触发提交的对象均可</p>
-	<p>2. rules: 表单规则，为一个关联数组对象；key为表单对象name值，对应的是一个规则对象</p>
-	<script type="text/codelight" code="javascript">
-		var rules = {
-			name1 : {rule1:tip1,rule2:tip2},
-			name2 : {rule2:tip2}
+	
+</div>
+<h6 class="p_tit">参数：</h6>
+<div class="text_info">
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr class="required">
+			<td>button</td>
+			<td>element</td>
+			<td>表单submit按钮对象，或者触发提交的对象均可</td>
+			<td></td>
+		</tr>
+		<tr class="required">
+			<td>rules</td>
+			<td>object</td>
+			<td>表单规则，为一个关联数组对象；key为表单对象name值，对应的是一个规则对象
+			<script type="text/codelight" code="javascript">
+				var rules = {
+					//普通规则：规则名-提示文本
+					'name1' : { isNull:'不能为空', isEmail:'邮件格式错误' },
+					//需要传入其他选项的规则：规则名-[提示文本,options]
+					'name2' : { remote:['用户名重复',{url:'',name:'email'}] }
+				}
+			</script>	
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>options</td>
+			<td>object</td>
+			<td>options选项</td>
+			<td></td>
+		</tr>
+	</table>	
+	<p class="mt10 mb10 orange">rules规则中有2个关键字并非规则名：</p>
+	<p>1. confirmPas: 对于如注册表单中的密码和确认密码的验证，可简化如下：</p>
+	<script type="text/codelight" code="javascript" key="confirmPas">
+	//密码 <input type="password" name="password" />
+	//确认密码 <input type="password" name="repass" />
+	rules = {
+		'password' : {
+			isNull : '不能为空',
+			confirmPas : {
+				name : 'repass'//指定确认密码的name
+				empty:'为空时提示语，默认-请填写确认密码',
+				error:'错误提示语，默认-两次密码输入不一致'
+			}
 		}
+	}
 	</script>
-	<p>3. options: 其他选项</p>
-	<script type="text/codelight" code="javascript">
-		options = {
-			onSubmit : fn,				//表单提交时触发的回调，所有验证通过之后才执行；返回false可阻止表单默认提交
-			onBeforeSubmit : fn,		//与onSubmit不同的是，该事件在验证之前执行
-			checkMode : 'blur/submit/keyup',	//验证类型
-			//设置form对象，默认会取btn所在表单对象，但有时2者不在同一区域，这时可单独设置表单对象；formSubmit为false时，该对象可设置为非form对象
-			form : obj,					
-			formSubmit : true, 			//默认通过btn触发form的submit事件来验证,当上面情况发生时，可设为false，这样就会将事件绑定在btn的click事件上
-			showIco : true 				//是否显示提示图标
+	<p>2. replace: 通常情况下，验证的提示信息是追加到表单元素的后面，但由于布局的关系，很多情况下需要将提示信息显示在特定的位置，这里需要使用<code>replace</code>：</p>
+	<script type="text/codelight" code="javascript" key="replace">
+	rules = {
+		'username' : {
+			isNull : '不能为空',
+			replace : $('#tips') 
+		},
+		'email' : {
+			isNull : '不能为空',
+			isEmail : '格式错误',
+			replace : function(){//this指向当前表单元素对象(jQuery对象)
+				return this.parent();
+			}
 		}
+	}
+	</script>
+	<br />
+	<p>options选项：</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr>
+			<td>onSubmit</td>
+			<td>function</td>
+			<td>表单提交时触发的回调，所有验证通过之后才执行；返回false可阻止表单默认提交</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onBeforeSubmit</td>
+			<td>function</td>
+			<td>与onSubmit不同的是，该事件在验证之前执行</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>checkMode</td>
+			<td>string</td>
+			<td>'blur/submit/keyup'，验证类型</td>
+			<td>'submit'</td>
+		</tr>
+		<tr>
+			<td>form</td>
+			<td>element</td>
+			<td>设置form对象，默认会取btn所在表单对象，但有时2者不在同一区域，这时可单独设置表单对象；formSubmit为false时，该对象可设置为非form对象</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>formSubmit</td>
+			<td>boolean</td>
+			<td>默认通过btn触发form的submit事件来验证,当上面情况发生时，可设为false，这样就会将事件绑定在btn的click事件上</td>
+			<td>true</td>
+		</tr>
+		<tr>
+			<td>showIco</td>
+			<td>boolean</td>
+			<td>是否显示提示图标</td>
+			<td>true</td>
+		</tr>
+	</table>
+</div>
+<h6 class="p_tit">规则：</h6>
+<div class="text_info">
+	<p class="mb10">内置多种常用规则，规则函数只接收3个参数：[value, options, element]，添加自定义规则时也应遵循此规则，所有规则都在<code>form.reg</code>对象下，可作为公共方法使用</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>规则名</th>
+			<th>描述</th>
+			<th>参数</th>
+		</tr>
+		<tr>
+			<td>isNull</td>
+			<td>是否为空</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isEmail</td>
+			<td>电子邮件</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isQQ</td>
+			<td>qq号码</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isUrl</td>
+			<td>url地址</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isMobile</td>
+			<td>手机号码</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isTel</td>
+			<td>座机号码</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isTel400</td>
+			<td>400电话</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isIdcard</td>
+			<td>身份证号码</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>specialCode</td>
+			<td>特殊字符</td>
+			<td>value</td>
+		</tr>
+		<tr>
+			<td>isLength</td>
+			<td>字符长度是否合法</td>
+			<td>value, options {min:最小长度,max:最大长度}</td>
+		</tr>
+		<tr>
+			<td>isNum</td>
+			<td>是否是数字</td>
+			<td>value, options {min:最小值,max:最大值,decimals:可以带几位小数,type:int整型}</td>
+		</tr>
+		<tr>
+			<td>remote</td>
+			<td>ajax验证</td>
+			<td>value, options {<br />
+			　　　url : string  ajax地址<br />
+			　　　data : object|function 附加数据，也可以是一个函数，this指向当前文本域<br />
+			　　　type : 默认'get'<br />
+			　　　dataType : 默认'json'<br />
+			　　　name : string key值，默认为当前文本域的name值<br />
+			}, element<br />
+			ajax返回的数据中，status=1表示返回成功，msg为提示消息，为空则使用前台规则中传入的文本
+			</td>
+		</tr>
+		
+	</table>
+	<p class="mt10">也可自定义规则，往<code>form.reg</code>对象上添加即可：</p>
+	<script type="text/codelight" code="javascript" expand="0">
+	//添加规则 'method'
+	form.reg.method = function( value, options, element ){
+		if( value!=1 ){
+			return false;
+		}else{
+			return true;
+		}
+	}
 	</script>
 </div>
 <h6 class="p_tit">方法：</h6>

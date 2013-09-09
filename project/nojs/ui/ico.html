@@ -5,7 +5,7 @@
 <h4 class="p_tit">ui.ico</h4>
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
-	canvas/vml绘制的小图标<br />优点：通过css可任意控制图标的尺寸及外观，且兼容所有浏览器
+	<code>canvas/vml</code>绘制的小图标<br />优点：通过css可任意控制图标的尺寸及外观，且兼容所有浏览器
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
@@ -20,6 +20,16 @@
 	<span id="new_ico"><i class="nj_ico n_i_ok"><!--code--></i></span>
 	</script>
 	<p>通过改变'.nj_ico'的css就可以控制图标外观了</p>
+	<p class="mb10">一般通过<code>background-color</code>改变背景色，通过<code>color</code>改变前景色、<code>width/height</code>改变尺寸</p>
+	<p class="mb10">除了通过css控制外观外，还可以通过<code>options</code>选项来设置</p>
+	<script type="text/codelight" code="javascript">
+	options = {
+		bgcolor : '',
+		color : '',
+		width : '',
+		height : ''
+	}	
+	</script>
 </div>
 <h6 class="p_tit">实例</h6>
 <div class="text_info" id="about_link">
