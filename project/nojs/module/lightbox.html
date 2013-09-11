@@ -1,0 +1,144 @@
+<style>
+/*lightbox*/
+html.lightbox,html.lightbox body{overflow:hidden}
+html.lightbox #nj_layer{background:#000;z-index:992}
+.lightbox_wrap{width:100%;height:100%;display:none;z-index:993;overflow:hidden}
+.lightbox_wrap .content{position:relative;width:100%;height:80%;overflow:hidden}
+.lightbox_wrap .info{position:relative;bottom:0;width:100%;height:20%;background:rgba(0,0,0,0.7);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#b3000000',endColorstr='#b3000000')!important}
+.lightbox_wrap .info .pic_list{margin-left:9px;position:relative;top:50%;height:82px;margin-top:-41px;float:left;max-width:40%}
+.lightbox_wrap .info .pic_list img{width:60px;height:60px;padding:9px;border:2px solid transparent;cursor:pointer}
+.lightbox_wrap .info .pic_list .current{border-color:#990}
+.lightbox_wrap .info .pic_list .wrap{overflow:hidden;margin:0 30px;height:100%}
+.lightbox_wrap .info .p{width:30px}
+.lightbox_wrap .info .p .nj_ico{margin:-18px 0 0 -10px}
+.lightbox_wrap a{color:#fff}
+.lightbox_wrap .info .txt{width:52%;height:100%;overflow:hidden;color:#eee;float:left;line-height:2;padding:0 0 0 5%}
+.lightbox_wrap .info .num{color:#999;padding-top:9px}
+.lightbox_wrap .info .num em,.lightbox_wrap .info .num i{font:italic 800 14px 'Georgia','Monotype Corsiva','Arial'}
+.lightbox_wrap .info .num em{font-size:36px;color:#f00}
+.lightbox_wrap .info .title{padding:5px 0;font:800 14px arial}
+.lightbox_wrap .info .desc{color:#999;height:40%;overflow:auto;line-height:1.5}
+.lightbox_wrap .option{position:absolute;right:0;top:-27px}
+.lightbox_wrap .option a{display:inline-block;padding:4px 7px}
+.lightbox_wrap .option a:hover{background:#333}
+.lightbox_wrap i.close{position:absolute}
+.lightbox_wrap .loading,.lightbox_wrap .img,.lightbox_wrap .img img{position:absolute;top:50%;left:50%}
+.lightbox_wrap .p .nj_ico{position:absolute;top:50%;margin:-55px 0 0 -25px}
+.lightbox_wrap .prev .nj_ico{left:15%}
+.lightbox_wrap .next .nj_ico{right:15%}
+.lightbox_wrap .loading{margin:-24px 0 0 -24px;display:none}
+.lightbox_wrap .img{background:#333;background:rgba(255,255,255,0.05);padding:15px;display:none;width:450px;height:300px;margin:-170px 0 0 -245px}
+.lightbox_wrap .img img{vertical-align:top;display:none;width:200px;height:100px;margin:-50px 0 0 -100px}
+.lightbox_wrap .p{width:50%;height:100%;position:absolute;top:0;cursor:pointer;display:none;background:none;border:none}
+.lightbox_wrap .prev{left:0}
+.lightbox_wrap .next{right:0}	
+
+.p_list li{display:inline}
+.p_list img{max-width:200px;max-height:150px;vertical-align:bottom;margin:10px}
+</style>
+<h4 class="p_tit">lightbox</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	lightbox图片展示效果
+	<p>依赖模块：'nojs/module/lightbox'，同时依赖<code>ui.js</code></p>
+</div>
+<h6 class="p_tit">demo：</h6>
+<div class="text_info">
+	<ul class="p_list clearfix" id="pic_list">
+		<li><img data-title="1" src="http://m3.img.libdd.com/farm4/2013/0909/08/B7D2D983BF75D55B20B23FD1DEFCA32558E95BA7DD597_250_375.jpg" big="http://m1.img.libdd.com/farm4/2013/0909/08/B7D2D983BF75D55B20B23FD1DEFCA325A6F1BC3B95B0C_640_960.JPEG" alt="" /></li>
+		<li><img data-title="2" src="http://m1.img.libdd.com/farm5/2013/0909/08/0BAA0604C80B3147A12A677C612ADDBE2E1BB26F56128_250_167.jpg" big="http://m1.img.libdd.com/farm5/2013/0909/08/0BAA0604C80B3147A12A677C612ADDBE4395F37355749_960_640.JPEG" alt="" /></li>
+		<li><img data-title="3" src="http://m1.img.libdd.com/farm5/2013/0909/08/A8088058F219A593F4A34F2499B7E8DCE4A8B4282B31D_250_375.jpg" big="http://m2.img.libdd.com/farm5/2013/0909/08/A8088058F219A593F4A34F2499B7E8DCC3057C8C01C7E_640_960.JPEG" alt="" /></li>
+		<li><img data-title="4" src="http://m3.img.libdd.com/farm4/2013/0909/08/ADE556F02FA06873DE99C465C5149691D9FF0DA41847B_250_167.jpg" big="http://m1.img.libdd.com/farm4/2013/0909/08/ADE556F02FA06873DE99C465C5149691A27122DC55D67_960_640.JPEG" alt="" /></li>
+		<li><img data-title="5" src="http://m3.img.libdd.com/farm4/2013/0909/08/86814B55492C85958CC0FE817AB14211A31B335BC487C_250_375.jpg" big="http://m1.img.libdd.com/farm4/2013/0909/08/86814B55492C85958CC0FE817AB1421104919AD739BD3_640_960.JPEG" alt="" /></li>
+		<li><img data-title="6" src="http://m1.img.libdd.com/farm5/2013/0909/08/D18B26D907E8B6BCD7488C8210259C8874B35BB5B89D8_250_167.jpg" big="http://m2.img.libdd.com/farm5/2013/0909/08/D18B26D907E8B6BCD7488C8210259C880B48C24924F7B_960_640.JPEG" alt="" /></li>
+		<li><img data-title="明星效應 JESSICA ALBA BY DIEGO UCHITEL FOR C MAGAZINE1" src="http://m1.img.libdd.com/farm5/2013/0910/10/B0AF51B8B60774EC47C0901B8F3D5920504082A748BF1_500_750.jpg" big="http://m2.img.libdd.com/farm5/2013/0910/10/B0AF51B8B60774EC47C0901B8F3D5920B661DC154841D_800_1200.jpg" alt="" /></li>
+		<li><img data-title="明星效應 JESSICA ALBA BY DIEGO UCHITEL FOR C MAGAZINE2" src="http://m3.img.libdd.com/farm5/2013/0910/10/A4D55F7833930439788716AABC6745B6410887E2A96A9_250_375.jpg" big="http://m2.img.libdd.com/farm5/2013/0910/10/A4D55F7833930439788716AABC6745B6AA5A0577C801C_800_1200.jpg" alt="" /></li>
+		<li><img data-title="明星效應 JESSICA ALBA BY DIEGO UCHITEL FOR C MAGAZINE3" src="http://m3.img.libdd.com/farm5/2013/0910/10/4FC0191F6C1DC41DA1DB4CEC13F54E16E9F67D2DE5416_250_167.jpg" big="http://m2.img.libdd.com/farm5/2013/0910/10/4FC0191F6C1DC41DA1DB4CEC13F54E16121BC1C2770DD_800_533.jpg" alt="" /></li>
+		<li><img data-title="明星效應 JESSICA ALBA BY DIEGO UCHITEL FOR C MAGAZINE4" src="http://m1.img.libdd.com/farm5/2013/0910/10/BC30B4D9AA51382C54B821A667DA11A875A3E702C4493_250_375.jpg" big="http://m1.img.libdd.com/farm5/2013/0910/10/BC30B4D9AA51382C54B821A667DA11A86DFA62703B914_800_1200.jpg" alt="" /></li>
+	</ul>
+	<a href="" id="clear_cache" class="nj_btn">clear cache</a>
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="code">
+	noJS.use('nojs/module/lightbox', function($,ui,lightbox){
+		new lightbox(dom, options);//@dom:id或jQuery对象
+	});
+	</script>
+	<p>options选项：</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr>
+			<td>tag</td>
+			<td>string</td>
+			<td>指定容器内可触发事件的html标签</td>
+			<td>'img'</td>
+		</tr>
+		<tr>
+			<td>fullScreen</td>
+			<td>boolean</td>
+			<td>是否全屏显示</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>srcRule</td>
+			<td>function</td>
+			<td>指定大图地址，传入2个参数：src当前缩略图地址和obj当前image对象
+			<script type="text/codelight" code="javascript" key="code">
+			srcRule : function(src, obj){
+				//比如将大图地址写在了指定tag标签的big属性上
+				return obj.attr('big');
+			}
+			</script>	
+			</td>
+			<td>当前缩略图地址</td>
+		</tr>
+		<tr>
+			<td>onShow</td>
+			<td>function</td>
+			<td>显示时触发的回调</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>onHide</td>
+			<td>function</td>
+			<td>隐藏时触发的回调</td>
+			<td></td>
+		</tr>
+	</table>
+</div>
+
+
+<script>
+noJS.use('nojs/module/lightbox',function($,ui,lightbox){
+	var list = $('#pic_list'),
+		img = list.find('img'),
+		c;
+	new lightbox(list, {
+		tag : 'li',
+		fullScreen : true,
+		srcRule : function(src,obj){
+			return obj.attr('big');
+		},
+		onShow : function(){
+			///this.fullScreen = true;
+		}
+	});
+	
+	$('#clear_cache').click(function(){
+		c = (+new Date);
+		img.each(function(){
+			$(this).attr({
+				'src' : this.src.split('?')[0] + '?t=' + c,
+				'big' : $(this).attr('big').split('?')[0] + '?t=' + c
+			})
+		})
+		return false;
+	})
+});
+</script>

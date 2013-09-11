@@ -160,7 +160,7 @@ define(function(require,$){
 				}
 				return false;
 			})
-			if(this.opt.autoHide && box.find("ol.rs_item").height()>180 || box.attr('expand')==0 ){
+			if(this.opt.autoHide || box.attr('expand')==0 ){
 				hide.click();
 			}
 		}

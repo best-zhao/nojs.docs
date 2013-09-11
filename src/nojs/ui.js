@@ -265,23 +265,22 @@
 		var pos = options.position || {},
 			isFloat = options.isFloat==undefined ? 2 : options.isFloat,
 			F = isFloat==0 ? 0 : isFloat || 2,
-			W = dom.outerWidth(),
-			H = dom.outerHeight(),
 			win = $(window),
-			T,L,
 			top = pos.top==undefined ? 50 : pos.top,
 			left = pos.left==undefined ? 50 : pos.left,
 			isTop = typeof top=='number',
 			isLeft = typeof left=='number',
-			win_w, win_h, sTop, sLeft, css = {},
 			noIE6 = F==2 && !$.browser('ie6'),
-			ns = dom.data('setpos');
+			ns = dom.data('setpos'),
+			W, H, T, L, win_w, win_h, sTop, sLeft, css = {};
 		
 		dom.css('position' , noIE6 ? "fixed" : "absolute");
 		
 		function getPos(){
 			win_w = win.width();
 			win_h = win.height();
+			W = dom.outerWidth();
+			H = dom.outerHeight();
 			sTop = noIE6 ? 0 : win.scrollTop();
 			sLeft = noIE6 ? 0 : win.scrollLeft();
 			T = (isTop ? (win_h - H)*top/100 : parseInt(top,10)) + sTop;
@@ -335,17 +334,17 @@
 			S();
 			
 			w.on( 'scroll resize', S );
-			UI.setPos( layer );
+			UI.setPos( layer, {position:{left:0,top:0}} );
 			$.onScroll( layer[0] );
 		}
-		function show(){
+		function show(opacity){
 			!layer.length && init();
 			if( layer.is(":visible") ){
 				return;
 			}
 			arr.self = layer;
 			arr.isShow = true;
-			layer.show().fadeTo( 200, 0.5 );
+			layer.show().fadeTo( 200, typeof opacity=='number' ? opacity : 0.5 );
 		}
 		function hide(){
 			arr.isShow = false;
