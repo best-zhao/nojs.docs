@@ -1,31 +1,9 @@
-<style>
-.test_tree{font-size:12px;width:23.5%;min-width:170px;border:1px solid #ddd;margin:0 1% 9px 0;padding:9px 0;overflow:auto;height:200px}	
-.test_tree select{padding:5px;margin:4px 0 0 15px;width:80%}
-.test_tree h6{text-indent:1em;font-weight:400;color:#999}
-.p_txt .t{margin:0}
-</style>
+
 <h4 class="p_tit">tree</h4>
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
 	树形菜单
 	<p>依赖模块：'nojs/module/tree'</p>
-</div>
-<h6 class="p_tit">实例：</h6>
-<div class="text_info clearfix">
-	<div class="nj_tree test_tree fl"><h6>ajax tree：</h6><div id="tree_test1"></div></div>
-	<div class="test_tree fl">
-		<div id="set_tree_data" class="clearfix gray9" style="padding:0 9px 9px">
-			<span class="p_txt">
-				<input value="20000" style="width:50px;text-align:center" class="text" id="data_number" />
-				<i class="t"> *5(层级)= </i><b class="t orange" id="total_number"></b><i class="t">(节点数)</i>
-			</span>
-			<input type="button" id="render_tree" value="生成" class="nj_btn" />
-		</div>
-		<div id="tree_test2" class="nj_tree"></div>
-	</div>
-	<div class="test_tree fl"><h6>树状select:</h6><div id="tree_test3"></div></div>
-	<div id="tree_test4" class="test_tree fl"></div>
-	<div class="test_tree fl"><h6>ajax级联：</h6><div id="tree_test5"></div></div>
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
@@ -175,7 +153,7 @@
 		<tr>
 			<td>level</td>
 			<td>number</td>
-			<td>设为0时会生成一个树状select, 否则为级联菜单</td>
+			<td>设为0时会生成一个树状select<a href="" data-action="demo" data-index="3">[示例3]</a>, 否则为级联菜单<a href="" data-action="demo" data-index="4">[示例4]</a></td>
 			<td></td>
 		</tr>
 		<tr>
@@ -192,74 +170,153 @@
 		</tr>
 	</table>
 </div>
+
+<script type="text/templete" id="demo_style">
+<style>
+/*demo style*/
+.test_tree{font-size:12px;width:40%;min-width:170px;border:1px solid #ddd;margin:0 1% 9px 0;padding:9px 0;overflow:auto;height:200px}	
+.test_tree select{padding:5px;margin:4px 0 0 15px;width:80%}
+.test_tree h6{text-indent:1em;font-weight:400;color:#999}
+.p_txt .t{margin:0}
+</style>
+</script>
+
+<script type="text/templete" id="demo_tmpl">
+<div class="test_tree fl">
+	<div id="set_tree_data" class="clearfix gray9" style="padding:0 9px 9px">
+		<span class="p_txt">
+			<input value="20000" style="width:50px;text-align:center" class="text" id="data_number" />
+			<i class="t"> *5(层级)= </i><b class="t orange" id="total_number"></b><i class="t">(节点数)</i>
+		</span>
+		<input type="button" id="render_tree" value="生成" class="nj_btn" />
+	</div>
+	<div id="tree_test2" class="nj_tree"></div>
+</div>
+</script>
+
+<script type="text/templete" id="demo_tmpl2">
+<p class="mb10">ajax tree：</p>
+<div class="nj_tree test_tree fl">
+	<div id="tree_test1"></div>
+</div>
+</script>
+
+<script type="text/templete" id="demo_tmpl3">
+<p class="mb10">树状select：</p>
+<div class="test_tree fl">
+	<div id="tree_test3"></div>
+</div>
+</script>
+
+<script type="text/templete" id="demo_tmpl4">
+<p class="mb10">级联菜单：</p>
+<div id="tree_test4" class="test_tree fl"></div>
+<div class="test_tree fl">
+	<h6>ajax级联：</h6>
+	<div id="tree_test5"></div>
+</div>	
+</script>
+
 <script>
-noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
-	var date1 = (+new Date),
-		data = config.nojs.data;
-	tree.key = {
-		'name' : 'text',
-		'children' : 'data'
-	}
-	function testData(number){
-		//number*s.length 个节点
-		var rect = [], i, j, p, s = ['a','b','c','d','e'];
-		for( j=0; j<s.length; j++ ){
-			for( i=0; i<number; i++ ){
-				rect.push({
-					'id' : s[j]+i,'text':s[j]+i,'parent':j==0?-1:(s[j-1]+i)
+noJS.use(function($,ui){
+	window.demoAction = {
+		item : [
+			{content : $('#demo_tmpl').html(), callback : function(){
+				noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
+					var date1 = (+new Date),
+						data = config.nojs.data;
+					tree.key = {
+						'name' : 'text',
+						'children' : 'data'
+					}
+					function testData(number){
+						//模拟数据 number*s.length 个节点
+						var rect = [], i, j, p, s = ['a','b','c','d','e'];
+						for( j=0; j<s.length; j++ ){
+							for( i=0; i<number; i++ ){
+								rect.push({
+									'id' : s[j]+i,'text':s[j]+i,'parent':j==0?-1:(s[j-1]+i)
+								})
+							}
+						}
+						return rect;
+					}
+					
+					var date1 = (+new Date),
+						date2,
+						number = $('#data_number'),
+						total = $('#total_number'),
+						btn = $('#render_tree');
+					
+					number.keyup(function(){
+						if( isNaN(this.value) ){
+							this.value = parseInt(this.value,10);
+						}
+						setTotal(this.value);
+					}).keyup();	
+					function setTotal(n){
+						n *= 5;	
+						n = n>=10000 ? n/10000+'万' : n;
+						total.text( n );
+					}	
+					btn.click(function(){
+						$('#tree_test2').empty();
+						setTimeout(function(){
+							date1 = (+new Date);
+							var n = parseInt(number.val(),10),
+								data = testData(n);
+							setTotal(n);
+							
+							new tree( 'tree_test2', {
+								data : data,
+								isCheck : true,
+								onCheck : function(id){
+									//console.log(this.checked);
+								}
+							});
+							//date2 = (+new Date);
+							//console.log(date2-date1);
+						},0)
+						return false;
+					});
 				})
-			}
-		}
-		return rect;
+			}},
+			{content : $('#demo_tmpl2').html(), callback : function(){
+				noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
+					tree.key = {
+						'name' : 'text',
+						'children' : 'data'
+					}									
+					new tree( 'tree_test1', {
+						data : 'tree.php',
+						defaultNode : 'tree'
+					});					
+				});
+			}},
+			{content : $('#demo_tmpl3').html(), callback : function(){
+				noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
+					tree.key = {
+						'name' : 'text',
+						'children' : 'data'
+					}	
+					tree.select( $('#tree_test3'), {level:0,data:config.nojs.data} );					
+				});
+			}},
+			{content : $('#demo_tmpl4').html(), callback : function(){
+				noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
+					tree.key = {
+						'name' : 'text',
+						'children' : 'data'
+					}	
+					tree.select( $('#tree_test4'), {data:config.nojs.data, select:['nj_ui','ui_core','ui_msg']} );
+					tree.select( $('#tree_test5'), {
+						data : 'tree.php?act=select'
+					});
+				});
+			}}
+		],
+		html : $('#demo_style').html()
 	}
-	
-	new tree( 'tree_test1', {
-		data : 'tree.php',
-		defaultNode : 'tree'
-	});
-	
-	
-	var date1 = (+new Date),
-		date2,
-		number = $('#data_number'),
-		total = $('#total_number');
-	
-	number.keyup(function(){
-		if( isNaN(this.value) ){
-			this.value = parseInt(this.value,10);
-		}
-		setTotal(this.value);
-	}).keyup();	
-	function setTotal(n){
-		n *= 5;	
-		n = n>=10000 ? n/10000+'万' : n;
-		total.text( n );
-	}	
-	$('#render_tree').click(function(){
-		$('#tree_test2').empty();
-		setTimeout(function(){
-			date1 = (+new Date);
-			var n = parseInt(number.val(),10),
-				data = testData(n);
-			setTotal(n);
-			
-			new tree( 'tree_test2', {
-				data : data,
-				isCheck : true,
-				onCheck : function(id){
-					//console.log(this.checked);
-				}
-			});
-			//date2 = (+new Date);
-			//console.log(date2-date1);
-		},0)
-		return false;
-	})
-	
-	var select1 = tree.select( $('#tree_test3'), {level:0,data:data} ),
-		select2 = tree.select( $('#tree_test4'), {data:data,select:['nj_ui','ui_core','ui_msg']} ),
-		select3 = tree.select( $('#tree_test5'), {
-			data : 'tree.php?act=select'
-		});
 });
+
 </script>

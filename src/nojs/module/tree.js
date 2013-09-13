@@ -9,7 +9,7 @@ define(function(require,$){
 		var date1 = (+new Date)
 		this.box = typeof box=='string' ? $('#'+box) : box;
 		this.options = options = options || {};
-		this._data = options.data;
+		this._data = options.data;//原始数据
 		//@data: string即为ajax获取数据
 		this.ajaxMode = typeof this._data=='string';
 		this.data = this.ajaxMode ? null : tree.format( this._data );
@@ -349,6 +349,7 @@ define(function(require,$){
 					}
 					T.box.find('a.current').removeClass('current');
 					tag.addClass('current');
+					T.selected = tag[0].id;
 					T.options.onSelect && T.options.onSelect.call( T, T.data.all[tag[0].id] );//执行事件
 					
 				}else if( t.tagName.toLowerCase()=='input' ){
@@ -475,8 +476,8 @@ define(function(require,$){
 				m;
 			function set(){
 				node.addClass('current');
+				T.selected = ID;
 				T.options.onSelect && T.options.onSelect.call( T, T.data.all[ID] );//执行事件
-				
 				return false;
 			}
 			function s(i){

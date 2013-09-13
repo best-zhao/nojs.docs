@@ -7,8 +7,8 @@ define(function(require,$){
 	var codeLight = function(opt){
 		this.opt = opt = opt || {};
 		this.parent = opt.parent || 'body';
-		this.Box = null;
-		this.code = null;		
+		this.box = null;
+		this.code = [];		
 		this.init();
 	}
 	codeLight.prototype = {
@@ -34,7 +34,7 @@ define(function(require,$){
 				code = this.str(code,type);
 				code = setKey(key,code);
 				m.css({"display":"none"}).after('<pre title="双击编辑" expand="'+(m.attr('expand')==0?0:1)+'" class="codelight_box"><ol class="rs_item" tabindex="-1">'+code+'</ol><p class="open">+code</p></pre>');
-				box = m.next('.codelight_box');
+				box = m.next('pre');
 				box.find('.rs_item').on('dblclick',function(){
 					if(box.hasClass('code_hide')){
 						return false;
@@ -43,7 +43,8 @@ define(function(require,$){
 				}).on('blur',function(){
 					$(this).removeAttr('contentEditable').removeClass('edit');
 				})
-				box.find('.note .key').removeClass('key');//去掉注释内的自定义关键字				
+				box.find('.note .key').removeClass('key');//去掉注释内的自定义关键字
+				this.code.push(box);
 				
 				delLine(box);
 				item = box.find(".rs_item li");
@@ -107,7 +108,8 @@ define(function(require,$){
 				jsNote : /(\/\/.*)[\r\n]/g,//单行注释
 				jsNoteP : /(\/\*([\s\S]*?)\*\/)/gm,//多行注释
 				S : /&/g
-			}			
+			}		
+			str = str.replace(/<\/\sscript>/g,'<\/script>');
 			str = str.replace(r.S,'&amp;');//替换&特殊字符
 			//替换所有<>标签
 			str = str.replace(r.L,'&lt;').replace(r.G,'&gt;');
@@ -163,6 +165,24 @@ define(function(require,$){
 			if(this.opt.autoHide || box.attr('expand')==0 ){
 				hide.click();
 			}
+		},
+		select : function(index){
+			var code = this.code[index||0].find('.rs_item'), range;
+			code.dblclick().focus().select();
+			
+			if(window.getSelection) { 
+				range = window.getSelection()//.toString(); 
+				//range.extentOffset = 40;
+				//range.focusOffset = 40;
+			} else if(document.selection && document.selection.createRange) { 
+				range = document.selection.createRange()//.text; 
+			}   
+			//console.log(code[0].selectionStart)
+			return;
+			range = document.body.createTextRange();
+		    range.moveEnd('character',-1);    
+		    range.moveStart('character',0);       
+		    range.select();  
 		}
 	};
 	return codeLight;

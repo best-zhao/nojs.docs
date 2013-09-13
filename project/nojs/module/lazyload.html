@@ -1,24 +1,9 @@
-<style>
-#test_lazyload{border:1px solid #ccc;padding:15px;width:400px;height:200px;overflow:auto}
-#test_lazyload img{display:block;margin:0 0 15px;width:100%;min-height:200px;background:#eee}	
-</style>
 <h4 class="p_tit">lazyload</h4>
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
 	图片延迟加载
 	<p>依赖模块：'nojs/module/lazyload'</p>
 	<p>需要将图片<code>src</code>属性替换成自定义属性如<code>data-lazyload</code>，图片最好设置高度，为了防止ie图片红叉叉最好将所有图片<code>src</code>属性设置为统一的一张小图片</p>
-</div>
-<h6 class="p_tit">demo：</h6>
-<div class="text_info">
-	<div id="test_lazyload" class="mb10">
-		<img data-lazyload="http://m2.img.libdd.com/farm4/2013/0905/11/1784BC3F81F27FD6B49E3504825AAA7A76FF03C998129_500_333.jpg" alt="" />
-		<img data-lazyload="http://m1.img.libdd.com/farm5/2013/0905/11/27BD22EED72505FEB68DA2719A2350FBADDA493647F06_250_375.jpg" alt="" />
-		<img data-lazyload="http://m2.img.libdd.com/farm5/2013/0905/11/7C70E9CEBDBE9173B994822B5C40B2E6DECD65382641A_500_333.jpg" alt="" />
-		<img data-lazyload="http://m3.img.libdd.com/farm5/2013/0905/08/D71A13CEF1F1609FB81724A5A16AAE0EBEE1F273180F5_500_375.jpg" alt="" />
-		<img data-lazyload="http://m1.img.libdd.com/farm4/2013/0829/13/3C03D2983DE6CA8EF490D015C437797FB00332E94F936_500_500.jpg" alt="" />
-	</div>
-	<a href="" class="nj_btn" id="clear_cache">clear cache</a>
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
@@ -58,23 +43,46 @@
 </div>
 
 
+<script type="text/templete" id="demo_tmpl">
+<style>
+/*demo style*/
+#test_lazyload{border:1px solid #ccc;padding:15px;width:400px;height:200px;overflow:auto}
+#test_lazyload img{display:block;margin:0 0 15px;width:100%;min-height:200px;background:#eee}	
+</style>
+<div id="test_lazyload" class="mb10">
+	<img data-lazyload="http://m2.img.libdd.com/farm4/2013/0905/11/1784BC3F81F27FD6B49E3504825AAA7A76FF03C998129_500_333.jpg" alt="" />
+	<img data-lazyload="http://m1.img.libdd.com/farm5/2013/0905/11/27BD22EED72505FEB68DA2719A2350FBADDA493647F06_250_375.jpg" alt="" />
+	<img data-lazyload="http://m2.img.libdd.com/farm5/2013/0905/11/7C70E9CEBDBE9173B994822B5C40B2E6DECD65382641A_500_333.jpg" alt="" />
+	<img data-lazyload="http://m3.img.libdd.com/farm5/2013/0905/08/D71A13CEF1F1609FB81724A5A16AAE0EBEE1F273180F5_500_375.jpg" alt="" />
+	<img data-lazyload="http://m1.img.libdd.com/farm4/2013/0829/13/3C03D2983DE6CA8EF490D015C437797FB00332E94F936_500_500.jpg" alt="" />
+</div>
+<a href="" class="nj_btn" id="clear_cache">clear cache</a>
+</script>
+
 <script>
-noJS.use('nojs/module/lazyload',function($,ui,lazyload){
-	//console.log($(document).scrollTop());
-	var area = $('#test_lazyload').scrollTop(220),
-	lazy = new lazyload({
-		scroll : area
-	});
-	$('#clear_cache').click(function(){
-		area.scrollTop(0).find('img').each(function(){
-			var _this = $(this),
-				src = this.src || _this.attr('data-lazyload');
-			src && _this.attr('data-lazyload', src.split('?')[0] + '?t='+ $.random()).removeAttr('src');
-		})
-		area.html(area.html());
-		lazy.init();
-		return false;
-	})
-	
-});
+noJS.use(function($,ui){
+	window.demoAction = {
+		item : [
+			{content : $('#demo_tmpl').html(), callback : function(){
+				noJS.use('nojs/module/lazyload', function($,ui,lazyload){
+					var area = $('#test_lazyload').scrollTop(220),
+					lazy = new lazyload({
+						scroll : area
+					});
+					$('#clear_cache').click(function(){
+						area.scrollTop(0).find('img').each(function(){
+							var _this = $(this),
+								src = this.src || _this.attr('data-lazyload');
+							src && _this.attr('data-lazyload', src.split('?')[0] + '?t='+ $.random()).removeAttr('src');
+						})
+						area.html(area.html());
+						lazy.init();
+						return false;
+					})
+				});
+			}}
+		]
+	}
+})
+
 </script>

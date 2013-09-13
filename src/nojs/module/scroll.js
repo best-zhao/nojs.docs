@@ -4,13 +4,14 @@
 define(function( require, $ ){
 		
 	var scroll = function(id,opt){
-		opt = opt || {};
+		
 		this.box = $('#'+id);
 		if(!this.box.length){return;}
 		this.wrap = this.box.find('.nj_s_wrap');
 		this.con = this.wrap.find('.nj_s_con');
 		this.item = this.con.children();
 		this.len = this.item.length;
+		this.opt = opt = opt || {};
 		this.direction = opt.direction || 'x';//滚动方向，默认水平
 		this.step = typeof opt.step!=='undefined' ? parseInt(opt.step) : 1;//滚动步长，0为连续滚动
 		this.time = opt.time || 4000; //滚动速度，连续推荐设置40ms ;间断滚动时，该值为滚动的间隔时间
@@ -20,7 +21,7 @@ define(function( require, $ ){
 			item : this.direction=='x'?this.item.outerWidth(true):this.item.outerHeight(true)//单项尺寸
 		}
 		
-		this.view = Math.floor(this.size.box/this.size.item);	//可见区域的个数	
+		this.view = Math.ceil(this.size.box/this.size.item);	//可见区域的个数	
 		this.repeat = opt.repeat || false;//是否重复循环
 		this.auto = opt.auto==true?true:false;
 		this.onScroll = opt.onScroll;
@@ -87,7 +88,7 @@ define(function( require, $ ){
 						T.repeat && T.wrap.scrollLeft(0);
 						T.repeat && T.step==0 && T.scroll();
 					}
-					
+					T.opt.onScrollEnd && T.opt.onScrollEnd.call(T);
 				});
 			}else{
 				this.scrollTop = this.wrap.scrollTop() + m;
@@ -99,6 +100,7 @@ define(function( require, $ ){
 						T.repeat && T.wrap.scrollTop( T.wrap.scrollTop()-T.len*T.size.item );
 						T.repeat && T.step==0 && T.scroll();
 					}
+					T.opt.onScrollEnd && T.opt.onScrollEnd.call(T);
 				});
 			}
 			T.onScroll && T.onScroll();

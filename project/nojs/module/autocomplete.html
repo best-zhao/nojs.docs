@@ -14,44 +14,13 @@
 	<p>依赖模块：'nojs/module/autocomplete'</p>
 	<p>自定义匹配规则</p>
 </div>
-<h6 class="p_tit">demo:</h6>
+<h6 class="p_tit">使用:</h6>
 <div class="text_info">
-	<div class="clearfix mb10">
-		<span class="p_txt"><input id="auto_complete" class="text" /></span>
-	</div>
-	<div class="demo_tab" data-ui="Switch">
-		<ul class="nj_s_menu clearfix">
-			<li class="nj_s_m">js</li>
-			<li class="nj_s_m">css</li>
-		</ul>
-		<div class="nj_s_con">
-			<div class="nj_s_c">
-			<script type="text/templete" code="javascript">
-			//模拟数据
-			var data = [
-				[1,'aa'],[11,'ab'],[111,'abc'],[2,'bb'],[3,'cc'],[4,'dd'],[5,'ee'],[6,'ff'],[7,'gg']
-			]
-			</script>	
-			<script type="text/templete" code="javascript">
-			noJS.use('nojs/module/autocomplete',function( $, ui, autocomplete ){
-				var S = new autocomplete( text, options );
-			});
-			</script>
-			</div>
-			<div class="nj_s_c">
-			<script type="text/templete" code="html">
-			.auto_complete{position:absolute;display:none;border:1px solid #ccc;background:#fff;width:397px;z-index:9999}
-			.auto_complete{line-height:28px;margin-top:-1px}
-			.auto_complete dt{background:#f6f6f6;padding:0 10px;border-bottom:1px dotted #ddd;color:#999}
-			.auto_complete dd{text-indent:0.75em;cursor:pointer;font-family:'microsoft yahei';font-size:12px;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-			.auto_complete dd:hover{background:#F2F8FF}
-			.auto_complete dd .r{color:#999;float:right;font-size:12px}
-			.auto_complete dd.current{background:#FFE3F2}
-			.auto_complete .orange{color:red}	
-			</script>	
-			</div>
-		</div>
-	</div><!--demo_tab-->
+	<script type="text/templete" code="javascript">
+	noJS.use('nojs/module/autocomplete',function( $, ui, autocomplete ){
+		var S = new autocomplete( text, options );
+	});
+	</script>
 </div>
 <h6 class="p_tit">参数:</h6>
 <div class="text_info">
@@ -156,37 +125,71 @@
 <div id="about_link" class="text_info">
 	<a href="" id="email">邮箱自动补全</a>
 </div>
+
+<script type="text/templete" id="demo_tmpl">
+<pre class="code">
+//模拟数据
+var data = [
+	[1,'aa'],[11,'ab'],[111,'abc'],[2,'bb'],[3,'cc'],[4,'dd'],[5,'ee'],[6,'ff'],[7,'gg']
+]	
+</pre>	
+<style>
+/*autocomplete*/
+.auto_complete{position:absolute;display:none;border:1px solid #ccc;background:#fff;width:397px;z-index:9999}
+.auto_complete{line-height:28px;margin-top:-1px}
+.auto_complete dt{background:#f6f6f6;padding:0 10px;border-bottom:1px dotted #ddd;color:#999}
+.auto_complete dd{text-indent:0.75em;cursor:pointer;font-family:'microsoft yahei';font-size:12px;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.auto_complete dd:hover{background:#F2F8FF}
+.auto_complete dd .r{color:#999;float:right;font-size:12px}
+.auto_complete dd.current{background:#FFE3F2}
+.auto_complete .orange{color:red}
+</style>
+<div class="clearfix mb10">
+	<span class="p_txt"><input id="auto_complete" class="text" /></span>
+</div>	
+</script>
+
+
 <script>
-noJS.use('nojs/module/autocomplete',function( $, ui, autocomplete ){
-	var S = new autocomplete( $('#auto_complete'), {
-		rule : rule,
-		max : 15,
-		rewriteOnMove : false,
-		onSelect : function( val, obj ){
-			
-		}
-	}),
-	data = [
-		[1,'aa'],[11,'ab'],[111,'abc'],[2,'bb'],[3,'cc'],[4,'dd'],[5,'ee'],[6,'ff'],[7,'gg']
-	];
-	function rule(value){
-		var i=0, c=0, n = data.length, html = '', m, v, 
-			re = new RegExp('('+value.replace(/([\(\)\-])/g,'\\$1')+')','i');
-		if( !value ){
-			return html;
-		}
-		for( ; i<n; i++ ){
-			if( c>=this.max ){
-				break;
-			}
-			m = data[i];
-			if( re.test(m[1]) ){
-				c++;
-				v = m[1].replace( re, '<i style="color:red;font-weight:800">$1</i>' );
-				html += '<dd id="'+m[0]+'" title="'+m[1]+'">'+v+'</dd>';
-			}
-		}
-		return html;
+noJS.use(function($,ui){
+	window.demoAction = {
+		item : [
+			{content : $('#demo_tmpl').html(), callback : function(){
+				noJS.use('nojs/module/autocomplete', function( $, ui, autocomplete ){
+					var S = new autocomplete( $('#auto_complete'), {
+						rule : rule,
+						max : 15,
+						rewriteOnMove : false,
+						onSelect : function( val, obj ){
+							
+						}
+					}),
+					data = [
+						[1,'aa'],[11,'ab'],[111,'abc'],[2,'bb'],[3,'cc'],[4,'dd'],[5,'ee'],[6,'ff'],[7,'gg']
+					];
+					function rule(value){
+						var i=0, c=0, n = data.length, html = '', m, v, 
+							re = new RegExp('('+value.replace(/([\(\)\-])/g,'\\$1')+')','i');
+						if( !value ){
+							return html;
+						}
+						for( ; i<n; i++ ){
+							if( c>=this.max ){
+								break;
+							}
+							m = data[i];
+							if( re.test(m[1]) ){
+								c++;
+								v = m[1].replace( re, '<i style="color:red;font-weight:800">$1</i>' );
+								html += '<dd id="'+m[0]+'" title="'+m[1]+'">'+v+'</dd>';
+							}
+						}
+						return html;
+					}
+				});
+			}}
+		]
 	}
-});
+})
+
 </script>

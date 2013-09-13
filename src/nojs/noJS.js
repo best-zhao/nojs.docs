@@ -418,7 +418,7 @@
 		return noJS;
 	}
 	
-	var _use = [];
+	var defer = [];
 	/*
 	 * 载入入口模块，或者执行一段依赖全局模块的代码块
 	 */
@@ -495,10 +495,12 @@
 						if( !config.pack ){
 							T.add( [_config], function(){
 								//配置文件加载完毕
-								for( var i=0; i<_use.length; i++ ){
-									noJS.use.apply(null,_use[i]);
+								if( defer ){
+									for( var i=0; i<defer.length; i++ ){
+										noJS.use.apply(null, defer[i]);
+									}
+									defer = null;
 								}
-								_use = null;
 							}, {fix:''} );
 							configFile = 2; //
 						}
@@ -509,14 +511,14 @@
 				}else{
 					_config = eval( '({' + _config + '})' );
 					noJS.config( _config );
-				}				
+				}
 			}
 			//入口模块
 			if( _modules ){
 				_modules = _modules.split(',');
 				defaultLoad['deps'] = defaultLoad['deps'].concat( _modules );
 				T.add( _modules );
-			}				
+			}
 		}		
 	}
 	

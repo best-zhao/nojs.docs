@@ -92,8 +92,7 @@ define(function( require, $, ui ){
 		init : function(){
 			var T = this;
 			this.layer = ui.layer;
-			this.wrap = $('<div class="lightbox_wrap" unselectable="on"><div class="content"><div class="img"></div><i class="loading"></i><i class="p prev"></i><i class="p next"></i><i class="close"></i></div><div class="info"></div></div>').appendTo($('body'));			
-			//this.wrap.append()
+			this.wrap = $('<div class="lightbox_wrap"><div class="content"><div class="img"></div><i class="loading"></i><i class="p prev"></i><i class="p next"></i><i class="close"></i></div><div class="info"></div></div>').appendTo($('body'));			
 			this.content = this.wrap.children('.content');
 			this.info = this.wrap.children('.info');
 			this.img = this.wrap.find('.img');	

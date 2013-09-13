@@ -338,7 +338,7 @@
 			$.onScroll( layer[0] );
 		}
 		function show(opacity){
-			!layer.length && init();
+			!document.getElementById('nj_layer') && init();
 			if( layer.is(":visible") ){
 				return;
 			}
