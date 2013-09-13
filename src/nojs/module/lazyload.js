@@ -47,7 +47,7 @@ define(function(require,$){
 				
 				if( src ){
 					if( !isCtrl ){
-						if( Top>0 ){
+						if( _this.scroll[0]!==window ){
 							P.top = 0;
 						}
 						top = m.offset().top - Top;
