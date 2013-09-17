@@ -1,6 +1,3 @@
-<style type="text/css">
-
-</style>
 <h4 class="p_tit">form表单验证</h4>
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
@@ -11,10 +8,9 @@
 <div class="text_info">
 	<script type="text/codelight" code="javascript" key="form">
 	noJS.use('nojs/module/form', function($,ui,form){
-		new form( button, rules, options );
+		var Form = new form( button, rules, options );
 	});
 	</script>	
-	
 </div>
 <h6 class="p_tit">参数：</h6>
 <div class="text_info">
@@ -35,7 +31,7 @@
 			<td>rules</td>
 			<td>object</td>
 			<td>表单规则，为一个关联数组对象；key为表单对象name值，对应的是一个规则对象
-			<script type="text/codelight" code="javascript">
+			<script type="text/codelight" code="javascript" expand="0">
 				var rules = {
 					//普通规则：规则名-提示文本
 					'name1' : { isNull:'不能为空', isEmail:'邮件格式错误' },
@@ -54,8 +50,8 @@
 		</tr>
 	</table>	
 	<p class="mt10 mb10 orange">rules规则中有2个关键字并非规则名：</p>
-	<p>1. confirmPas: 对于如注册表单中的密码和确认密码的验证，可简化如下：</p>
-	<script type="text/codelight" code="javascript" key="confirmPas">
+	<p>1. confirmPas: 对于如注册表单中的密码和确认密码的验证，可简化如下：<a href="" data-action="demo" data-index="2">[示例2]</a></p>
+	<script type="text/codelight" code="javascript" key="confirmPas" expand="0">
 	//密码 <input type="password" name="password" />
 	//确认密码 <input type="password" name="repass" />
 	rules = {
@@ -70,7 +66,7 @@
 	}
 	</script>
 	<p>2. replace: 通常情况下，验证的提示信息是追加到表单元素的后面，但由于布局的关系，很多情况下需要将提示信息显示在特定的位置，这里需要使用<code>replace</code>：</p>
-	<script type="text/codelight" code="javascript" key="replace">
+	<script type="text/codelight" code="javascript" key="replace" expand="0">
 	rules = {
 		'username' : {
 			isNull : '不能为空',
@@ -115,14 +111,8 @@
 		<tr>
 			<td>form</td>
 			<td>element</td>
-			<td>设置form对象，默认会取btn所在表单对象，但有时2者不在同一区域，这时可单独设置表单对象；formSubmit为false时，该对象可设置为非form对象</td>
+			<td>设置form对象，默认会取button所在表单对象，但有时2者不在同一区域，这时可单独设置表单对象；formSubmit为false时，该对象可设置为非form对象 <a href="" data-action="demo" data-index="3">[示例3]</a></td>
 			<td></td>
-		</tr>
-		<tr>
-			<td>formSubmit</td>
-			<td>boolean</td>
-			<td>默认通过btn触发form的submit事件来验证,当上面情况发生时，可设为false，这样就会将事件绑定在btn的click事件上</td>
-			<td>true</td>
 		</tr>
 		<tr>
 			<td>showIco</td>
@@ -131,6 +121,10 @@
 			<td>true</td>
 		</tr>
 	</table>
+</div>
+<h6 class="p_tit">属性：</h6>
+<div class="text_info">
+	<p class="mb10">1. form: 当前form表单对象，button所在的form标签或者通过form选项指定的对象</p>
 </div>
 <h6 class="p_tit">规则：</h6>
 <div class="text_info">
@@ -212,7 +206,7 @@
 		
 	</table>
 	<p class="mt10">也可自定义规则，往<code>form.reg</code>对象上添加即可：</p>
-	<script type="text/codelight" code="javascript" expand="0">
+	<script type="text/codelight" code="javascript" expand="1">
 	//添加规则 'method'
 	form.reg.method = function( value, options, element ){
 		if( value!=1 ){
@@ -227,45 +221,217 @@
 <div class="text_info">
 	
 </div>
-<h6 class="p_tit">实例：</h6>
-<div class="text_info">
-	<form action="">
-		<ul class="p_form">
-			<li class="item clearfix">
-				<span class="p_txt">
-					<label for="" class="lab">用户名：</label>
-					<input name="name" class="text" />
+
+<script type="text/templete" id="demo_tmpl1">
+<form action="">
+	<ul class="p_form">
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>用户名：</label>
+				<input name="name" class="text" />
+			</span>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>邮箱：</label>
+				<input name="email" class="text" />
+			</span>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>性别：</label>
+				<span class="fl tip">
+					<label><input type="radio" name="sex" /> 保密</label>
+					<label><input type="radio" name="sex" /> 男</label>
+					<label><input type="radio" name="sex" /> 女</label>
 				</span>
-			</li>
-			<li class="item clearfix">
-				<span class="p_txt">
-					<label for="" class="lab">密码：</label>
-					<input type="password" name="password" class="text" />
+			</span>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>技能：</label>
+				<span class="fl tip">
+					<label><input type="checkbox" name="skill" /> html</label>
+					<label><input type="checkbox" name="skill" /> css</label>
+					<label><input type="checkbox" name="skill" /> javascript</label>
+					<label><input type="checkbox" name="skill" /> ajax</label>
+					<label><input type="checkbox" name="skill" /> php</label>
+					<label><input type="checkbox" name="skill" /> java</label>
+					<label><input type="checkbox" name="skill" /> c++</label>
+					<label><input type="checkbox" name="skill" /> flex</label>
 				</span>
-			</li>
-			<li class="item clearfix">
-				<span class="p_txt">
-					<label for="" class="lab">确认密码：</label>
-					<input type="password" name="repass" class="text" />
-				</span>
-			</li>
-			<li class="item clearfix">
-				<div class="in"><input type="submit" class="nj_btn n_b_sb" id="sub_btn" /></div>
-			</li>
-		</ul>
-	</form>
-</div>
+			</span>
+			<div class="in gray9">选择2-6个技能</div>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>联系电话：</label>
+				<input name="tel" class="text" />
+			</span>
+			<div class="in gray9">手机、座机、400电话均可</div>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>密码：</label>
+				<input type="password" name="password" class="text" />
+			</span>
+			<div class="in gray9">请输入4-16位密码</div>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>确认密码：</label>
+				<input type="password" name="repass" class="text" />
+			</span>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab"><i>*</i>select：</label>
+				<select name="select" id="">
+					<option value="0">请选择</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+				</select>
+			</span>
+		</li>
+		<li class="item clearfix">
+			<div class="in"><input type="submit" class="nj_btn n_b_bb" id="sub_btn1" /></div>
+		</li>
+	</ul>
+</form>
+</script>
+<script type="text/templete" id="demo_tmpl2">
+<p class="mb10">在设置规则时，使用<code>confirmPas</code>关键字简化重复密码类验证</p>	<br />
+<form action="">
+	<ul class="p_form">
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab">密码：</label>
+				<input type="password" name="password" class="text" />
+			</span>
+		</li>
+		<li class="item clearfix">
+			<span class="p_txt">
+				<label for="" class="lab">确认密码：</label>
+				<input type="password" name="repass" class="text" />
+			</span>
+		</li>
+		<li class="item clearfix">
+			<div class="in"><input type="submit" class="nj_btn n_b_bb" id="sub_btn2" /></div>
+		</li>
+	</ul>
+</form>
+</script>
+<script type="text/templete" id="demo_tmpl3">
+<p class="mb10">特殊表单：按钮和表单区域不在同一位置，如弹窗应用中，触发按钮在独立的区域</p><br />
+<p class="mb10"><a href="" id="show_form" class="nj_btn n_b_bg">验证邮箱</a></p>
+</script>
 
 <script>
-noJS.use('nojs/module/form',function($,ui,form){
-	new form( $('#sub_btn'), {
-		'name' : {isNull:'不能为空'},
-		'password' : {isNull:'不能为空',confirmPas:{name:'repass'}}
-	},{
-		onSubmit : function(){
-			ui.msg.show('ok','验证通过');
-			return false;
-		}
-	})
-});
+noJS.use(function($,ui){
+	window.demoAction = {
+		item : [
+			{content : $('#demo_tmpl1').html(), callback : function(){
+				noJS.use('nojs/module/form', function($,ui,form){
+					form.reg.tel = function(value){
+						//自定义规则，手机、座机、400电话均可
+						if( form.reg.isMobile(value) || form.reg.isTel(value) || form.reg.isTel400(value) ){
+							return true;
+						}else{
+							return false;
+						}
+					}
+					new form( $('#sub_btn1'), {
+						'name' : {
+							isNull:'不能为空'
+						},
+						'email' : {
+							isNull:'不能为空',
+							isEmail:'格式错误'
+						},
+						//radio类只需使用'isNull'规则即可
+						//使用replace指定提示信息会显示在该位置后面
+						'sex' : {
+							isNull:'不能为空',
+							replace:function(){return this.closest('span.tip')}
+						},
+						//checkbox类使用'isNull'规则限制必选，使用'isLength'规则限制所选个数
+						'skill' : {
+							isNull:'',
+							isLength:['选择2-6个技能',{min:2,max:6}],
+							replace:function(){return this.closest('span.tip')}
+						},
+						'tel' : {
+							isNull:'不能为空',
+							tel : '格式错误'
+						},
+						'password' : {
+							isNull:'不能为空',
+							isLength:['长度不合法',{min:4,max:16}],
+							confirmPas:{name:'repass'}
+						},
+						'select' : {
+							isNull:'不能为空'
+						}
+					},{
+						onSubmit : function(){
+							ui.msg.show('ok','验证通过');
+							return false;
+						}
+					})
+				});
+			}},
+			{content : $('#demo_tmpl2').html(), callback : function(){
+				noJS.use('nojs/module/form', function($,ui,form){
+					new form( $('#sub_btn2'), {
+						'name' : {isNull:'不能为空'},
+						'password' : {isNull:'不能为空',confirmPas:{name:'repass'}}
+					},{
+						onSubmit : function(){
+							ui.msg.show('ok','验证通过');
+							return false;
+						}
+					})
+				});
+			}},
+			{content : $('#demo_tmpl3').html(), callback : function(){
+				noJS.use('nojs/module/form', function($,ui,form){
+					//1
+					var win, btn = $('#show_form');
+					function init(){
+						win = new ui.win({width:430});
+						win.setCon('验证邮箱', [
+							'<form action=""><ul class="p_form mt10">',
+								'<li class="clearfix item">',
+									'<span class="p_txt"><label for="" class="lab">邮箱地址：</label><input name="email" class="text"></span>',
+								'</li>',
+							'</ul></form>'
+						].join(''), [
+							['立即验证','sb'],['取消','close']
+						]);
+						
+						//提交按钮即为win.button[0]，同时需要指定form区域
+						new form( win.button[0], {
+							'email' : {isNull:'不能为空',isEmail:'格式错误'}
+						}, {
+							form : win.con.find('form'),
+							onSubmit : function(){
+								ui.msg.show('ok','验证通过');
+								win.hide();
+								//this.form.submit();
+								return false;
+							}
+						})
+						
+					}
+					btn.click(function(){
+						!win && init();
+						win.show();
+						return false;
+					})
+				});
+			}}
+		]
+	}
+})
 </script>

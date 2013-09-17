@@ -39,7 +39,7 @@
 	 */
 	function load( file ){	
 		var T = load,
-			cf = T.now[2] || {},
+			cf = T.now[2],
 			num = 0,
 			len = file.length,
 			src, s, m, i, j, q;
@@ -106,7 +106,7 @@
 			num++;
 			//文件加载完毕
 			if(s){
-				s.onreadystatechange = s.onload = s.onerror = null;
+				//s.onreadystatechange = s.onload = s.onerror = null;
 				head.removeChild(s);//载入完毕后清除script标记
 			}
 			if( num>=len ){
@@ -137,12 +137,13 @@
 	load.add = function( file, callback, opt, order ){
 		var T = load;
 		if( type(file)=='array' && file.length ){
+			opt = opt || {};
 			T.fileItem[order==true?'unshift':'push']( [ file, callback, opt ] );
 			!T.state && T.begin();
 		}
 	}
 	load.begin = function(){
-		if( configFile==2 ){//配置文件正在载入，暂停队列
+		if( configFile==2 && (load.fileItem[0] && !load.fileItem[0][2].state) ){//配置文件正在载入，暂停队列   state标示为配置文件本身
 			return;
 		}
 		load.state = true;
@@ -205,11 +206,16 @@
 		script.onload = script.onreadystatechange = function(){
     		if( /^(?:loaded|complete|undefined)$/.test(this.readyState) ){
     			success && success.call(this);
+    			call(this);
     		}
     	}
         script.onerror = function(){
         	error && error.call(this);
-        };
+        	call(this);
+        }
+        function call(s){
+        	s.onreadystatechange = s.onload = s.onerror = null;
+        }
 	}
 	
 	/*
@@ -423,8 +429,8 @@
 	 * 载入入口模块，或者执行一段依赖全局模块的代码块
 	 */
 	noJS.use = function( path, fun, opt ){
-		if( configFile==2 ){
-			_use.push(Array.prototype.slice.call(arguments));
+		if( configFile==2 && defer ){
+			defer.push(Array.prototype.slice.call(arguments));
 			return noJS;
 		}
 		
@@ -493,16 +499,17 @@
 					//打包之后config.js会并入noJS.js
 					onReady = function(){
 						if( !config.pack ){
+							configFile = 2; //配置文件正在载入
 							T.add( [_config], function(){
 								//配置文件加载完毕
+								//configFile = null;
 								if( defer ){
 									for( var i=0; i<defer.length; i++ ){
 										noJS.use.apply(null, defer[i]);
 									}
 									defer = null;
 								}
-							}, {fix:''} );
-							configFile = 2; //
+							}, {fix:'',state:true} );
 						}
 						onReady = null;
 					}
@@ -552,6 +559,7 @@
 	 * bug记录
 	 * 1.noJS.use(a);noJS.use(b);当模块a的依赖模块中存在b时，会出现错误(已解决,len--)
 	 * 2.载入外部配置文件的时候，use方法先缓存起来，文件载入完毕后再执行，防止use执行于配置之前
+	 * 3.ie9缓存配置文件导致出错
 	 */
 	
 })( this );

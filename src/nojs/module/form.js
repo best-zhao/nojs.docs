@@ -12,7 +12,10 @@ define(function( require, $, ui ){
 		if(!this.form.length){return;}
 		this.item = [];//存储所需验证对象
 		this.showIco = opt.showIco==false?false:true;//是否显示提示图标
-		this.formSubmit = opt.formSubmit==false ? false : true;//是否为表单提交
+		this.formSubmit = true;//是否为表单提交
+		if( opt.form && opt.form.length || this.btn.attr('type')!='submit' ){
+			this.formSubmit = false;
+		}
 		this.onSubmit = opt.onSubmit;//表单提交时事件
 		this.onBeforeSubmit = opt.onBeforeSubmit;//表单验证前事件
 		this.checkMode = opt.checkMode || 'submit';//验证模式 'blur/keyup'

@@ -40,11 +40,11 @@ input.nj_btn,button.nj_btn{height:25px}
 input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg{height:35px}
 .n_b_sb,.n_b_bb{
 	border-color:#4587E0;color:#fff;
-	background:-webkit-gradient(linear,0 0,0 100%,from(#5796EC),to(#4682D1));
-	background:-moz-linear-gradient(top,#5796EC,#4682D1);
-	background:-ms-linear-gradient(top,#5796EC,#4682D1);
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5796EC',endColorstr='#4682D1')!important}
-.n_b_sb:hover,.n_b_bb:hover{color:#fff;background:#5194E0;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5194E0',endColorstr='#5194E0')}
+	background:-webkit-gradient(linear,0 0,0 100%,from(#3492EF),to(#337DDF));
+	background:-moz-linear-gradient(top,#3492EF,#337DDF);
+	background:-ms-linear-gradient(top,#3492EF,#337DDF);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#3492EF',endColorstr='#337DDF')!important}
+.n_b_sb:hover,.n_b_bb:hover{color:#fff;background:#2D7EDB;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#2D7EDB',endColorstr='#2D7EDB')}
 .n_b_so:active,.n_b_bo:active{border-top-color:#c00}
 .n_b_sb:active,.n_b_bb:active{border-top-color:#369}
 /*select*/

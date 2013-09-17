@@ -14,7 +14,6 @@ define(function(require,$,ui){
 		},
 		win = $(window),
 		D = window.Page=='mobile' ? 'mb_intro' : 'nojs_info',
-		page = $('#ui_page'),
 		frame = $('#iframe_content'),
 		side = $('#side_menu'),
 		wrap = page.children('div.ui_wrap'),
@@ -76,7 +75,7 @@ define(function(require,$,ui){
 				width : 32,
 				height : 32
 			})
-			page.nextAll().remove();
+			page.siblings().remove();
 			
 			var _id = this.box[0].id,
 				name = _id.substring(_id.indexOf('_')+1,_id.length),
@@ -236,7 +235,19 @@ define(function(require,$,ui){
 			button.data('win', win);
 		}
 		function str(fun){
-			return typeof fun=='function' ? fun.toString().replace(/^function\s*\(\)\s*{/,'').replace(/\s*}$/,'\n').replace(/(\n)\s{4}/g,'$1') : '';
+			fun = typeof fun=='function' ? 
+				fun.toString()
+				.replace(/^function\s*\(\)\s*{/,'')
+				.replace(/\s*}$/,'\n')
+				.replace(/\t/g,'    ')//替换制表符
+				: '';
+				
+			if( fun.length>4 ){
+				var tab = fun.length-fun.replace(/(^\s*)/,'').length;
+				tab = Math.floor(tab/4)*4;
+				fun = fun.replace(new RegExp("(\\n\\s{"+tab+"})","g"),'\n') //去除行首多余空格
+			}	
+			return fun;
 		}
 		return {
 			show : function(obj){
