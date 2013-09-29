@@ -11,7 +11,7 @@
 	}
 }(this, function( require, $ ){
 	
-	var UI = {};
+	var ui = {};
 	
 	/*
 	 * 触发方式
@@ -19,7 +19,7 @@
 	 * 2.区域初始化：通过在Elements上配置相应的属性初始化对应区域内所有ui组件，默认body区域
 	 */
 	
-	UI.init = function( area ){
+	ui.init = function( area ){
 		area = area || $('body');
 		
 		var dom = area.find('[data-ui]'),
@@ -28,12 +28,12 @@
 		for( i=0; i<dom.length; i++ ){
 			elem = dom[i];
 			method = elem.getAttribute('data-ui');
-			if( UI[method] ){
+			if( ui[method] ){
 				if( options = elem.getAttribute('data-config') ){
 					options = eval('({'+options+'})') || {};
 					//elem.removeAttribute('data-config');
 				}
-				UI[method]( elem, options );
+				ui[method]( elem, options );
 			}
 		}	
 	};
@@ -41,13 +41,13 @@
 	var isNew, cache = {};
 	function instaceofFun( fun, arg ){
 		if( !(fun instanceof arg.callee) ){
-			return Extend( arg.callee, Array.prototype.slice.call(arg) );
+			return newFun( arg.callee, Array.prototype.slice.call(arg) );
 		}else{
 			return false;
 		}
 	}
 	
-	function Extend( parent, args ) {
+	function newFun( parent, args ) {
 	    function F( parent,args ) {
 	    	parent.apply( this, args );
 	    	//console.log(this.constructor)
@@ -67,13 +67,23 @@
 		if( type=='string' ){//通过id
 			elem = $('#'+selector);
 		}else if( type=='object' ){
-			elem = selector.nodeType ? $(selector) : selector;
+			elem = selector.nodeType||selector==window ? $(selector) : selector;
 		}
 		elem = elem.length ? elem : null;		
 		return elem;
 	}
 	
-	UI.data = function( id, Class ){
+	//类继承
+	function Extend(Child, Parent){
+		var F = function(){};
+		F.prototype = Parent.prototype;
+		Child.prototype = new F();
+		Child.prototype.constructor = Child;
+		Child.baseConstructor = Parent;
+    	Child.baseClass = Parent.prototype;
+	}
+	
+	ui.data = function( id, Class ){
 		if( Class ){//set
 			cache[id] = Class;
 		}else{
@@ -81,7 +91,7 @@
 		}
 	}
 		
-	UI.config = {};	
+	ui.config = {};	
 	
 	/* 
 	 * [animate动画扩展]
@@ -96,6 +106,9 @@
 		}
 	});
 	$.extend({
+		type : function(obj){
+			return obj == null ? String( obj ) : Object.prototype.toString.call( obj ).slice( 8, -1 ).toLowerCase();
+		},
 		random : function(){
 			//得到一个随机数
 			return String(Math.ceil(Math.random() * 100000) + String(new Date().getTime()));
@@ -249,116 +262,267 @@
 		}
 	})
 	
-	//***********ui组件***********//
-	UI.setPos = function( dom, options ){
-		/*
-		 * 设置浮动元素显示位置
-		 * @dom:设置对象
-		 * options.pos:{top:top,left:left},默认{50,50}屏幕居中,top和left值范围0-100
-		 * options.isFloat:是否浮动 0不浮动，1动画 2固定
-		 */
-		dom = getDom(dom);
-		if(!dom||!dom.length){return;}
+	/*
+	 * 将对象对齐到某个参考元素nearby
+	 * nearby默认是window对象,即固定在屏幕上
+	 * relative为true可设置为类似css的背景图定位方式,只限百分比
+	 */	
+	ui.align = function(options){
+		this.options = options = options || {};
+		this.element = getDom(options.element);
+		this.position = options.position || {top:50, left:50};
+		this.nearby = getDom(options.nearby||window);
 		
-		options = options || {};
-		
-		var pos = options.position || {},
-			isFloat = options.isFloat==undefined ? 2 : options.isFloat,
-			F = isFloat==0 ? 0 : isFloat || 2,
-			win = $(window),
-			top = pos.top==undefined ? 50 : pos.top,
-			left = pos.left==undefined ? 50 : pos.left,
-			isTop = typeof top=='number',
-			isLeft = typeof left=='number',
-			noIE6 = F==2 && !$.browser('ie6'),
-			ns = dom.data('setpos'),
-			W, H, T, L, win_w, win_h, sTop, sLeft, css = {};
-		
-		dom.css('position' , noIE6 ? "fixed" : "absolute");
-		
-		function getPos(){
-			win_w = win.width();
-			win_h = win.height();
-			W = dom.outerWidth();
-			H = dom.outerHeight();
-			sTop = noIE6 ? 0 : win.scrollTop();
-			sLeft = noIE6 ? 0 : win.scrollLeft();
-			T = (isTop ? (win_h - H)*top/100 : parseInt(top,10)) + sTop;
-			L = (isLeft ? (win_w - W)*left/100 : parseInt(left,10)) + sLeft;
-			css[isTop||T>0 ? 'top':'bottom'] = Math.abs(T);
-			css[isLeft||L>0 ? 'left':'right'] = Math.abs(L);
+		if( !this.nearby ){
+			return;
 		}
-		getPos();
-		
-		dom.css(css);
-		function moveTo( resize ){
-			if( dom.is(':hidden') ){
+		this.relative = options.relative!=undefined ? options.relative : this.nearby[0]==window ? true : false;
+		this.fixed = options.fixed==undefined && this.nearby[0]==window ? 'fixed' : options.fixed;//null fixed animate
+		this.cssFixed = this.fixed=='fixed' && !$.browser('ie6') && this.nearby[0]==window;//直接使用css:fixed来定位
+		this.offset = options.offset || [0,0];
+		this.isWrap = this.nearby[0]==window || this.nearby.find(this.element).length;//对象是否在参考对象内部
+		this.autoAdjust = options.autoAdjust;//超出屏幕后是否自动调整位置
+		if( this.element ){
+			this.bind();
+		}
+	}
+	ui.align.prototype = {
+		bind : function(){
+			var self = this,
+				ns = this.element.data('align'),
+				element = this.nearby[0]==window ? this.nearby : this.nearby.add(window),
+				type;
+				
+			if( ns ){
+				element.off( '.'+ns );
+			}else{
+				ns = 'align'+(new Date()).getTime();
+				this.element.data('align', ns);
+			}
+			type = 'resize.'+ns;
+			if( !this.cssFixed && this.fixed ){
+				type += ' scroll.'+ns;	
+				if( this.nearby[0]!=window ){
+					element = this.nearby;//无需绑定window scroll事件
+				}
+			}
+			element.on( type, function(){
+				self.set();
+			});
+			
+			this.set();
+		},
+		get : function(){
+			var offset = this.nearby.offset(),
+			size = {
+				width : this.nearby.outerWidth(),
+				height : this.nearby.outerHeight(),
+				x : offset ? offset.left : 0,
+				y : offset ? offset.top : 0,
+				scrollLeft : this.cssFixed ? 0 : this.nearby.scrollLeft(),
+				scrollTop : this.cssFixed ? 0 : this.nearby.scrollTop(),
+				WIDTH : this.element.outerWidth(),
+				HEIGHT : this.element.outerHeight()
+			};
+			
+			return size;
+		},
+		set : function(position){
+			if( !this.element ){
 				return;
 			}
-			getPos();
-			if(F==1){
-				dom.stop().animate( css, 180 );
-			}else if(F==2){
-				dom.css(css);
+			position = position || this.position;
+			
+			var size = this.get(),
+				Attr = {
+					x : {}, y : {}
+				}, 
+				_Attr, attr, value, _value, type, direction, style = {}, wrapSize;
+			
+			if( this.isWrap ){
+				size.x = size.y = 0;
+			}	
+			Attr.x.element = 'WIDTH';
+			Attr.y.element = 'HEIGHT';
+			Attr.x.nearby = 'width';
+			Attr.y.nearby = 'height';
+			Attr.x.offset = 0;
+			Attr.y.offset = 1;
+			Attr.x.scroll = 'scrollLeft';
+			Attr.y.scroll = 'scrollTop';
+			
+			for( attr in position ){
+				value = _value = position[attr];
+				type = typeof value;
+				if( type=='function' ){
+					value = value(size);
+					type = typeof value;
+				}
+				direction = attr=='top' || attr=='bottom' ? 'y' : 'x';
+				_Attr = Attr[direction];
+				
+				value = type=='number' ? 
+					(size[_Attr.nearby] - (this.relative?size[_Attr.element]:0)) * value/100 :
+					parseInt(value,10);
+					
+				if( attr=='bottom' || attr=='right' ){
+					value *= -1;
+					value -= size[_Attr.element] - size[_Attr.nearby];
+				}
+				
+				value += size[direction] + this.offset[_Attr.offset] + size[_Attr.scroll];
+				
+				if( this.autoAdjust ){
+					//屏幕边界限制
+					wrapSize = this.isWrap ? size[_Attr.nearby] : $(window)[_Attr.nearby]();
+					if( value + size[_Attr.element] - size[_Attr.scroll] > wrapSize ){
+						if( size[_Attr.element] < size[direction] - size[_Attr.scroll] ){
+							value = size[direction] - size[_Attr.element];
+						}else{
+							value = size[_Attr.scroll];
+						}
+					}else if( value<size[_Attr.scroll] ){
+						value = size[_Attr.scroll];
+					}
+				}
+				
+				style[direction=='x'?'left':'top'] = value;
 			}
-		}
-		if( F ){
-			if( ns ){
-				win.off( '.'+ns );
-			}else{
-				ns = 'setpos'+(new Date()).getTime();
-				dom.data('setpos',ns);
+			this.element.css('position', this.cssFixed ? 'fixed' : 'absolute');
+			
+			if( this.fixed=='animate' ){
+				this.element.stop().animate( style, 200 );
+				return;
 			}
-			win.on( 'scroll.'+ns+' resize.'+ns, moveTo );
+			this.element.css(style);
 		}
 	}
 	
-	UI.layer = function(){
+	/*
+	 * 浮动层
+	 * 自动显示或由外部事件触发
+	 * 可延时显示，定时隐藏
+	 */
+	ui.overlay = function(options){
+		ui.overlay.baseConstructor.call(this, options);		
+		this.visible = false;//可视状态
+		this.arrow = this.options.arrow;//箭头 根据align对齐方式自动调整指向
+		this.init();
+	}
+	Extend(ui.overlay, ui.align);
+	ui.overlay.prototype.init = function(){
+		var self = this,
+			_class = this.options.className;
+			
+		_class = typeof _class=='string' ? _class : '';//自定义class 多个用空格隔开
+		
+		this.element = $('<div class="nj_overlay '+_class+'"></div>').appendTo(document.body);
+		
+		if( this.arrow ){
+			this.arrow.element = $('<div class="nj_overlay_arrow"></div>').appendTo(this.element);
+			this.arrow.offset = this.arrow.offset || [0,0];
+		}
+		
+		if( this.options.auto ){
+			setTimeout(function(){
+				self.show();
+			}, this.options.auto);
+		}
+		this.content(this.options.content);
+	}
+	ui.overlay.prototype.show = function(){
+		if( this.visible ){
+			return;
+		}
+		var self = this;
+		
+		this.set(null, function(pos){
+			if( self.arrow ){
+				var top = 0, left = 0,
+					direction = self.arrow.direction || pos[2];
+				
+				if( direction=='up' || direction=='down' ){
+					//top = direction=='up' ? self.arrow.element.outerHeight()*-1 : self.element.innerHeight();
+				}else if( direction=='left' || direction=='right' ){
+					//left = direction=='left' ? self.arrow.element.outerWidth()*-1 : self.element.innerWidth();
+				}
+				
+				self.arrow.element.css({
+					top : top,
+					left : left
+				}).attr('class', 'nj_overlay_arrow nj_overlay_arrow_'+direction);
+			}
+		});
+		
+		this.element.show();
+		
+		if( this.options.timeout ){
+			this.autoHide = setTimeout(function(){
+				self.hide();
+			}, this.options.timeout)
+		}
+		this.visible = true;
+	}
+	ui.overlay.prototype.hide = function(){
+		if( !this.visible ){
+			return;
+		}
+		this.element.hide();
+		this.autoHide = clearTimeout(this.autoHide);
+		this.visible = false;
+	}
+	ui.overlay.prototype.content = function(value){
+		this.element.append(value);
+	}
+	
+	ui.layer = function(){
 		/*
 		 * 遮罩层
 		 */
 		var w = $(window),
 			layer = $("#nj_layer"),
-			arr = { show : show, hide : hide, isShow : false };
+			arr = { show : show, hide : hide };
 		function init(){
-			layer = $("body").append('<div id="nj_layer"></div>').find("#nj_layer");
-	        layer.css({
-				"opacity":"0"
-			})
-			S = function(){
-				layer.css({
-					width : w.width(),
-					height : w.height()
-				})
+			layer = $('<div id="nj_layer"></div>').appendTo(document.body);
+	        
+			if( $.browser('ie6') ){
+				S = function(){
+					layer.css({
+						width : w.width(),
+						height : w.height()
+					})
+				}
+				S();
+				w.on( 'scroll resize', S );
+				new ui.align({
+					element : layer
+				});
 			}
-			S();
 			
-			w.on( 'scroll resize', S );
-			UI.setPos( layer, {position:{left:0,top:0}} );
 			$.onScroll( layer[0] );
+			arr.element = layer;
 		}
 		function show(opacity){
 			!document.getElementById('nj_layer') && init();
 			if( layer.is(":visible") ){
 				return;
 			}
-			arr.self = layer;
-			arr.isShow = true;
-			layer.show().fadeTo( 200, typeof opacity=='number' ? opacity : 0.5 );
+			layer.show().fadeTo( 200, typeof opacity=='number' ? opacity : 0.6 );
 		}
 		function hide(){
-			arr.isShow = false;
-			layer.fadeOut();
+			layer.fadeTo(200,0,function(){
+				layer.hide();
+			});
 		}
 		
 		return arr;
 	}();
 	
-	UI.win = function( opt ){
+	ui.win = function( opt ){
 		/*
 		 * 弹窗
 		 */
-		opt = $.extend( UI.config.win, opt );
+		opt = $.extend( ui.config.win, opt );
 	    this.w = opt.width || 400;//宽
 	    this.self = null;//弹窗对象本身
 	    this.close = null;//关闭按钮
@@ -375,7 +539,7 @@
 		this.scroll = 0;
 		this.init();
 	}
-	UI.win.prototype = {
+	ui.win.prototype = {
 		init : function(){	
 			var me = this,
 				id = 'nj_win_' + $.random(),
@@ -387,7 +551,7 @@
 					'</div></div>'
 				];
 			
-			UI.win.item[id] = this;
+			ui.win.item[id] = this;
 			this.key = id;
 			$("body").append(win.join(''));//插入到body中
 			this.self = $("#"+id).css( {'width':me.w, 'opacity':'0'} );
@@ -395,7 +559,13 @@
 			this.tit = this.self.find(".win_tit");
 			this.con = this.self.find(".win_con");
 			this.opt = this.self.find(".win_opt");
-			new UI.ico( this.close, {type:'close'} );
+			new ui.ico( this.close, {type:'close'} );
+			
+			this.align = new ui.align({ 
+				element : this.self,
+				position : this.pos, 
+				fixed : this.Float
+			});	
 			this.bind();
 		},
 		bind : function(){
@@ -468,9 +638,9 @@
 		        @callBack:可选参数，回调函数
 		    */
 			if( this.self.is(":visible") ){return;}
-			UI.setPos( this.self, {position:this.pos, isFloat:this.Float} );	//重新计算高度并设置居中 
+			this.align.set();//重新计算高度并设置居中
 			
-			this.layer && UI.layer.show();
+			this.layer && ui.layer.show();
 			
 			this.self.css({
 				"display":"block",
@@ -508,22 +678,22 @@
 			setTimeout(function(){
 				callBack && callBack();
 			}, 100);
-	        !this.stillLayer &&	UI.layer.hide();
+	        !this.stillLayer &&	ui.layer.hide();
 			this.onHide && this.onHide();
 	    }
 	}
-	UI.win.item = {};//保存所有弹框实例对象
-	UI.win.clear = function(key){
+	ui.win.item = {};//保存所有弹框实例对象
+	ui.win.clear = function(key){
 		//清空弹框对象
 		if(key){
-			var win = UI.win.item[key];
-			win&&clear(win);
+			var win = ui.win.item[key];
+			win && clear(win);
 		}else{
-			for(var i in UI.win.item){
-				clear( UI.win.item[i] );
+			for(var i in ui.win.item){
+				clear( uiI.win.item[i] );
 			}
-			UI.win.item = {};
-			UI.msg.win = null;
+			ui.win.item = {};
+			ui.msg.win = null;
 		}
 		function clear( win ){
 			win.self.remove();
@@ -531,7 +701,7 @@
 		}
 	}
 	
-	UI.msg = function(){
+	ui.msg = function(){
 		/*
 		 * 消息提示框
 		 */
@@ -540,7 +710,7 @@
 			show : function( type, tip, opt ){
 				opt = opt || {};
 				var T = this,
-					btn = opt.btn,
+					btn = opt.button,
 					time = opt.time || 1600,
 					C = type=='confirm',
 					tit = C ? '温馨提醒：' : null,
@@ -566,7 +736,7 @@
 					];					
 				}
 				if( !win ){
-					win = new UI.win({
+					win = new ui.win({
 						width : w,
 						bindEsc : false
 					});
@@ -578,7 +748,7 @@
 					win.stillLayer = C ? false : true;
 					
 					win.setCon( tit, '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
-					new UI.ico( win.con.find('i.tip_ico'),{type:C ? 'warn' : type} );
+					new ui.ico( win.con.find('i.tip_ico'),{type:C ? 'warn' : type} );
 					Win[type] = win;
 				}				
 				
@@ -623,7 +793,7 @@
 		}
 	}();
 	
-	UI.select = function( dom, opt ){
+	ui.select = function( dom, opt ){
 		if( isNew = instaceofFun(this,arguments) ){
 			return isNew;
 		}
@@ -632,10 +802,10 @@
 		 * @opt:可选项{show:只显示几项,只接受整数，固定高度,onSelect:当选择某项的时候触发一个回调}
 		 * 默认选中项根据隐藏域的value值来匹配
 		 */		
-		opt = $.extend( UI.config.select, opt );
+		opt = $.extend( ui.config.select, opt );
 		this.box = getDom(dom);
 		if(!this.box){return;}
-		UI.data( this.box[0].id, this );
+		ui.data( this.box[0].id, this );
 		this.show = opt.show;
 		this.maxH = "auto";//展开时的最大高度
 		this.onSelect = opt.onSelect;//切换回调
@@ -646,7 +816,7 @@
 		this.now = null;
 		this.setCon();
 	};
-	UI.select.prototype = {
+	ui.select.prototype = {
 		setCon : function(){
 			var HTML = this.box.html().replace(/OPTION|option/g,'li'),
 				list = this.box.find('option'),
@@ -755,8 +925,8 @@
 					T.menu.show();
 				},90)
 			},function(){
-				window.clearTimeout(A);
-				A = window.setTimeout(function(){
+				clearTimeout(A);
+				A = setTimeout(function(){
 					T.menu.hide()//.slideUp(150,'easeOutExpo');
 					T.box.removeClass('nj_select_hover');
 				},200)
@@ -794,7 +964,7 @@
 			this.onSelect&&this.onSelect.call(this,v,M);
 		}
 	}
-	UI.select.batch = function(box,opt){
+	ui.select.batch = function(box,opt){
 		/*
 		 * 批量生成select组件(全部select只能统一设置,特殊情况时不能用此方法)
 		 * @box:传入父元素对象即可
@@ -820,33 +990,31 @@
 		return arr;
 	}
 	
-	UI.Switch = function(dom,opt){
-		/*
-		 * switch原型超类|幻灯片、选项卡等
-		 * @id:容器id
-		 * 子类不能通过该构造函数传递参数，所以使用init方法来传递
-		 */
+	/*
+	 * switch原型超类|幻灯片、选项卡等
+	 */
+	ui.Switch = function(dom,opt){
 		if( isNew = instaceofFun(this,arguments) ){
 			return isNew;
 		}
-		this.box = getDom(dom);
+		if( !(this.box = getDom(dom)) ){
+			return;
+		}
+		this.M = this.box.find(".nj_s_menu").first();
+		this.menu = this.M.find(".nj_s_m");
+		this.C = this.box.find(".nj_s_con").first();
+		this.con = this.C.children(".nj_s_c");
+		this.length = this.con.length;
+		if(!this.length){return;}
+		this.opt = opt = opt || {};
+		this.mode = opt.mode=='click'?'click':'mouseover';
+		this.onChange = opt.onChange;
+		this.index = opt.firstIndex || 0;
+		this.rule = this.rule || opt.rule;
 		this.init(dom,opt);
 	}
-	UI.Switch.prototype = {
+	ui.Switch.prototype = {
 		init : function(dom,opt){
-			this.box = getDom(dom);
-			if(!this.box){return;}
-			this.M = this.box.find(".nj_s_menu").first();
-			this.menu = this.M.find(".nj_s_m");
-			this.C = this.box.find(".nj_s_con").first();
-			this.con = this.C.children(".nj_s_c");
-			this.length = this.con.length;
-			if(!this.length){return;}
-			this.opt = opt = opt || {};
-			this.mode = opt.mode=='click'?'click':'mouseover';
-			this.onChange = opt.onChange;
-			this.index = opt.firstIndex || 0;
-			this.rule = this.rule || opt.rule;
 			this.bind();
 		},
 		bind : function(){
@@ -870,22 +1038,24 @@
 			index = index>(this.length-1) ? 0 : index;
 			index = index<0 ? (this.length-1) : index;
 			if(this.rule){
-				this.rule.call(this,index);
+				this.rule.call(this, index);
 			}else{
 				this.con.eq(index).show().siblings().hide();
 				this.menu.eq(index).addClass("current").siblings().removeClass("current");
 			}
 			this.index = index;
-			if(this.onChange){this.onChange.call(this,index);}
+			this.onChange && this.onChange.call(this, index);
 		}
 	};
 	
-	UI.slide = function(id,opt){
-		/*
-		 * switch扩展: slide幻灯片
-		 */	
-		this.init(id,opt);
-		if(!this.box.length){return;}
+	/*
+	 * slide幻灯片 继承至ui.Switch
+	 */	
+	ui.slide = function(id,opt){
+		ui.slide.baseConstructor.call(this, id, opt);
+		if( !this.box ){
+			return;
+		}
 		this.getIndexNum = this.opt.getIndexNum==true?true:false;
 		this.getIndexNum && this.getNum();
 		this.play = null;
@@ -894,9 +1064,8 @@
 		this.stopOnHover = this.opt.stopOnHover==false?false:true;
 		this.start(true);
 	}
-	UI.slide.prototype = new UI.Switch();
-	UI.slide.prototype.constructor = UI.slide;
-	UI.slide.prototype.getNum = function(){
+	Extend(ui.slide, ui.Switch);
+	ui.slide.prototype.getNum = function(){
 		var list = '';
 		for(var i=1;i<=this.length;i++){
 			list += '<li class="nj_s_m">'+i+'</li>';
@@ -905,13 +1074,13 @@
 		this.menu = this.M.find('.nj_s_m');
 		this.bind();
 	}
-	UI.slide.prototype.rule = function(index){
+	ui.slide.prototype.rule = function(index){
 		//切换规则		
 		this.con.eq(index).fadeIn(300).siblings().hide();
 		this.menu.eq(index).addClass("current").siblings().removeClass("current");
 		this.index = index;
 	}
-	UI.slide.prototype.start = function(startNow){
+	ui.slide.prototype.start = function(startNow){
 		//自动播放
 		var T = this;
 		if( this.auto && this.length>1 ){
@@ -934,14 +1103,14 @@
 		}
 	}
 	
-	UI.ico = function(dom,opt){
+	ui.ico = function(dom,opt){
 		/*
 		 * canvas/vml绘制的图标
 		 */		
 		if( isNew = instaceofFun(this,arguments) ){
 			return isNew;
 		}
-		opt = $.extend( UI.config.ico, opt );
+		opt = $.extend( ui.config.ico, opt );
 		this.hasCanvas = !!document.createElement('canvas').getContext;
 		this.type = opt.type || 'ok';
 		this.ico = $('<i class="nj_ico n_i_'+this.type+'"></i>');
@@ -961,7 +1130,7 @@
 		this.ico.css({'background':'none','width':this.width,'height':this.height});
 		this.createSpace();
 	}
-	UI.ico.prototype = {		
+	ui.ico.prototype = {		
 		createSpace : function(){
 			var d = document;
 			if(this.hasCanvas){
@@ -971,14 +1140,14 @@
 				this.canvas.height = this.height;
 				this.ico.append(this.canvas);
 			}else{
-				if(!UI.ico['iscreatevml']){//只创建 一次vml
+				if(!ui.ico['iscreatevml']){//只创建 一次vml
 					var s = d.createStyleSheet(),
 						shapes = ['polyline','oval','arc','stroke','shape'];
 					d.namespaces.add("v", "urn:schemas-microsoft-com:vml"); //创建vml命名空间
 					for(var i=0;i<shapes.length;i++){
 						s.addRule("v\\:"+shapes[i],"behavior:url(#default#VML);display:inline-block;");
 					}
-					UI.ico['iscreatevml'] = true;
+					ui.ico['iscreatevml'] = true;
 				}
 				this.ico.css('position','relative');
 			}
@@ -1125,7 +1294,7 @@
 			}
 		}
 	}
-	UI.ico.batch = function(obj,opt){
+	ui.ico.batch = function(obj,opt){
 		/*
 		 * 批量生成图标
 		 */
@@ -1146,16 +1315,16 @@
 		}
 		return ico;
 	}
-	UI.ico.add = function(type,draw){
+	ui.ico.add = function(type,draw){
 		/*
 		 * 添加自定义绘图方法
 		 */
-		if(!UI.ico.prototype['Draw'+type]){
-			UI.ico.prototype['Draw'+type] = draw;
+		if(!ui.ico.prototype['Draw'+type]){
+			ui.ico.prototype['Draw'+type] = draw;
 		}
 	}
 	
-	UI.menu = function(obj,opt){
+	ui.menu = function(obj,opt){
 		/*
 		 * 下拉菜单，动态创建html
 		 */
@@ -1163,7 +1332,7 @@
 			return isNew;
 		}
 		//if(!obj||!obj.length){return;}
-		this.opt = opt = $.extend( UI.config.menu, opt );
+		this.opt = opt = $.extend( ui.config.menu, opt );
 		this.obj = obj = getDom(obj);
 		this.menu = null;
 		this.content = opt.content || '';//菜单内容
@@ -1177,7 +1346,7 @@
 		this.disable = false;//是否禁用菜单
 		this.init();
 	}
-	UI.menu.prototype = {
+	ui.menu.prototype = {
 		init : function(){
 			this.mode = this.mode == 'focus' ? 'focus click' : this.mode;
 			
@@ -1341,9 +1510,11 @@
 			id = input.attr('id'),
 			v = input.attr('placeholder'),
 			lab;
+			
 		index = index || 0;	
 		id = id || 'ph_lab'+index;		
 		lab = $('<label for="'+id+'" style="width:'+w+'px;height:'+h+'px" class="ph_lab ph_lab'+index+'">'+v+'</label>');
+		
 		if( /.*\s{2}$/.test(v) && $.browser('ie6 ie7') ){//for ie6/7
 			var F = input.css('float');
 			input.wrap($('<span class="ph_wrap" style="position:relative;float:'+F+'"></span>'));
@@ -1353,7 +1524,7 @@
 			lab.css( 'line-height', h+'px' );
 		}
 		input.attr( 'id', id ).before(lab);		
-		input.bind( 'blur propertychange input', function(){
+		input.bind( 'blur propertychange', function(){
 			setTimeout(function(){
 				input.val()=='' ? lab.show() : lab.hide();
 			},15)
@@ -1365,16 +1536,12 @@
 	
 	if( $.browser('ie6 ie7 ie8 ie9') ){
 		$(function(){
-			var ph = $('[placeholder]'),
-				i,
-				len = ph.length;
-			if(len){
-				for(i=0;i<len;i++){
-					placeHolder( ph.eq(i), i );
-				}
+			var ph = $('[placeholder]'), i;
+			for( i=0; i<ph.length; i++ ){
+				placeHolder( ph.eq(i), i );
 			}
 		});
 	}
 	
-	return UI;
+	return ui;
 });

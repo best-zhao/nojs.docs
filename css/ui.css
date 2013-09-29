@@ -104,8 +104,11 @@ input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg
 	-moz-transform-origin:0 100%;
 	transform:rotate(-45deg);
 	transform-origin:0 100%}
+/*overlay*/
+.nj_overlay{position:absolute;left:-999em;z-index:994}
+.nj_overlay_arrow{position:absolute;width:8px;height:4px;background:#000}
 /*layer*/
-#nj_layer{background:#eee;display:none;width:100%;height:100%;z-index:990}
+#nj_layer{background:#eee;display:none;width:100%;height:100%;z-index:990;top:0;left:0;position:fixed;opacity:0;filter:alpha(opacity=0)}
 /*win*/
 .nj_win{font-family:'微软雅黑';display:none;z-index:991;box-shadow:0 0 25px rgba(0,0,0,0.3)}
 .nj_win .win_wrap{border:1px solid #ccc;background-color:#fbfbfb;font-size:12px;color:#333}
@@ -118,10 +121,10 @@ input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg
 .higher_win{z-index:993}
 /*message tips*/
 .higher_layer{z-index:992!important}
-.msg_tip_win{min-width:280px;z-index:993}
+.msg_tip_win{min-width:240px;z-index:993}
 .msg_tip_win .win_wrap{background:#fff}
 .msg_tip_win .win_tit,.msg_tip_win .n_i_close{display:none}
-.msg_tip_win .con{padding:10px 10px 10px 40px;white-space:nowrap;_width:188px}
+.msg_tip_win .con{padding:5px 10px 5px 30px;white-space:nowrap;_width:188px}
 .msg_tip_win .con .nj_ico{vertical-align:top;width:24px;height:24px}
 .msg_tip_win .con .tip_ico{float:left;margin-left:2px}
 .msg_tip_win .con .tip_con{margin:3px 0 0 15px;display:inline-block;white-space:normal}

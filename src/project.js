@@ -14,7 +14,8 @@ define({
 				{id:'tools',text:'jQuery扩展工具',link:'ui/tools'},
 				
 				{id:'ui_core',text:'核心ui组件',open:0,data:[
-					{id:'ui_setPos',text:'ui.setPos',link:'ui/setpos'},
+					{id:'ui_align',text:'ui.align',link:'ui/align'},
+					{id:'ui_overlay',text:'ui.overlay',link:'ui/overlay'},
 					{id:'ui_layer',text:'ui.layer',link:'ui/layer'},
 					{id:'ui_win',text:'ui.win',link:'ui/win'},
 					{id:'ui_msg',text:'ui.msg',link:'ui/msg'},

@@ -100,6 +100,9 @@ define(function( require, $, ui ){
 			this.loading = this.wrap.find('.loading');
 			this.ready = imgPreLoad();
 			this.image = $('<img src="" />');
+			this.align = new ui.align({
+				element : this.wrap
+			})
 			this.bind();
 		},
 		bind : function(){
@@ -206,7 +209,8 @@ define(function( require, $, ui ){
 		},
 		show : function(index){
 			$('html').addClass('lightbox');
-			ui.setPos(this.wrap);
+			this.align.set();
+			
 			this.wrap.fadeIn(300);
 			this.layer.show(0.85);
 			

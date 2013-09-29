@@ -68,6 +68,7 @@ define(function(require,$,ui){
 				return;
 			}
 			window.demoAction = null;
+			demo.init = null;
 			
 			frame.html('<i class="load"></i>');
 			new ui.ico( frame.find('i.load'), {
@@ -85,22 +86,9 @@ define(function(require,$,ui){
 			
 			frame.load( url, function(){
 				option[window.demoAction?'show':'hide']();
-				demo.container.html( demo.getHtml() );
 				
 				if( window.demoAction ){
-					demo.tab = new ui.Switch(demo.container, {
-						mode : 'click',
-						onChange : function(index){
-							var wrap = this.con.eq(index);
-							demo.index = index;
-							
-							if( !wrap.data('init') ){
-								wrap.data('init', true);
-								demoAction.item[index].callback && demoAction.item[index].callback();
-							} 
-						}
-					});
-					window.demoAction.callback && window.demoAction.callback();
+					demo.container.html( demo.getHtml() );
 				}
 				
 				//代码高亮
@@ -184,6 +172,7 @@ define(function(require,$,ui){
 	demo.hide = function(){
 		var btn = option.find('a[data-action=demo]');
 		demo.isOpen && btn.click();
+		
 	}
 	option.click(function(e){
 		var t = e.target,
@@ -200,11 +189,33 @@ define(function(require,$,ui){
 					demo.container.animate({
 						'opacity' : !demo.isOpen ? 0 : 1,
 						'left' : !demo.isOpen ? '100%' : 0
-					}, 400, 'easeOutExpo')
+					}, 400, 'easeOutExpo', function(){
+						if( demo.isOpen ){
+							window.demoAction && demoAction.onShow && demoAction.onShow();
+							demoAction.onChange && demoAction.onChange(demo.index);
+						}
+					})
 					frame.animate({
 						'opacity' : !demo.isOpen ? 1 : 0,
 						'margin-left' : !demo.isOpen ? '0' : '-200px'
 					}, 800, 'easeOutExpo')
+					if( demo.isOpen && !demo.init ){
+						demo.init = true;
+						demo.tab = new ui.Switch(demo.container, {
+							mode : 'click',
+							onChange : function(index){
+								var wrap = this.con.eq(index);
+								demo.index = index;
+								if( !wrap.data('init') ){
+									wrap.data('init', true);
+									demoAction.item[index].callback && demoAction.item[index].callback();
+								} 
+								demoAction.onChange && demoAction.onChange(index);
+							}
+						});
+						window.demoAction.callback && window.demoAction.callback();
+					}
+					!demo.isOpen && window.demoAction && demoAction.onHide && demoAction.onHide();
 					break;
 			}
 			return false;
@@ -307,7 +318,7 @@ define(function(require,$,ui){
 		var t = new tree( id, {
 			openAll : name=='nojs' ? false : true,
 			data : data,
-			max : 5,
+			max : 9,
 			onSelect : treeOptions.onSelect,
 			defaultNode : treeOptions.defaultNode
 		});
@@ -330,11 +341,11 @@ define(function(require,$,ui){
 		}
 		if( display=='show' ){
 			side.css('left','0');
-			page.css('padding-left','14em');
+			//page.css('padding-left','14em');
 			setMenu.display='show';
 		}else{
-			side.css('left','-15em');
-			page.css('padding-left','0');
+			side.css('left','-15em').removeAttr('style');
+			//page.css('padding-left','0');
 			setMenu.display='hide';
 		}
 	}
@@ -356,3 +367,7 @@ define(function(require,$,ui){
 	
 	return G;
 });
+/*
+ * bug记录：
+ * [drag] - 需要找到元素父元素中的相对定位层，否则会移位
+ */

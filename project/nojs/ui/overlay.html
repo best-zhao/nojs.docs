@@ -1,0 +1,81 @@
+<style type="text/css">
+.test_overlay{background:#fafafa;border:1px solid #ccc;padding:9px;box-shadow:2px 2px 3px #ddd;width:600px;height:140px}
+</style>
+<h4 class="p_tit">ui.overlay</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	创建一个浮动层，继承至ui.align
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/templete" code="javascript" key="overlay">
+		var Overlay = new ui.overlay( options );
+	</script>
+	<p>options选项：</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr>
+			<td>content</td>
+			<td>string</td>
+			<td>设置浮动层内容</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>className</td>
+			<td>string</td>
+			<td>添加class名称，多个用逗号隔开</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>auto</td>
+			<td>number</td>
+			<td>设置自动显示的毫秒数</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>timeout</td>
+			<td>number</td>
+			<td>设置自动隐藏的毫秒数</td>
+			<td></td>
+		</tr>
+	</table>
+	<p>其余选项同 <span class="about_link"><a href="" id="ui_align">ui.align</a></span></p>
+</div>
+<h6 class="p_tit">方法：</h6>
+<div class="text_info">
+	
+</div>
+<a href="javascript:void(0)" id="test_button" class="nj_btn">show/hide</a>
+
+<script>
+noJS.use(function($,ui){
+	var layer = new ui.overlay({
+		nearby : 'test_button',
+		position : {top:0,left:100},
+		//relative : true,
+		offset : [0,-1],
+		autoAdjust : true,
+		auto : 500,
+		content : '123123',
+		className : 'test_overlay',
+		
+		arrow : {
+			//offset : [3,-68]
+			//direction : 'down'
+		}
+	});
+	$('#test_button').click(function(){
+		if( layer.visible ){
+			layer.hide();
+		}else{
+			layer.show();
+		}
+		return false;
+	})
+});
+</script>

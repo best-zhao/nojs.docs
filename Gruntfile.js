@@ -70,6 +70,17 @@ module.exports = function(grunt) {
 	                	ext: ''
 	                }
                 ]
+			},
+        	min : {
+                files : [
+                	{
+	                	expand : true,
+	                	cwd: 'src/',
+	                	src : "**/*.js",
+	                	dest : 'min/',
+	                	ext: ''
+	                }
+                ]
 			}
         },
 		watch: {			
@@ -90,5 +101,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 	
 	grunt.registerTask('default',['transport','concat','clean','uglify']);
-    //grunt.registerTask('default',['watch']);
+    grunt.registerTask('min',['uglify:min']);
+    
 };

@@ -1,0 +1,257 @@
+<style type="text/css">
+.test{width:100px;height:90px;background:#eee;padding:20px;opacity:0.7;border-radius:9px;box-shadow:2px 2px 5px #888;border:1px solid #000;z-index:999}	
+</style>
+<h4 class="p_tit">ui.align</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	将元素固定在屏幕指定位置，或者与设定的参考对象对齐
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="align">
+		ui.align( options );
+	</script>
+	<p>options选项：</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr>
+			<td>element</td>
+			<td>element</td>
+			<td>需要对齐的对象</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>position</td>
+			<td>object</td>
+			<td>对齐的位置，设置属性top/bottom/left/right的中任意2个有效属性即可({top:50,bottom:50}即为无效)<br />
+				属性值可接受3种类型<br />
+				number - 以百分比计算，支持负值(relative为true时建议使用正值)，相对于nearby对象的尺寸进行计算<br />
+				string - 以像素值计算<br />
+				function - 返回的值也必须为上面2种类型值，传入一个参数size对象 <a href="" data-action="demo" data-index="6">[示例6]</a>
+			</td>
+			<td>{left:50, top:50}</td>
+		</tr>
+		<tr>
+			<td>nearby</td>
+			<td>element</td>
+			<td>设置的参考对象，以该对象为基准进行对齐</td>
+			<td>window</td>
+		</tr>
+		<tr>
+			<td>relative</td>
+			<td>boolean</td>
+			<td>为true时，以类似css背景图的定位方式来对齐,nearby为window对象时默认为true，<a href="" data-action="demo" data-index="4">[示例4]</a></td>
+			<td>true</td>
+		</tr>
+		<tr>
+			<td>fixed</td>
+			<td>string</td>
+			<td>对象固定的方式,'fixed'固定在屏幕上不动,'animate'滚动屏幕时以动画的方式回到固定位置</td>
+			<td>'fixed'</td>
+		</tr>
+		<tr>
+			<td>offset</td>
+			<td>array</td>
+			<td>对齐之后再计算的偏移量,分别为x,y方向，单位'px'</td>
+			<td>[0,0]</td>
+		</tr>
+	</table>
+	<p class="mt10">如果2个对象存在包含关系时，请确保是参考对象包含需要对齐的对象，前者必须设置position为非'static'，2者之间不能存在非'static'属性的元素。</p>
+</div>
+<h6 class="p_tit">扩展应用</h6>
+<div class="text_info" id="about_link">
+	<a href="" id="ui_layer">layer</a> <a href="" id="ui_overlay">overlay</a>
+</div>
+
+<script type="text/templete" id="demo_html">
+<style>
+/*demo style*/
+.test_screen{width:500px;height:400px;overflow:auto;background:#eee;position:relative}
+.test_screen .some{height:2000px;width:80%;line-height:3;text-indent:2em;margin:0 auto}	
+.test_screen .fixed{width:50px;height:50px;background:#333;opacity:.4}
+.test_screen .x{width:100%;top:50%;border-top:1px dotted #ccc;position:absolute;left:0}
+.test_screen .y{height:100%;left:50%;border-left:1px dotted #ccc;position:absolute;top:0}
+.demo_fixed{width:200px;height:90px;background:#999;color:#fff;z-index:99}
+</style>	
+</script>
+
+<script type="text/templete" id="demo_tmpl1">
+<p class="mb10">未定义fixed选项: 首次对齐到指定位置，拖动滚动条时不更新位置</p>
+<div class="test_screen" id="test_screen1">
+	<div class="some">模拟屏幕对象，拖动滚动条查看效果</div>
+	<div class="fixed"></div>
+</div>
+</script>
+
+<script type="text/templete" id="demo_tmpl2">
+<p class="mb10">fixed="fixed": 始终保持固定位置</p>
+<div class="test_screen" id="test_screen2">
+	<div class="some">模拟屏幕对象，拖动滚动条查看效果</div>
+	<div class="fixed"></div>
+</div>
+</script>
+
+<script type="text/templete" id="demo_tmpl3">
+<p class="mb10">fixed="animate": 以动画的缓动方式显示在右下角20像素的位置</p>
+<div class="test_screen" id="test_screen3">
+	<div class="some">模拟屏幕对象，拖动滚动条查看效果</div>
+	<div class="fixed"></div>
+</div>
+</script>
+
+<script type="text/templete" id="demo_tmpl4">
+<p class="mb10">relative的区别，以position:{left:50, top:50}为例</p>
+<div class="test_screen mb10" id="test_screen4" style="width:300px;height:200px;overflow:hidden">
+	true:同css的background-position定位
+	<div class="x"></div><div class="y"></div>
+	<div class="fixed"></div>
+</div>
+<div class="test_screen" id="test_screen41" style="width:300px;height:200px;overflow:hidden">
+	false
+	<div class="x"></div><div class="y"></div>
+	<div class="fixed"></div>
+</div>
+</script>
+
+<script type="text/templete" id="demo_tmpl5">
+<p class="mb10">大多数情况下，需要对齐的元素都是body根目录下的元素，以保证相对于整个屏幕来定位，nearby为非window对象时，relative默认为false</p>
+<div class="fl" style="margin:0 250px 250px 0"><a href="javascript:void(0);" class="nj_btn" id="demo_nearby1">参考对象</a></div>
+<div class="fl" style="margin:0 0 200px 0"><a href="javascript:void(0);" class="nj_btn" id="demo_nearby2">参考对象</a></div>
+<div class="fl" style="margin:0 450px 200px 0;clear:both"><a href="javascript:void(0);" class="nj_btn" id="demo_nearby3">参考对象</a></div>
+<div class="fl" style="margin:0 0 200px 0"><a href="javascript:void(0);" class="nj_btn" id="demo_nearby4">参考对象</a></div>
+</script>
+
+<script type="text/templete" id="demo_tmpl6">
+<p class="mb10">有时用于定位的属性值使用百分比或像素均不能满足需求，需要使用函数。如页面中常用的回到顶部按钮，需要依附到页面内容区域的右边，浏览器窗口发生改变后，使用百分比或者像素值都不能准确定位，必须使用函数动态获取。函数若返回像素值注意转为字符串格式</p>
+<div class="test_screen" id="test_screen6">
+	<div class="some" style="background:#aaa;width:300px;line-height:300px">page页面内容区域,宽300px<br />12</div>
+	<div class="fixed" style="color:#fff;text-align:center;line-height:50px;cursor:pointer">top</div>
+</div>
+</script>
+
+<script>
+noJS.use(function($,ui){
+	var fixed;
+	window.demoAction = {
+		html : $('#demo_html').html(),
+		item : [
+			{content : $('#demo_tmpl1').html(), callback : function(){
+				noJS.use(function($,ui){
+					new ui.align( {
+						element : $('#test_screen1 .fixed'),
+						position : {top:50,left:50},
+						nearby : $('#test_screen1')
+					});
+				})
+			}},
+			{content : $('#demo_tmpl2').html(), callback : function(){
+				noJS.use(function($,ui){
+					new ui.align( {
+						element : $('#test_screen2 .fixed'),
+						position : {bottom:10,right:10},
+						nearby : $('#test_screen2'),
+						relative : true,
+						fixed : 'fixed'
+					});
+				})
+			}},
+			{content : $('#demo_tmpl3').html(), callback : function(){
+				noJS.use(function($,ui){
+					new ui.align( {
+						element : $('#test_screen3 .fixed'),
+						position : {bottom:'20px',right:'20px'},
+						nearby : $('#test_screen3'),
+						relative : true,
+						fixed : 'animate'
+					});
+				})
+			}},
+			{content : $('#demo_tmpl4').html(), callback : function(){
+				noJS.use(function($,ui){
+					new ui.align( {
+						element : $('#test_screen4 .fixed'),
+						position : {top:50,left:50},
+						nearby : $('#test_screen4'),
+						relative : true,
+						fixed : 'fixed'
+					});
+					new ui.align( {
+						element : $('#test_screen41 .fixed'),
+						position : {top:50,left:50},
+						nearby : $('#test_screen41'),
+						fixed : 'fixed'
+					});
+				})
+			}},
+			{content : $('#demo_tmpl5').html(), callback : function(){
+				noJS.use(function($,ui){
+					fixed = $([
+						'<div class="demo_fixed">{top:100,left:0}</div>',
+						'<div class="demo_fixed">{top:0,left:100}</div>',
+						'<div class="demo_fixed">{bottom:100,left:0}</div>',
+						'<div class="demo_fixed">{bottom:0,right:100}</div>'
+					].join('')).appendTo(document.body);
+					new ui.align( {
+						element : fixed[0],
+						position : {top:100,left:0},
+						nearby : $('#demo_nearby1')
+					});
+					new ui.align( {
+						element : fixed[1],
+						position : {top:0,left:100},
+						nearby : $('#demo_nearby2')
+					});
+					new ui.align( {
+						element : fixed[2],
+						position : {bottom:100,left:0},
+						nearby : $('#demo_nearby3')
+					});
+					new ui.align( {
+						element : fixed[3],
+						position : {bottom:0,right:100},
+						nearby : $('#demo_nearby4')
+					});
+				})
+			}},
+			{content : $('#demo_tmpl6').html(), callback : function(){
+				noJS.use(function($,ui){
+					var top = new ui.align( {
+						element : $('#test_screen6 .fixed'),
+						position : {top:90, left : function(size){
+							//这里page宽度300 size.width指的是nearby对象的尺寸，实际应用中应该是屏幕的尺寸
+							//窗口宽度大于页面宽度转为字符串格式，否则直接靠窗口右侧固定
+							return size.width>300 ? (size.width + 300)/2 + '' : 100; 
+						}},
+						//实际应用以下3项不设置 使用默认即可
+						relative : true,
+						nearby : $('#test_screen6'),
+						fixed : 'fixed'
+					});
+					
+					top.element.click(function(){
+						top.nearby.scrollTop(0);//实际应用这里应该是$(window).scrollTop(0);
+					})
+				})
+			}}
+		],
+		onShow : function(){
+			//fixed && fixed.show();
+		},
+		onHide : function(){
+			fixed && fixed.hide();
+		},
+		onChange : function(index){
+			fixed && fixed[index==4?'show':'hide']();
+		}
+	}
+	
+	
+	
+	
+});
+</script>
