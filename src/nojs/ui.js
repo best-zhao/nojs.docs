@@ -82,6 +82,16 @@
 		Child.baseConstructor = Parent;
     	Child.baseClass = Parent.prototype;
 	}
+	//扩展子类原型方法
+	Extend.proto = function(Class, value){
+		for( var i in value ){
+			(function(fn, _fn){
+				Class.prototype[i] = function(){
+					fn.apply( this, [_fn].concat(Array.prototype.slice.call(arguments)) );
+				};
+			})(value[i], Class.prototype[i]);
+		}
+	}
 	
 	ui.data = function( id, Class ){
 		if( Class ){//set
@@ -270,18 +280,15 @@
 	ui.align = function(options){
 		this.options = options = options || {};
 		this.element = getDom(options.element);
-		this.position = options.position || {top:50, left:50};
-		this.nearby = getDom(options.nearby||window);
-		
-		if( !this.nearby ){
-			return;
-		}
+		this.nearby = getDom(options.nearby || window);
+		this.position = options.position || (this.nearby[0]==window ? {top:50, left:50} : {top:100, left:0});
 		this.relative = options.relative!=undefined ? options.relative : this.nearby[0]==window ? true : false;
 		this.fixed = options.fixed==undefined && this.nearby[0]==window ? 'fixed' : options.fixed;//null fixed animate
 		this.cssFixed = this.fixed=='fixed' && !$.browser('ie6') && this.nearby[0]==window;//直接使用css:fixed来定位
 		this.offset = options.offset || [0,0];
 		this.isWrap = this.nearby[0]==window || this.nearby.find(this.element).length;//对象是否在参考对象内部
 		this.autoAdjust = options.autoAdjust;//超出屏幕后是否自动调整位置
+		
 		if( this.element ){
 			this.bind();
 		}
@@ -312,28 +319,33 @@
 			
 			this.set();
 		},
-		get : function(){
-			var offset = this.nearby.offset(),
+		get : function(nearby){
+			nearby = nearby || this.nearby;
+			var offset = nearby.offset(),
 			size = {
-				width : this.nearby.outerWidth(),
-				height : this.nearby.outerHeight(),
+				width : nearby.outerWidth(),
+				height : nearby.outerHeight(),
 				x : offset ? offset.left : 0,
 				y : offset ? offset.top : 0,
-				scrollLeft : this.cssFixed ? 0 : this.nearby.scrollLeft(),
-				scrollTop : this.cssFixed ? 0 : this.nearby.scrollTop(),
+				scrollLeft : this.cssFixed ? 0 : nearby.scrollLeft(),
+				scrollTop : this.cssFixed ? 0 : nearby.scrollTop(),
 				WIDTH : this.element.outerWidth(),
 				HEIGHT : this.element.outerHeight()
 			};
-			
 			return size;
 		},
-		set : function(position){
+		set : function(options){
+			//可设置nearby position offset relative等参数覆盖初始选项
+			
 			if( !this.element ){
 				return;
 			}
-			position = position || this.position;
+			options = options || {};
 			
-			var size = this.get(),
+			var position = options.position || this.position,
+				nearby = getDom(options.nearby) || this.nearby;
+			
+			var size = this.get(nearby),
 				Attr = {
 					x : {}, y : {}
 				}, 
@@ -388,6 +400,7 @@
 				
 				style[direction=='x'?'left':'top'] = value;
 			}
+			//console.log(this.element)
 			this.element.css('position', this.cssFixed ? 'fixed' : 'absolute');
 			
 			if( this.fixed=='animate' ){
@@ -406,17 +419,32 @@
 	ui.overlay = function(options){
 		ui.overlay.baseConstructor.call(this, options);		
 		this.visible = false;//可视状态
+		this.content = null;//内容区域
 		this.arrow = this.options.arrow;//箭头 根据align对齐方式自动调整指向
+		this.timeout = this.options.timeout;
 		this.init();
 	}
 	Extend(ui.overlay, ui.align);
+	Extend.proto(ui.overlay, {
+		set : function(fn, key, value){
+			if( key=='content' ){
+				this.content.empty().append(value);
+			}else{
+				fn.call(this, value);
+			}
+		}
+	})
 	ui.overlay.prototype.init = function(){
 		var self = this,
 			_class = this.options.className;
 			
 		_class = typeof _class=='string' ? _class : '';//自定义class 多个用空格隔开
 		
-		this.element = $('<div class="nj_overlay '+_class+'"></div>').appendTo(document.body);
+		this.element = $('<div class="nj_overlay '+_class+'"><div class="nj_overlay_wrap"></div></div>').appendTo(document.body).css({
+			'display' : 'block',
+			'visibility' : 'hidden'
+		});
+		this.content = this.element.find('.nj_overlay_wrap');
 		
 		if( this.arrow ){
 			this.arrow.element = $('<div class="nj_overlay_arrow"></div>').appendTo(this.element);
@@ -428,51 +456,46 @@
 				self.show();
 			}, this.options.auto);
 		}
-		this.content(this.options.content);
-	}
+	}	
 	ui.overlay.prototype.show = function(){
 		if( this.visible ){
 			return;
 		}
 		var self = this;
 		
-		this.set(null, function(pos){
-			if( self.arrow ){
-				var top = 0, left = 0,
-					direction = self.arrow.direction || pos[2];
-				
-				if( direction=='up' || direction=='down' ){
-					//top = direction=='up' ? self.arrow.element.outerHeight()*-1 : self.element.innerHeight();
-				}else if( direction=='left' || direction=='right' ){
-					//left = direction=='left' ? self.arrow.element.outerWidth()*-1 : self.element.innerWidth();
-				}
-				
-				self.arrow.element.css({
-					top : top,
-					left : left
-				}).attr('class', 'nj_overlay_arrow nj_overlay_arrow_'+direction);
-			}
-		});
+		this.element.css('visibility','visible');
 		
-		this.element.show();
-		
-		if( this.options.timeout ){
+		if( this.timeout ){
 			this.autoHide = setTimeout(function(){
 				self.hide();
-			}, this.options.timeout)
+			}, this.timeout)
 		}
 		this.visible = true;
+		
+		return;
+		if( self.arrow ){
+			var top = 0, left = 0,
+				direction = self.arrow.direction || pos[2];
+			
+			if( direction=='up' || direction=='down' ){
+				//top = direction=='up' ? self.arrow.element.outerHeight()*-1 : self.element.innerHeight();
+			}else if( direction=='left' || direction=='right' ){
+				//left = direction=='left' ? self.arrow.element.outerWidth()*-1 : self.element.innerWidth();
+			}
+			
+			self.arrow.element.css({
+				top : top,
+				left : left
+			}).attr('class', 'nj_overlay_arrow nj_overlay_arrow_'+direction);
+		}
 	}
 	ui.overlay.prototype.hide = function(){
 		if( !this.visible ){
 			return;
 		}
-		this.element.hide();
+		this.element.css('visibility','hidden');
 		this.autoHide = clearTimeout(this.autoHide);
 		this.visible = false;
-	}
-	ui.overlay.prototype.content = function(value){
-		this.element.append(value);
 	}
 	
 	ui.layer = function(){
@@ -518,149 +541,92 @@
 		return arr;
 	}();
 	
-	ui.win = function( opt ){
+	ui.popup = function( options ){
 		/*
 		 * 弹窗
 		 */
-		opt = $.extend( ui.config.win, opt );
-	    this.w = opt.width || 400;//宽
-	    this.self = null;//弹窗对象本身
+		options = options || {};
+		options.className = (options.className || '')+' nj_win'; 
+		ui.popup.baseConstructor.call(this, options);	
+	    this.width = this.options.width || 400;//宽
 	    this.close = null;//关闭按钮
-	    this.tit = null;//标题区
-	    this.con = null;//放置内容的容器对象    
-		this.opt = null;//操作区		
-		this.stillLayer = opt.stillLayer || false;//隐藏后是否继续显示遮罩层
-		this.layer = opt.layer==false ? false : true;
-		this.pos = opt.pos;
-		this.Float = opt.Float;
-		this.bindEsc = opt.bindEsc==false?false:true;
-		this.onShow = opt.onShow;
-		this.onHide = opt.onHide;
-		this.scroll = 0;
-		this.init();
+	    this.title = null;//标题区
+		this.operating = null;//操作区
+		this.stillLayer = this.options.stillLayer || false;//隐藏后是否继续显示遮罩层
+		this.layer = this.options.layer==false ? false : true;
+		this.bindEsc = this.options.bindEsc == false ? false:true;
+		this.onShow = this.options.onShow;
+		this.onHide = this.options.onHide;
+		this.create();
 	}
-	ui.win.prototype = {
-		init : function(){	
-			var me = this,
-				id = 'nj_win_' + $.random(),
-				win = [
-					'<div id="'+id+'" class="nj_win"><div class="win_wrap">',
-						'<span class="win_close"></span><div class="win_tit"></div>',
-						'<div class="win_con"></div>',
-						'<div class="win_opt"></div>',
-					'</div></div>'
-				];
-			
-			ui.win.item[id] = this;
-			this.key = id;
-			$("body").append(win.join(''));//插入到body中
-			this.self = $("#"+id).css( {'width':me.w, 'opacity':'0'} );
-			this.close = this.self.find(".win_close");
-			this.tit = this.self.find(".win_tit");
-			this.con = this.self.find(".win_con");
-			this.opt = this.self.find(".win_opt");
-			new ui.ico( this.close, {type:'close'} );
-			
-			this.align = new ui.align({ 
-				element : this.self,
-				position : this.pos, 
-				fixed : this.Float
-			});	
-			this.bind();
-		},
-		bind : function(){
+	Extend(ui.popup, ui.overlay);
+	Extend.proto(ui.popup, {
+		bind : function(fn){
 			var T = this;
 			this.close.on('click',function(){T.hide();});//绑定关闭按钮事件
 			if(this.bindEsc){
 				$(window).on("keydown",function(e){//按下esc键隐藏弹窗
-					T.self.is(":visible") && e.keyCode==27 && T.hide();
+					T.element.is(":visible") && e.keyCode==27 && T.hide();
 				})
 			}
-			$.onScroll( this.con[0] );			
-		},		
-	    setCon : function(tit,con,btns){
-	    	/*
+			$.onScroll( this.content[0] );	
+			fn.call(this);
+		},
+		set : function(fn, key, value){
+			/*
 				设置标题、内容
 		        @tit,con:会替换以前的
 		        @btns:设置操作区按钮，为一个数组，数组项格式同this.getButton,如不设置或设置null则隐藏操作区
 		    */
-		   	tit && this.tit.html(tit);
-		   	con && this.con.html(con);
-		   	this.button = [];
-			if(btns){
-				this.opt.empty();//重设操作区
-				for(var i=0;i<btns.length;i++){
-					this.addBtn.apply( this, btns[i] );
+			if( key=='title' ){
+				value && this.title.html(value);
+			}else if( key=='button' ){
+				this.button = [];
+				if(value){
+					this.operating.empty();//重设操作区
+					for(var i=0;i<value.length;i++){
+						this.addBtn.apply( this, value[i] );
+					}
+				}else if(this.operating.html().replace(/\s/g,"")==""){//不传入且未设置过操作区则隐藏操作区
+					this.operating.css("display","none");
 				}
-			}else if(this.opt.html().replace(/\s/g,"")==""){//不传入且未设置过操作区则隐藏操作区
-				this.opt.css("display","none");
-			}
-	    },
-		addBtn : function(text,callback,color){
-			/*
-				增加一个操作区按钮
-				@text:按钮文字
-				@color:按钮样式，即class类名
-				@callBack:按钮click绑定的函数,"close"则为关闭
-			*/			
-			if( text===undefined ){
-				return;
-			}
-			this.opt.is(":hidden") && this.opt.show();
-			
-			var T = this,
-				btn = $('<a href=""></a>'),
-				color = color?color:"";			
-			if( typeof callback=='string' && callback!='close' ){//无回调时，第二个参数作为按钮颜色
-				color = callback;
-				callback = null;
-			}	
-			btn.attr({
-				"class" : color=='no' ? '' : "nj_btn n_b_" + color
-			});
-			btn.html('<i>'+text+'</i>');
-			this.opt.append(btn);
-			this.button.push(btn);
-			
-			if(callback) {
-				callback = callback == "close" ? function(){
-					T.hide();
-				} : callback;
-				btn.on( "click", function(){
-					callback.call(T);
-					return false;
-				});
+			}else{
+				fn.call(this, key, value);
 			}
 		},
-	    show : function(callBack){ 
-	    	/*
+		show : function(fn, callback){
+			/*
 				显示弹窗
 		        @callBack:可选参数，回调函数
 		    */
-			if( this.self.is(":visible") ){return;}
-			this.align.set();//重新计算高度并设置居中
-			
+		    if( this.visible ){
+		    	return;
+		    }
+			this.set();//重新计算高度并设置居中
 			this.layer && ui.layer.show();
+			fn.call(this);
 			
-			this.self.css({
-				"display":"block",
+			this.element.css({
 				"margin-top":"-20px"
 			})
-			this.self.stop().animate({
+			this.element.stop().animate({
 				"margin-top":"0",
 				"opacity":"1"
 			}, 420, 'easeOutExpo');
+			
 			setTimeout(function(){
-				callBack && callBack();
+				callback && callback();
 			}, 100);
 			this.onShow && this.onShow();
-	    },
-		/*
-			隐藏弹窗
-	        @callBack:可选参数，回调函数
-	    */
-	    hide : function(callBack){
-			if( this.self.is(":hidden") ){return;}
+		},
+		hide : function(fn, callback){
+			/*
+				隐藏弹窗
+		        @callBack:可选参数，回调函数
+		    */
+			if( !this.visible ){
+		    	return;
+		    }
 			var T = this;
 			/*
 			 * onbeforehide:关闭之前确认，传入一个数组[fn,true/false]
@@ -669,30 +635,89 @@
 			if(this.onbeforehide && !this.onbeforehide[0]()){			
 				if( this.onbeforehide[1] ) {return false;}
 			}//关闭之前确认
-			this.self.animate({
-				"margin-top":"-20px",
-				"opacity":"0"
-			}, 120, 'easeOutExpo', function(){
-				T.self.hide();
+			
+			this.element.animate({
+				"margin-top" : "-20px",
+				"opacity" : "0"
+			}, 150, 'easeOutExpo', function(){
+				fn.call(T);
 			});
 			setTimeout(function(){
-				callBack && callBack();
+				callback && callback();
 			}, 100);
 	        !this.stillLayer &&	ui.layer.hide();
 			this.onHide && this.onHide();
-	    }
+		}
+	})
+	ui.popup.prototype.create = function(){
+		var self = this,
+			id = 'nj_popup_' + $.random();
+		
+		ui.popup.item[id] = this;
+		this.key = id;		
+		
+		this.set('content', [
+			'<span class="win_close"></span><div class="win_tit"></div>',
+			'<div class="win_con"></div>',
+			'<div class="win_opt"></div>'
+		].join(''));
+		this.content.addClass('win_wrap');
+		this.element.css( {'width':self.width, 'opacity':'0'} );
+		this.close = this.element.find(".win_close");
+		this.title = this.element.find(".win_tit");
+		this.content = this.element.find(".win_con");
+		this.operating = this.element.find(".win_opt");
+		
+		new ui.ico( this.close, {type:'close'} );
+		this.bind();
 	}
-	ui.win.item = {};//保存所有弹框实例对象
-	ui.win.clear = function(key){
+	ui.popup.prototype.addBtn = function(text,callback,color){
+		/*
+			增加一个操作区按钮
+			@text:按钮文字
+			@color:按钮样式，即class类名
+			@callBack:按钮click绑定的函数,"close"则为关闭
+		*/			
+		if( text===undefined ){
+			return;
+		}
+		this.operating.is(":hidden") && this.operating.show();
+		
+		var T = this,
+			btn = $('<a href=""></a>'),
+			color = color ? color : "";			
+		if( typeof callback=='string' && callback!='close' ){//无回调时，第二个参数作为按钮颜色
+			color = callback;
+			callback = null;
+		}	
+		btn.attr({
+			"class" : color=='no' ? '' : "nj_btn n_b_" + color
+		});
+		btn.html('<i>'+text+'</i>');
+		this.operating.append(btn);
+		this.button.push(btn);
+		
+		if(callback) {
+			callback = callback == "close" ? function(){
+				T.hide();
+			} : callback;
+			btn.on( "click", function(){
+				callback.call(T);
+				return false;
+			});
+		}
+	}
+	ui.popup.item = {};//保存所有弹框实例对象
+	ui.popup.clear = function(key){
 		//清空弹框对象
 		if(key){
-			var win = ui.win.item[key];
+			var win = ui.popup.item[key];
 			win && clear(win);
 		}else{
-			for(var i in ui.win.item){
-				clear( uiI.win.item[i] );
+			for(var i in ui.popup.item){
+				clear( ui.popup.item[i] );
 			}
-			ui.win.item = {};
+			ui.popup.item = {};
 			ui.msg.win = null;
 		}
 		function clear( win ){
@@ -711,20 +736,18 @@
 				opt = opt || {};
 				var T = this,
 					btn = opt.button,
-					time = opt.time || 1600,
+					timeout = opt.timeout || 1600,
 					C = type=='confirm',
 					tit = C ? '温馨提醒：' : null,
 					w = opt.width || (C ? 400 : 'auto'),
-					autoHide = opt.autoHide==false ? false : true,
 					win = Win[type];
 				
 				//隐藏其他
-				this.hide( type, true );
-				this.hide();
+				this.hide(true);
 				
 				tip = tip || '';
 				if(type=='loading'){
-					tip = tip||'正在处理请求,请稍候……';
+					tip = tip || '正在处理请求,请稍候……';
 				}else if(C){
 					btn = btn || [
 						['确定',function(){
@@ -733,61 +756,46 @@
 							});
 						},'sb'],
 						['取消','close']
-					];					
+					];
 				}
-				if( !win ){
-					win = new ui.win({
+				if( !win || !$('#'+win.key).length ){
+					win = new ui.popup({
 						width : w,
-						bindEsc : false
+						bindEsc : false,
+						className : 'msg_tip_win'
 					});
 					
-					win.self.addClass('msg_tip_win');
-					win.self.find('div.win_wrap').attr({'class':'win_wrap msg_tip_'+type});
-					win.self.width(w);
+					win.element.find('div.nj_overlay_wrap').addClass('msg_tip_'+type);
 					win.layer = C ? true : false;
 					win.stillLayer = C ? false : true;
 					
-					win.setCon( tit, '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
-					new ui.ico( win.con.find('i.tip_ico'),{type:C ? 'warn' : type} );
+					win.set('title', tit);
+					win.set('content', '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
+					new ui.ico( win.content.find('i.tip_ico'), {type:C ? 'warn' : type} );
 					Win[type] = win;
-				}				
-				
-				if(!btn){
-					win.opt.hide().empty();//重设操作区
 				}
-				win.setCon( null, null, btn );
-				win.con.find('.tip_con').html(tip);
-				win.show();
-				if(C){
-					win.button[0].focus();
-				}
-				
-				//自动隐藏
-				this.timeout = clearTimeout(T.timeout);
-				if( autoHide && type!='confirm' && type!='loading' ){
-					this.timeout = setTimeout(function(){
-						win.hide();
-					}, time)
-				}
+				//自动隐藏							
+				win.timeout = type!='confirm' && type!='loading' && !opt.reload ? timeout : 0;
 				if( opt.reload ){
-					T.timeout = clearTimeout(T.timeout);
 					setTimeout(function(){
 						if( opt.reload===true ){
-							window.location.reload();
+							location.reload();
 						}else if( typeof opt.reload=='string' ){
-							window.location.href = opt.reload;
+							location.href = opt.reload;
 						}
 					}, 1500)
 				}
+				!btn && win.operating.hide().empty();//重设操作区
+				
+				win.set('button', btn );
+				win.content.find('.tip_con').html(tip);
+				win.show();
+				C && win.button[0].focus();				
 			},
-			hide : function( type, now ){
-				if( type && Win[type] ){
-					(now ? Win[type].self : Win[type]).hide();
-				}else{
-					for( var i in Win ){
-						Win[i].hide();
-						now && Win[i].self.hide();
-					}
+			hide : function( now ){
+				for( var i in Win ){
+					now && Win[i].element.stop().css('visibility','hidden');
+					Win[i].hide();
 				}
 			}		
 		}

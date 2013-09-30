@@ -8,9 +8,7 @@
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
-	<script type="text/templete" code="javascript" key="overlay">
-		var Overlay = new ui.overlay( options );
-	</script>
+	
 	<p>options选项：</p>
 	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
 		<tr>
@@ -44,11 +42,11 @@
 			<td></td>
 		</tr>
 	</table>
-	<p>其余选项同 <span class="about_link"><a href="" id="ui_align">ui.align</a></span></p>
+	<p>其余选项同 <a href="" data-id="ui_align">align</a></p>
 </div>
-<h6 class="p_tit">方法：</h6>
+<h6 class="p_tit">扩展：</h6>
 <div class="text_info">
-	
+	<a href="" data-id="ui_popup">popup</a>
 </div>
 <a href="javascript:void(0)" id="test_button" class="nj_btn">show/hide</a>
 
@@ -56,19 +54,20 @@
 noJS.use(function($,ui){
 	var layer = new ui.overlay({
 		nearby : 'test_button',
-		position : {top:0,left:100},
+		position : {top:100,left:0},
 		//relative : true,
-		offset : [0,-1],
-		autoAdjust : true,
-		auto : 500,
-		content : '123123',
+		offset : [0,0],
+		//autoAdjust : true,
+		//auto : 500,
 		className : 'test_overlay',
-		
 		arrow : {
 			//offset : [3,-68]
 			//direction : 'down'
 		}
 	});
+	layer.set('content','123132');
+	layer.set('align');
+	
 	$('#test_button').click(function(){
 		if( layer.visible ){
 			layer.hide();

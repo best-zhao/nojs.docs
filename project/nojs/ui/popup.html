@@ -1,0 +1,54 @@
+<h4 class="p_tit">ui.popup</h4>
+<h6 class="p_tit">说明：</h6>
+<div class="text_info">
+	弹窗组件，继承至ui.overlay
+</div>
+<h6 class="p_tit">使用：</h6>
+<div class="text_info">
+	<script type="text/codelight" code="javascript" key="popup|setCon|show|hide">
+		//实例化一个弹窗对象
+		/*
+		 * @option : 可选,{}
+		 *	
+		 */
+		var Win = new ui.popup( options );
+		//弹窗标题
+		win.set('title', '实例');
+		//弹窗内容html
+		win.set('content', '<div style="height:100px">test</div>');
+		//Array,设置弹窗操作按钮
+		win.set('button', [
+			['确定','close','sb'],['取消','close']
+		]);	
+		//显示弹窗
+		//@callback : 弹窗显示后执行的回掉
+		Win.show( callback );
+		
+		//隐藏弹窗
+		Win.hide( callback );
+	</script>
+	<a href="javascript:void(0);" class="nj_btn" id="test1">点击显示弹窗</a>
+</div>
+<h6 class="p_tit">扩展</h6>
+<div class="text_info">
+	<a href="" data-id="ui_msg">msg</a>
+</div>
+<script>
+noJS.use(function($,ui){
+	var win;
+	function init(){
+		win = new ui.popup();
+		win.set('title', '实例');
+		win.set('content', '<div style="height:100px">test</div>');
+		win.set('button', [
+			['确定','close','sb'],['取消','close']
+		]);	
+	}
+	
+	$('#test1').click(function(){
+		!win && init();
+		win.show();
+		return false;
+	})
+});
+</script>

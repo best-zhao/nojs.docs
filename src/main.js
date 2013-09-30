@@ -86,34 +86,29 @@ define(function(require,$,ui){
 			
 			frame.load( url, function(){
 				option[window.demoAction?'show':'hide']();
-				
 				if( window.demoAction ){
 					demo.container.html( demo.getHtml() );
 				}
-				
 				//代码高亮
-				new codeLight({parent:frame});
-				//扩展应用
-				frame.find('#about_link,.about_link').on('click',function(e){
-					var t = e.target, i ,m;
-					if( t.tagName.toLowerCase()=='a' ){
-						for( i=0;i<G.project.length;i++ ){
-							m = G.project[i];
-							if( m.data.all[t.id] ){
-								m.select(t.id);
-								break;
-							}
-						}
-						return false;
-					}
-				})
+				new codeLight({parent:frame});				
+				
 				frame.click(function(e){
 					var t = e.target,
-						act;
+						act, m, i;
 					if( t.tagName.toLowerCase()=='a' ){
 						act = $(t).attr('data-action');
 						if( act=='demo' ){
 							demo.show($(t).attr('data-index')-1);
+							return false;
+						}
+						if( act = $(t).attr('data-id') ){//扩展应用
+							for( i=0;i<G.project.length;i++ ){
+								m = G.project[i];
+								if( m.data.all[act] ){
+									m.select(act);
+									break;
+								}
+							}
 							return false;
 						}
 					}
@@ -239,10 +234,10 @@ define(function(require,$,ui){
 	demo.source = function(){
 		var win, button;
 		function init(){
-			win = new ui.win({
+			win = new ui.popup({
 				width : '80%'
 			});
-			win.self.css('max-width','900px')
+			win.element.css('max-width','900px')
 			button.data('win', win);
 		}
 		function str(fun){
@@ -287,8 +282,9 @@ define(function(require,$,ui){
 						'</html>',
 					'</script></div>',
 				], code;
-				win.setCon(Menu.selected+' - 示例'+(demo.index+1)+'源码',html.join('\n'));
-				code = new codeLight({parent:win.con});
+				win.set('title', Menu.selected+' - 示例'+(demo.index+1)+'源码');
+				win.set('content', html.join('\n'));
+				code = new codeLight({parent:win.content});
 				win.show();
 				//code.select();
 			}

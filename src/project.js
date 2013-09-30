@@ -17,7 +17,7 @@ define({
 					{id:'ui_align',text:'ui.align',link:'ui/align'},
 					{id:'ui_overlay',text:'ui.overlay',link:'ui/overlay'},
 					{id:'ui_layer',text:'ui.layer',link:'ui/layer'},
-					{id:'ui_win',text:'ui.win',link:'ui/win'},
+					{id:'ui_popup',text:'ui.popup',link:'ui/popup'},
 					{id:'ui_msg',text:'ui.msg',link:'ui/msg'},
 					{id:'ui_select',text:'ui.select',link:'ui/select'},
 					{id:'ui_switch',text:'ui.Switch',link:'ui/switch'},
