@@ -8,7 +8,9 @@
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
-	
+	<script type="text/templete" code="javascript" key="overlay">
+	var Overlay = new ui.overlay(options);	
+	</script>
 	<p>options选项：</p>
 	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
 		<tr>
@@ -16,13 +18,7 @@
 			<th>类型</th>
 			<th>描述</th>
 			<th>默认值</th>
-		</tr>
-		<tr>
-			<td>content</td>
-			<td>string</td>
-			<td>设置浮动层内容</td>
-			<td></td>
-		</tr>
+		</tr>		
 		<tr>
 			<td>className</td>
 			<td>string</td>
@@ -44,37 +40,220 @@
 	</table>
 	<p>其余选项同 <a href="" data-id="ui_align">align</a></p>
 </div>
+<h6 class="p_tit">方法：</h6>
+<div class="text_info">
+	<p class="mb10">1. set(key, value)，扩展了align类的set方法</p>
+	<script type="text/templete" code="javascript" key="set">
+	//设置浮层内容，content为html字符串或dom对象	
+	Overlay.set('content', content);
+	
+	//同align类的set方法：Overlay.set(value);
+	Overlay.set('align', options);	
+	</script>
+	<p class="mb10">2. show(callback)</p>
+	<p class="mb10">3. hide(callback)</p>
+	<p class="mb10">4. on(options): 在对象上绑定事件触发overlay显示或隐藏</p>
+	<p>主要为了简化事件绑定，也可以自定义事件逻辑</p>
+	<script type="text/templete" code="javascript">
+	Overlay.on(options);	
+	</script>
+	<p class="">options为可选项</p>
+	<table width="100%" cellpadding="0" cellspacing="0" class="arg_list">
+		<tr>
+			<th>参数名</th>
+			<th>类型</th>
+			<th>描述</th>
+			<th>默认值</th>
+		</tr>
+		<tr>
+			<td>mode</td>
+			<td>string</td>
+			<td>事件类型，支持'click'和'mouseover'2种事件类型</td>
+			<td>'mouseover'</td>
+		</tr>
+		<tr>
+			<td>element</td>
+			<td>string|element</td>
+			<td>关联的对象或id，默认为nearby对象，适用于一对一模式，<a href="" data-action="demo" data-index="2">[示例2]</a></td>
+			<td></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td>Array</td>
+			<td>[parent, tag], 适用于一对多模式，如表格或列表操作中，多个同类操作共享一个overlay层，使用事件代理模式绑定事件<br />
+				parent: 表格或列表区域对象或id<br />
+				tag: 指定满足触发条件的标签，string-HTML TAG, function返回布尔值
+				<br /> <a href="" data-action="demo" data-index="3">[示例3]</a></td>
+			<td></td>
+		</tr>
+	</table>
+</div>
 <h6 class="p_tit">扩展：</h6>
 <div class="text_info">
-	<a href="" data-id="ui_popup">popup</a>
+    <a href="" data-id="ui_popup">popup</a>
 </div>
-<a href="javascript:void(0)" id="test_button" class="nj_btn">show/hide</a>
+
+<script type="text/templete" id="demo_tmpl1">
+<p class="mb10">0.5s后自动弹出，适用于页面中气泡提示等类似操作</p>
+</script>
+
+<script type="text/templete" id="demo_tmpl2">
+<p class="mb10">自定义外部事件控制浮动层</p>
+<a href="javascript:void(0)" id="overlay_test1" class="nj_btn">click show / hide</a>
+<a href="javascript:void(0)" id="overlay_test12" class="nj_btn">hover show / hide</a>
+<br /><br /><br /><br />  
+<p class="mb10">使用<code>on</code>方法，一对一，关联单个对象</p>
+<pre class="code">
+Overlay.on({
+    mode : type,
+    element : element
+});	
+</pre>
+<p class="mb10">element选项默认为Overlay.nearby对象，前提是实例化Overlay的时候设置了nearby对象</p>
+<a href="javascript:void(0)" id="overlay_test11" class="nj_btn">click show / hide</a>	
+<a href="javascript:void(0)" id="overlay_test13" class="nj_btn">hover show / hide</a> 
+<br /><br /><br /><br />
+<p class="orange">2者的区别在于前者当触发事件类型为'mouseover'时，鼠标移入浮动层就会消失，只适合单纯的内容显示，如果要在浮动层内进行操作，就需要手动编写更多的代码来避免该情况；而后者则不存在，简化了事件绑定过程</p>
+</script>
+
+<script type="text/templete" id="demo_tmpl3">
+<p class="mb10">使用<code>on</code>方法，一对多，同一个浮动层关联多个对象，使用事件代理绑定事件</p>
+<pre class="code">
+Overlay.on({
+    mode : type,
+    element : [parent, tag]
+}); 
+</pre>
+<p class="mb10">当前触发的对象可用this.nearby获取</p>
+<table width="100%" cellpadding="0" cellspacing="0" class="arg_list" id="overlay_test2">
+	<tr>
+		<th>id</th>
+		<th>标题</th>
+		<th>状态</th>
+		<th>操作</th>
+	</tr>	
+	<tr>
+		<td>1</td>
+		<td>标题标题标题标题标题标题</td>
+		<td><i class="orange">已审核</i></td>
+		<td><a href="javascript:void(0)" data-action="del" data-id="1">删除</a></td>
+	</tr>
+	<tr>
+		<td>2</td>
+		<td>标题标题标题标题标题标题</td>
+		<td><i class="orange">已审核</i></td>
+		<td><a href="javascript:void(0)" data-action="del" data-id="2">删除</a></td>
+	</tr>
+	<tr>
+		<td>3</td>
+		<td>标题标题标题标题标题标题</td>
+		<td><i class="orange">已审核</i></td>
+		<td><a href="javascript:void(0)" data-action="del" data-id="3">删除</a></td>
+	</tr>
+</table>
+</script>
 
 <script>
 noJS.use(function($,ui){
-	var layer = new ui.overlay({
-		nearby : 'test_button',
-		position : {top:100,left:0},
-		//relative : true,
-		offset : [0,0],
-		//autoAdjust : true,
-		//auto : 500,
-		className : 'test_overlay',
-		arrow : {
-			//offset : [3,-68]
-			//direction : 'down'
+	window.demoAction = {
+        item : [
+            {content : $('#demo_tmpl1').html(), callback : function(call){
+                noJS.use(function($,ui){
+                    var m = new ui.overlay({
+                        nearby : window,
+                        position : {right:0,bottom:0}
+                    });
+                    m.set('content', '<div style="padding:90px">131234</div>');     
+                    
+                    function show(){
+                        setTimeout(function(){
+                            m.show();
+                        }, 500)
+                    }
+                    show(); 
+                                    
+                    //**hide
+                    call.onShow = show;
+                    //hide**
+                    
+                    
+                })
+            }},
+			{content : $('#demo_tmpl2').html(), callback : function(){
+				noJS.use(function($,ui){
+				    //自定义外部事件控制浮动层
+				    var m1 = new ui.overlay({
+                        nearby : 'overlay_test1'
+                    })
+                    m1.set('content', '<div style="padding:50px">自定义外部事件控制浮动层,click触发</div>');
+                    m1.nearby.click(function(){
+                        m1[ m1.visible ? 'hide' : 'show' ]();
+                        return false;
+                    })
+                    var m2 = new ui.overlay({
+                        nearby : 'overlay_test12'
+                    })
+                    m2.set('content', '<div style="padding:50px">mouseover触发，只适合单纯的内容显示</div>');
+                    m2.nearby.hover(function(){
+                        m2.show();
+                    }, function(){
+                        m2.hide();
+                    })
+                    
+				    
+				    //使用on方法绑定事件
+					var m3 = new ui.overlay({
+						nearby : 'overlay_test11'
+					})
+					m3.set('content', '<div style="padding:50px">使用on方法绑定事件</div>');
+					m3.on({
+						mode : 'click'
+					});	
+					var m4 = new ui.overlay({
+                        nearby : 'overlay_test13'
+                    })
+                    m4.set('content', '<div style="padding:50px">使用on方法绑定事件，可在内部操作</div>');
+                    m4.on();
+				})
+			}},
+			{content : $('#demo_tmpl3').html(), callback : function(){
+				noJS.use(function($,ui){
+					var m = new ui.overlay({
+						position : {right:0, top:100},
+						onShow : function(){							
+							id = this.nearby.attr('data-id');//更新当前所选id
+						}
+					}), id;
+					
+					m.set('content', '<div style="padding:15px;line-height:2">确认删除？<br /><a href="" data-action="ok">确认</a> <a href="" data-action="cancel">取消</a></div>');
+					
+					m.on({
+						mode : 'click',
+						//传入Array : Array[0]父容器id或对象， Array[1]满足条件的标签对象string|function
+						element : ['overlay_test2', function(tag){
+							return tag=='a' && $(this).attr('data-action')=='del';
+						}]
+					});
+					
+					//自定义浮动层内事件
+					m.element.click(function(e){
+						var t = e.target;
+						if( t.tagName.toLowerCase()=='a' ){
+							m.hide();
+							$(t).attr('data-action')=='ok' && m.nearby.closest('tr').hide(400);
+							return false;
+						}
+					})
+				})
+			}}
+			
+		],
+		onHide : function(){
+			ui.overlay.hide();
+		},
+		onChange : function(){
+			ui.overlay.hide();
 		}
-	});
-	layer.set('content','123132');
-	layer.set('align');
-	
-	$('#test_button').click(function(){
-		if( layer.visible ){
-			layer.hide();
-		}else{
-			layer.show();
-		}
-		return false;
-	})
+	}
 });
 </script>

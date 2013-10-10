@@ -3,16 +3,12 @@
 <h4 class="p_tit">ui.select</h4>
 <h6 class="p_tit">说明：</h6>
 <div class="text_info">
-	select美化组件,html与原select相同
+	select美化组件,html与原select相同，继承至ui.overlay
 </div>
 <h6 class="p_tit">使用：</h6>
 <div class="text_info">
 	<script type="text/codelight" code="javascript" key="select|batch">
-		//实例化单个select
-		var Select = new ui.select( id, option );
-		
-		//批量初始化容器内所有select
-		ui.select.batch( box, option );
+	var Select = new ui.select(options);		
 	</script>
 	
 	<div class="mb10">设置默认选中项：在select标签上设置val属性为当前value值或者在需选中的option上设置selected="selected"</div>
@@ -29,21 +25,31 @@
 	<script type="text/codelight" code="javascript" key="select">
 		Select.select( value );
 	</script>
-	<div class="fl mr10">
-		<select name="" id="test_type" data-ui="select">
-			<option value="1">请选择类型</option>
+	<div class="clearfix">
+		<select name="" id="test_type">
+			<option>请选择类型</option>
 			<option value="2">类型1</option>
-			<option value="3">类型2</option>
-			<option value="4" href="http://www.baidu.com" target="_blank">类型3 (link)</option>
+			<option value="3" selected="selected">类型2</option>
+			<option value="4">类型3</option>
+		</select>
+		
+		<select name="" id="test_type1" value="22">
+		    <optgroup label="group1">
+		        <option>1</option>
+		        <option value="22">2</option>
+		    </optgroup>
+		    <optgroup label="group2">
+                <option>3</option>
+                <option>4</option>
+            </optgroup>
+             <optgroup label="group3">
+                <option>5</option>
+                <option>6</option>
+            </optgroup>
 		</select>
 		<a href="" class="nj_btn" id="change_test">手动切换其选项</a>
 	</div>
-	<select name="" id="test_type1" data-ui="select">
-		<option value="1">请选择类型</option>
-		<option value="2">类型1</option>
-		<option value="3">类型2</option>
-		<option value="4" href="http://www.baidu.com" target="_blank">类型3 (link)</option>
-	</select>
+	
 </div>
 <h6 class="p_tit">属性：</h6>
 <div class="text_info">
@@ -52,17 +58,23 @@
 </div>
 <script>
 noJS.use(function($,ui){
-	setTimeout(function(){
-		var type = ui.data('test_type'),
-			n = type.length,
-			i = 1;
-		
-		$('#change_test').click(function(){
-			i++;
-			i = i>n ? 1 : i;
-			type.select(i);
-			return false;
-		})
-	},0)
+    var type1 = new ui.select({
+        nearby : 'test_type',
+        mode : 'click'
+    }),
+    type2 = new ui.select({
+        nearby : 'test_type1'
+    }),
+    n = type2.length,
+    i = 1;
+    
+    $('#change_test').click(function(){
+        i++;
+        i = i>n ? 1 : i;
+        type2.select(i);
+        return false;
+    })
+    
+    
 });
 </script>

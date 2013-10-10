@@ -199,12 +199,14 @@ define(function(require,$,ui){
 						demo.tab = new ui.Switch(demo.container, {
 							mode : 'click',
 							onChange : function(index){
-								var wrap = this.con.eq(index);
+								var wrap = this.con.eq(index), call;
 								demo.index = index;
+								call = demoAction.item[index].callback;
 								if( !wrap.data('init') ){
-									wrap.data('init', true);
-									demoAction.item[index].callback && demoAction.item[index].callback();
+									wrap.data('init', true);									
+									call && call(call);
 								} 
+								call && call.onShow && call.onShow();
 								demoAction.onChange && demoAction.onChange(index);
 							}
 						});
@@ -235,17 +237,18 @@ define(function(require,$,ui){
 		var win, button;
 		function init(){
 			win = new ui.popup({
-				width : '80%'
+				width : '85%'
 			});
-			win.element.css('max-width','900px')
+			win.element.css('max-width','900px');
 			button.data('win', win);
 		}
 		function str(fun){
 			fun = typeof fun=='function' ? 
 				fun.toString()
-				.replace(/^function\s*\(\)\s*{/,'')
+				.replace(/^function\s*\([^\(\)]*\)\s*{/,'')
 				.replace(/\s*}$/,'\n')
 				.replace(/\t/g,'    ')//替换制表符
+				.replace(/[\s\r\n]*(\/\/)(\*\*)(hide)[\s\S]*\1\3\2[\s\r\n]*/g,'\n')//替换隐藏代码
 				: '';
 				
 			if( fun.length>4 ){
@@ -314,7 +317,7 @@ define(function(require,$,ui){
 		var t = new tree( id, {
 			openAll : name=='nojs' ? false : true,
 			data : data,
-			max : 9,
+			max : 8,
 			onSelect : treeOptions.onSelect,
 			defaultNode : treeOptions.defaultNode
 		});

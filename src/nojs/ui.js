@@ -274,19 +274,22 @@
 	
 	/*
 	 * 将对象对齐到某个参考元素nearby
-	 * nearby默认是window对象,即固定在屏幕上
+	 * nearby是window对象,即固定在屏幕上
 	 * relative为true可设置为类似css的背景图定位方式,只限百分比
 	 */	
 	ui.align = function(options){
 		this.options = options = options || {};
 		this.element = getDom(options.element);
-		this.nearby = getDom(options.nearby || window);
-		this.position = options.position || (this.nearby[0]==window ? {top:50, left:50} : {top:100, left:0});
-		this.relative = options.relative!=undefined ? options.relative : this.nearby[0]==window ? true : false;
-		this.fixed = options.fixed==undefined && this.nearby[0]==window ? 'fixed' : options.fixed;//null fixed animate
-		this.cssFixed = this.fixed=='fixed' && !$.browser('ie6') && this.nearby[0]==window;//直接使用css:fixed来定位
+		this.nearby = getDom(options.nearby);
+		var screen = this.nearby && this.nearby[0]==window;
+		this.position = options.position || (screen ? {top:50, left:50} : {top:100, left:0});
+		this.relative = options.relative!=undefined ? options.relative : screen ? true : false;
+		
+		this.fixed = options.fixed==undefined && screen ? 'fixed' : options.fixed;//null fixed animate
+		this.cssFixed = this.fixed=='fixed' && !$.browser('ie6') && screen;//直接使用css:fixed来定位
+		
 		this.offset = options.offset || [0,0];
-		this.isWrap = this.nearby[0]==window || this.nearby.find(this.element).length;//对象是否在参考对象内部
+		this.isWrap = this.nearby && (screen || this.nearby.find(this.element).length);//对象是否在参考对象内部
 		this.autoAdjust = options.autoAdjust;//超出屏幕后是否自动调整位置
 		
 		if( this.element ){
@@ -297,25 +300,23 @@
 		bind : function(){
 			var self = this,
 				ns = this.element.data('align'),
-				element = this.nearby[0]==window ? this.nearby : this.nearby.add(window),
 				type;
 				
 			if( ns ){
-				element.off( '.'+ns );
+				this.nearby.add(window).off( '.'+ns );
 			}else{
 				ns = 'align'+(new Date()).getTime();
 				this.element.data('align', ns);
 			}
-			type = 'resize.'+ns;
+			
 			if( !this.cssFixed && this.fixed ){
-				type += ' scroll.'+ns;	
-				if( this.nearby[0]!=window ){
-					element = this.nearby;//无需绑定window scroll事件
-				}
+				this.nearby.on('scroll.'+ns, function(){
+					self.visible && self.set();
+				});
 			}
-			element.on( type, function(){
-				self.set();
-			});
+			$(window).on('resize.'+ns, function(){
+				self.visible && self.set();
+			})
 			
 			this.set();
 		},
@@ -336,7 +337,6 @@
 		},
 		set : function(options){
 			//可设置nearby position offset relative等参数覆盖初始选项
-			
 			if( !this.element ){
 				return;
 			}
@@ -344,6 +344,10 @@
 			
 			var position = options.position || this.position,
 				nearby = getDom(options.nearby) || this.nearby;
+			
+			if( !nearby ){
+				return;
+			}
 			
 			var size = this.get(nearby),
 				Attr = {
@@ -400,7 +404,7 @@
 				
 				style[direction=='x'?'left':'top'] = value;
 			}
-			//console.log(this.element)
+			
 			this.element.css('position', this.cssFixed ? 'fixed' : 'absolute');
 			
 			if( this.fixed=='animate' ){
@@ -414,7 +418,7 @@
 	/*
 	 * 浮动层
 	 * 自动显示或由外部事件触发
-	 * 可延时显示，定时隐藏
+	 * 可定时隐藏
 	 */
 	ui.overlay = function(options){
 		ui.overlay.baseConstructor.call(this, options);		
@@ -422,6 +426,9 @@
 		this.content = null;//内容区域
 		this.arrow = this.options.arrow;//箭头 根据align对齐方式自动调整指向
 		this.timeout = this.options.timeout;
+		this.onShow = this.options.onShow;
+		this.onHide = this.options.onHide;
+		ui.overlay.item.push(this);
 		this.init();
 	}
 	Extend(ui.overlay, ui.align);
@@ -434,11 +441,20 @@
 			}
 		}
 	})
+	ui.overlay.item = [];
+	ui.overlay.hide = function(){
+		var item = ui.overlay.item,
+			n = item.length,
+			i = 0;
+		for( ; i<n; i++ ){
+			item[i].hide();
+		}
+	}
 	ui.overlay.prototype.init = function(){
 		var self = this,
 			_class = this.options.className;
 			
-		_class = typeof _class=='string' ? _class : '';//自定义class 多个用空格隔开
+		_class = typeof _class=='string' ? _class : '';//添加class 多个用空格隔开
 		
 		this.element = $('<div class="nj_overlay '+_class+'"><div class="nj_overlay_wrap"></div></div>').appendTo(document.body).css({
 			'display' : 'block',
@@ -451,19 +467,17 @@
 			this.arrow.offset = this.arrow.offset || [0,0];
 		}
 		
-		if( this.options.auto ){
-			setTimeout(function(){
-				self.show();
-			}, this.options.auto);
-		}
+		this.bind();
 	}	
-	ui.overlay.prototype.show = function(){
+	ui.overlay.prototype.show = function(callback){
+		
 		if( this.visible ){
 			return;
 		}
 		var self = this;
 		
 		this.element.css('visibility','visible');
+		this.set();
 		
 		if( this.timeout ){
 			this.autoHide = setTimeout(function(){
@@ -471,6 +485,8 @@
 			}, this.timeout)
 		}
 		this.visible = true;
+		callback && callback();
+		this.onShow && this.onShow.call(this);
 		
 		return;
 		if( self.arrow ){
@@ -489,13 +505,101 @@
 			}).attr('class', 'nj_overlay_arrow nj_overlay_arrow_'+direction);
 		}
 	}
-	ui.overlay.prototype.hide = function(){
+	ui.overlay.prototype.hide = function(callback){
 		if( !this.visible ){
 			return;
 		}
 		this.element.css('visibility','hidden');
 		this.autoHide = clearTimeout(this.autoHide);
 		this.visible = false;
+		callback && callback();
+		this.onHide && this.onHide.call(this);
+	}
+	ui.overlay.prototype.on = function(options){
+		options = options || {};
+		
+		var self = this,
+			mode = options.mode || 'mouseover',
+			agent = $.type(options.element)=='array' && options.element.length>1,
+			element = getDom(agent ? options.element[0] : options.element) || this.nearby,
+			hoverClass = this.options.hoverClass || 'nj_overlay_show',
+			onShow = this.onShow,
+			onHide = this.onHide,
+			isHover, show, hide, showTime, hideTime, hideEvent;
+		
+		if( !element ){
+			return;
+		}
+		
+		isHover = mode == 'mouseover';
+		hideEvent = isHover ? ' mouseout' : '';	
+		
+		show = function(e){
+			var t, tag, type, el;
+			if( agent ){
+				t = e.target;
+				tag = t.tagName.toLowerCase();
+				el = options.element[1];
+				type = typeof el;
+				
+				if( type =='function' ){
+					el = el.call(t, tag);
+				}else if( type == 'string' && el == tag ){
+					
+				}else{
+					el = null;
+				}
+				if( !el ){
+					return;
+				}
+				if( self.nearby && self.nearby[0] != t && self.visible ){
+					self.hide();
+ 				}
+				element = self.nearby = $(t);
+			}
+			
+			$.stopBubble(e);
+			isHover ? !function(){
+				hideTime = clearTimeout(hideTime);
+				showTime = setTimeout(function(){
+					self.show();
+				}, 10)
+			}() : !hideEvent && self.visible ? self.hide() : self.show();
+			
+			if( agent && el ){
+				return false;
+			}
+		}
+		hide = function(e){	
+			$.stopBubble(e);
+			hideEvent ? !function(){
+				showTime = clearTimeout(showTime);
+				hideTime = setTimeout(function(){
+					self.hide();
+				}, 10)
+			}() : self.hide();
+		}
+		this.onShow = function(){
+            element.addClass(hoverClass);
+            onShow && onShow.call(self);
+        }
+		this.onHide = function(){
+		    element.removeClass(hoverClass);
+		    onHide && onHide.call(self);
+		}
+		element.on(mode, show);
+		
+		hideEvent && element.on(hideEvent, hide);
+		!isHover && !function(){
+			$(document).click(hide);
+			self.element.click(function(e){
+				$.stopBubble(e);
+			})
+		}();
+		
+		isHover && this.element.hover(function(){
+			hideTime = clearTimeout(hideTime);
+		}, hide);
 	}
 	
 	ui.layer = function(){
@@ -546,32 +650,22 @@
 		 * 弹窗
 		 */
 		options = options || {};
-		options.className = (options.className || '')+' nj_win'; 
-		ui.popup.baseConstructor.call(this, options);	
-	    this.width = this.options.width || 400;//宽
+		options.className = 'nj_win '+(options.className || ''); 
+		options.nearby = options.nearby || window;
+		ui.popup.baseConstructor.call(this, options);
+	    this.width = options.width || 400;//宽
 	    this.close = null;//关闭按钮
 	    this.title = null;//标题区
 		this.operating = null;//操作区
-		this.stillLayer = this.options.stillLayer || false;//隐藏后是否继续显示遮罩层
-		this.layer = this.options.layer==false ? false : true;
-		this.bindEsc = this.options.bindEsc == false ? false:true;
-		this.onShow = this.options.onShow;
-		this.onHide = this.options.onHide;
+		this.stillLayer = options.stillLayer || false;//隐藏后是否继续显示遮罩层
+		this.layer = options.layer==false ? false : true;
+		this.bindEsc = options.bindEsc == false ? false:true;
+		this.onShow = options.onShow;
+		this.onHide = options.onHide;
 		this.create();
 	}
 	Extend(ui.popup, ui.overlay);
-	Extend.proto(ui.popup, {
-		bind : function(fn){
-			var T = this;
-			this.close.on('click',function(){T.hide();});//绑定关闭按钮事件
-			if(this.bindEsc){
-				$(window).on("keydown",function(e){//按下esc键隐藏弹窗
-					T.element.is(":visible") && e.keyCode==27 && T.hide();
-				})
-			}
-			$.onScroll( this.content[0] );	
-			fn.call(this);
-		},
+	Extend.proto(ui.popup, {		
 		set : function(fn, key, value){
 			/*
 				设置标题、内容
@@ -602,22 +696,17 @@
 		    if( this.visible ){
 		    	return;
 		    }
-			this.set();//重新计算高度并设置居中
+			//this.set();//重新计算高度并设置居中
 			this.layer && ui.layer.show();
-			fn.call(this);
+			fn.call(this, callback);
 			
 			this.element.css({
-				"margin-top":"-20px"
+				"margin-top" : "-15px"
 			})
 			this.element.stop().animate({
-				"margin-top":"0",
-				"opacity":"1"
-			}, 420, 'easeOutExpo');
-			
-			setTimeout(function(){
-				callback && callback();
-			}, 100);
-			this.onShow && this.onShow();
+				"margin-top" : "0",
+				"opacity" : "1"
+			}, 400, 'easeOutExpo');		
 		},
 		hide : function(fn, callback){
 			/*
@@ -639,14 +728,13 @@
 			this.element.animate({
 				"margin-top" : "-20px",
 				"opacity" : "0"
-			}, 150, 'easeOutExpo', function(){
-				fn.call(T);
-			});
+			}, 150, 'easeOutExpo');
+			
 			setTimeout(function(){
-				callback && callback();
-			}, 100);
+				fn.call(T, callback);
+			}, 90)
+			
 	        !this.stillLayer &&	ui.layer.hide();
-			this.onHide && this.onHide();
 		}
 	})
 	ui.popup.prototype.create = function(){
@@ -669,7 +757,16 @@
 		this.operating = this.element.find(".win_opt");
 		
 		new ui.ico( this.close, {type:'close'} );
-		this.bind();
+		
+		this.close.on('click',function(){//绑定关闭按钮事件
+			self.hide();
+		});
+		if(this.bindEsc){
+			$(window).on("keydown",function(e){//按下esc键隐藏弹窗
+				self.element.is(":visible") && e.keyCode==27 && self.hide();
+			})
+		}
+		$.onScroll( this.content[0] );		
 	}
 	ui.popup.prototype.addBtn = function(text,callback,color){
 		/*
@@ -800,204 +897,155 @@
 			}		
 		}
 	}();
-	
-	ui.select = function( dom, opt ){
-		if( isNew = instaceofFun(this,arguments) ){
-			return isNew;
-		}
-		/*
-		 * 通用下拉列表,延迟200毫秒触发
-		 * @opt:可选项{show:只显示几项,只接受整数，固定高度,onSelect:当选择某项的时候触发一个回调}
-		 * 默认选中项根据隐藏域的value值来匹配
-		 */		
-		opt = $.extend( ui.config.select, opt );
-		this.box = getDom(dom);
-		if(!this.box){return;}
-		ui.data( this.box[0].id, this );
-		this.show = opt.show;
-		this.maxH = "auto";//展开时的最大高度
-		this.onSelect = opt.onSelect;//切换回调
-		this.defaultEvent = opt.defaultEvent==true?true:false;//首次是否执行回调
-		this.size = opt.size=='small'?'small':'big';
-		this.autoWidth = opt.autoWidth==false?false:true;
-		this.value = null;
-		this.now = null;
-		this.setCon();
-	};
-	ui.select.prototype = {
-		setCon : function(){
-			var HTML = this.box.html().replace(/OPTION|option/g,'li'),
-				list = this.box.find('option'),
-				html = '',m,
-				link,
-				style = this.box.attr('style'),
-				v = this.box.attr("val")||this.box.val()||0,
-				id = this.box[0].id||'',
-				i,j;
-			this.len = list.length;
-			html = '<span class="nj_select"><span class="wrap"><i></i><div class="nj_arrow"></div><ul></ul>';
-			html += '<input type="hidden" name="'+this.box.attr('name')+'" value="'+v+'" class="hide" />';
-			html += '</span></span>';
-			this.box.after(html);
-			this.box.hide();
-			this.box = this.box.next();
-			this.box.prev().remove();
-			this.box.attr({'style':style,'id':id});
-			
-			this.menu = this.box.find("ul");
-			this.menu.html(HTML);
-			this.m_on = this.box.find("i");
-			this.hide = this.box.find("input.hide");
-			
-			this.size=='small' && this.box.addClass('nj_select_s');
-			this.init();
-		},
-		init : function(I){
-			this.m = this.menu.find('li');
-			this.length = this.m.length;
-			
-			var _m,at,
-				d = this.hide.val(),
-				pd = parseInt(this.m_on.css("padding-left"))+parseInt(this.m_on.css("padding-right")),
-				w1, w2 = 0, w3;
-			this.m_on.removeAttr("style");
-			this.menu.removeAttr("style").css({"display":"block"});
-			
-			for(var i=0;i<this.length;i++){
-				_m = this.m.eq(i);
-				w1 = _m.width();
-				w2 = w1>w2 ? w1 : w2;
-				if(_m.attr('href')){
-					_m.wrapInner('<a href="'+_m.attr('href')+'" target="'+_m.attr('target')+'"></a>');
-					_m.addClass("link");
-				}
-			}
-			
-			this.h = this.m.last().outerHeight();
-			if(this.show && /^\d+$/.test(this.show)){//显示固定个数
-				if(this.show<this.length){
-					this.menu.css({"overflow-y":"scroll"});
-					this.maxH = this.h * this.show - 1;
-				}else{
-					this.menu.css({"overflow-y":"hidden"});
-					this.maxH = this.h * this.length - 1;
-				}
-				w3 = this.menu.width();
-				if(w3 > (w2 + pd)){w2 = w3 - pd;}
-			}
-			
-			
-			if(this.autoWidth){
-				this.menu.css('width',w2+pd);
-				this.m_on.width(w2);
-				//console.log(w2);
-			}else{
-				
-				this.m_on.width(this.box.width()-pd-2);
-				this.menu.width(this.box.width()-2);
-			}
-			
-			this.menu.css({
-				"height":this.maxH,
-				"display":"none"
-			})
-			this.m.removeClass('last').last().addClass('last');
-			if(!I){
-				this.bindEvent();
-			}
-			//设置默认选项
-			if(d.replace(/\s/g,"")!=""){
-				this.select( d, this.defaultEvent );
-			}else{
-				this.select( this.m.eq(0).attr("value"), this.defaultEvent );
-			}
-		},
-		bindEvent : function(){
-			var T = this,A,top,style;
-			
-			this.box.hover(function(){
-				window.clearTimeout(A);
-				if( T.menu.is(':visible') ){
-					return;
-				}
-				A = window.setTimeout(function(){
-					style = T.menu.attr('style').replace('top','top1').replace('bottom','top1');
-					T.menu.attr({'style':style}).css({"display":"none"});
-					T.box.addClass('nj_select_hover');
-					top = T.m_on.outerHeight()-1;
-					if( (T.box.offset().top-$(window).scrollTop()+T.box.height()+T.menu.height()) > $(window).height() ){
-						T.menu.css({'bottom':top});
-					}else{
-						T.menu.css( {'top':top} );
-					}
-					T.menu.show();
-				},90)
-			},function(){
-				clearTimeout(A);
-				A = setTimeout(function(){
-					T.menu.hide()//.slideUp(150,'easeOutExpo');
-					T.box.removeClass('nj_select_hover');
-				},200)
-			});
-			
-			this.menu.click(function(e){
-				var m = e.target,
-					text = $(m).text(),
-					v = m.getAttribute('value');
-				if(m.tagName.toLowerCase()=='li'){
-					T.select(v);
-				}
-			})			
-		},
-		select : function(v,I){
-			var M,text,m;
-			for(var i=0;i<this.length;i++){
-				m = this.m.eq(i);
-				if(m[0].getAttribute('value')==v){
-					M = m;
-					text = m.text();
-					break;
-				}
-			}
-			if(!M){return;}
-			this.m_on.text(text);
-			M.addClass("select").siblings().removeClass("select");
-			this.hide.val(v);
-			this.value = v;
-			this.now = M;
-			this.menu.css({"display":"none"});
-			
-			if(I===false){return;}
-			//为其添加事件
-			this.onSelect&&this.onSelect.call(this,v,M);
-		}
-	}
-	ui.select.batch = function(box,opt){
-		/*
-		 * 批量生成select组件(全部select只能统一设置,特殊情况时不能用此方法)
-		 * @box:传入父元素对象即可
-		 */
-		if(!box||!box.length){return;}
-		var s = box.find("select"),
-			m,
-			id,
-			arr = [],
-			n = s.length,
-			d;
-		if(!n){return;}	
-		for(var i=0;i<n;i++){
-			m = s.eq(i);
-			id = m.attr("id");
-			if(!id||id.replace(/\s/g,"")==""){
-				id = "s_"+$.random();
-				m.attr("id",id);
-			}
-			d = new this(id,opt);
-			arr.push(d);
-		}
-		return arr;
-	}
-	
+	ui.select = function( options ){
+        if( isNew = instaceofFun(this,arguments) ){
+            return isNew;
+        }
+        /*
+         * 通用下拉列表,延迟200毫秒触发
+         * @options:可选项{show:只显示几项,只接受整数，固定高度,onSelect:当选择某项的时候触发一个回调}
+         * 默认选中项根据隐藏域的value值来匹配
+         */     
+        //options = $.extend( ui.config.select, options );        
+        options = options || {};
+        if( !options.nearby ){
+            return;
+        }
+        options.className = 'nj_select_list '+(options.className || '');
+        options.hoverClass = options.hoverClass || 'nj_select_show';
+        
+        ui.select.baseConstructor.call(this, options);
+        if( !this.nearby || this.nearby[0].tagName.toLowerCase()!='select' ){
+            return;
+        }
+        ui.data( this.nearby[0].id, this );
+        this.max = this.options.max;//最多
+        this.onSelect = this.options.onSelect;//切换回调
+        this.defaultEvent = this.options.defaultEvent==true ? true : false;//首次是否执行回调
+        this.autoWidth = this.options.autoWidth==false ? false : true;
+        this.index = 0;        
+        this.value = this.nearby[0].getAttribute('value') || this.nearby.val();   
+        this.replace();
+    };
+    Extend(ui.select, ui.overlay);
+    ui.select.prototype.replace = function(){
+        var list = this.nearby.find('option'),
+            group = this.nearby.find('optgroup'),
+            HTML, _nearby;
+        
+        if( group.length ){//分组
+            var i, m;
+            for( i=0; i<group.length; i++ ){
+                m = group.eq(i);
+                m.before('<dt>'+m.attr('label')+'</dt>').replaceWith(m.html());
+            }            
+        }
+        HTML = $('<dl>'+this.nearby.html().replace(/(<\/?)option(>?)/ig, '$1dd$2')+'</dl>');
+        group.length && HTML.addClass('group');
+            
+        this.length = list.length;
+        _nearby = $([
+            '<span class="nj_select" tabindex="-1"><i class="nj_s_wrap"></i><div class="nj_arrow"></div>',
+                '<input type="hidden" name="'+this.nearby.attr('name')+'" value="'+this.value+'" class="hide" />',
+            '</span>'
+        ].join(''));
+        this.nearby.replaceWith(_nearby);
+        this.nearby = _nearby;
+        
+        this.set('content', HTML);
+        this.current = this.nearby.find("i");
+        this.hidden = this.nearby.find("input.hide");
+        this.item = this.element.find('dd');
+        
+        this.init1();
+    }
+    ui.select.prototype.init1 = function(I){
+        var self = this,
+            h, maxH = 'auto',
+            list = this.element.find('dl');
+        
+        h = this.item.last().outerHeight();
+        if( this.max && /^\d+$/.test(this.max) ){//显示固定个数
+            if( this.max < this.length ){
+                list.css({"overflow-y":"scroll"});
+                maxH = h * this.max;
+                list.height(maxH);
+            }
+        }     
+        self.autoWidth && this.nearby.width(this.element.width());
+        
+        !I && this.bindEvent();
+        //设置默认选项
+        !this.select(this.value, this.defaultEvent) && this.select( 0, this.defaultEvent );//没找到默认第一项
+    }
+    ui.select.prototype.bindEvent = function(){
+        var self = this;
+            
+        this.on({
+            mode : this.options.mode
+        })
+        this.element.click(function(e){
+            var t = e.target,
+                v = t.getAttribute('value');
+                
+            if( t.tagName.toLowerCase()=='dd' ){
+                self.select(self.item.index(t));
+                self.nearby.focus();
+                self.hide();
+            }
+        })
+        
+        this.nearby.keydown(function(e){//键盘上下选择 回车选中
+            if( e.which==38 ){
+                self.index--;
+            }else if( e.which==40 ){
+                self.index++;
+            }else if(e.which==13 ){
+                self.hide();
+            }else{
+                return;
+            }
+            self.select(self.index);            
+        })
+    }
+    ui.select.prototype.select = function(value, trigger){
+        var current, m, i, val;
+        
+        if( typeof value=='string' ){//通过value值匹配
+            val = this.content.find('dd[value="'+value+'"]');
+            if( val.length ){
+                current = val.first();
+                this.index = current.index();
+            }else{
+                for( i=0; i<this.length; i++ ){
+                    m = this.item.eq(i);
+                    if( m.text() == value ){
+                        current = m;
+                        this.index = i;
+                        break;
+                    }
+                }
+            }
+        }else if( typeof value=='number' ){//通过索引值匹配
+            value = value<0 ? this.length-1 : value;
+            value = value>this.length-1 ? 0 : value;
+            this.index = value;
+            current = this.item.eq(value);
+            value = current.attr('value') || '';
+        }
+        if(!current){return;}
+        
+        this.current.text(current.text());
+        current.addClass("select").siblings().removeClass("select");
+        this.hidden.val(value);
+        this.value = value;
+        
+        //为其添加事件
+        trigger!==false && this.onSelect && this.onSelect.call(this, value);
+        
+        return current;
+    }
+    
 	/*
 	 * switch原型超类|幻灯片、选项卡等
 	 */
@@ -1094,7 +1142,7 @@
 		if( this.auto && this.length>1 ){
 			if(this.stopOnHover){				
 				this.box.off().hover(function(){
-					T.play = window.clearInterval(T.play);
+					T.play = clearInterval(T.play);
 				},function(){
 					s();
 				}).mouseout();
@@ -1104,8 +1152,8 @@
 		}
 		startNow && T.change(T.index);
 		function s(){
-			window.clearInterval(T.play);
-			T.play = window.setInterval(function(){
+			clearInterval(T.play);
+			T.play = setInterval(function(){
 				T.change(++T.index);
 			},T.time);
 		}
@@ -1128,9 +1176,9 @@
 		this.obj.append(this.ico);
 		this.canvas = null;
 		this.ctx = null;
+		this.ico.css('visibility','hidden');
 		this.width = opt.width||this.ico.width();
 		this.height = opt.height||this.ico.height();
-		this.ico.css('visibility','hidden');
 		if(!this.width||!this.height){return;}
 		this.color = opt.color||this.ico.css('color');
 		this.bgcolor = opt.bgcolor||this.ico.css('background-color');
@@ -1331,185 +1379,6 @@
 			ui.ico.prototype['Draw'+type] = draw;
 		}
 	}
-	
-	ui.menu = function(obj,opt){
-		/*
-		 * 下拉菜单，动态创建html
-		 */
-		if( isNew = instaceofFun(this,arguments) ){
-			return isNew;
-		}
-		//if(!obj||!obj.length){return;}
-		this.opt = opt = $.extend( ui.config.menu, opt );
-		this.obj = obj = getDom(obj);
-		this.menu = null;
-		this.content = opt.content || '';//菜单内容
-		this.align = opt.align || 'left';//对齐方式
-		this.mode = opt.mode || 'mouseover';
-		this.offset = opt.offset || [0,0];
-		this.autoWidth = opt.autoWidth === false ? false : true;
-		//this.pos = this.offset[2] && this.offset[2].length ? this.offset[2] : this.obj;
-		this.now = obj ? this.obj.eq(0) : null;
-		this.agent = opt.agent === true ? true : false;//是否为事件代理模式
-		this.disable = false;//是否禁用菜单
-		this.init();
-	}
-	ui.menu.prototype = {
-		init : function(){
-			this.mode = this.mode == 'focus' ? 'focus click' : this.mode;
-			
-			this.menu = $('<div class="nj_menu"><div class="wrap clearfix"></div></div>');
-			$('body').append(this.menu);
-			this.setCon();
-			this.bind();
-			if( this.opt.className ){
-				this.menu.addClass(this.opt.className);
-			}
-		},
-		bind : function(){
-			var T = this,
-				s = this.mode=='mouseover',
-				delay = s||this.mode=='focus'?60:0,
-				top,left,
-				A,B;
-			
-			if( !this.agent ){
-				this.obj.on(this.mode,function(e){
-					$.stopBubble(e);
-					return show( $(this) );
-				});
-				if(s){
-					this.obj.on('mouseout',function(){
-						A = window.clearTimeout(A);
-						hide();
-					})
-					this.menu.hover(function(){
-						B = window.clearTimeout(B);
-					},hide)
-				}else if(this.mode=='focus'){
-					this.obj.on('blur',function(){
-						A = window.clearTimeout(A);
-						hide();
-					})				
-				}
-			}
-			if(!s){
-				this.menu.on('click',function(e){
-					B = window.clearTimeout(B);
-					$.stopBubble(e);
-				})
-				$(document).on('click',function(){
-					T.menu.is(':visible') && hide();
-				});
-			}
-			function show( pos ){
-				if(T.disable){return false;}
-				pos = pos || T.obj;
-				
-				if( T.mode=='click' && T.menu.is(':visible') ){
-					if(T.now.is(pos)){
-						hide();
-						return false;
-					}
-					hide(true);
-				}else{
-					B = window.clearTimeout(B);
-				}
-				T.now = pos;
-				
-				A = window.setTimeout(function(){
-					pos.addClass('nj_menu_hover');//.find('.nj_arrow').addClass('n_a_top');
-					T.setPos();
-					T.opt.onShow && T.opt.onShow.call(T,pos);
-				},delay);
-				if(!s){return false;}
-			}
-			
-			function hide(S){
-				function h(){
-					T.now.removeClass('nj_menu_hover');//.find('.nj_arrow').removeClass('n_a_top');
-					if( S!=true ){
-						T.menu.hide();
-					}
-					T.opt.onHide && T.opt.onHide.call(T,T.now);
-				}
-				if( S==true ){
-					h();
-				}else{
-					B = window.setTimeout(function(){
-						h();
-					},delay)
-				}
-			}
-			this.show = show;
-			this.hide = hide;
-			
-			$(window).on('scroll resize',function(){
-				T.menu.is(':visible') && T.setPos();
-			});
-			this.menu.find('.close').on('click',function(e){
-				T.hide();
-				$.stopBubble(e);
-			});
-			(function(){
-				//为列表项添加自定义事件
-				var bind = T.opt.onSelect,
-					i,m;
-				if(!bind){return;}
-				for(i in bind){
-					m = T.menu.find('['+i+']');
-					if(m.length){
-						(function(i){
-							m.bind('click',function(e){
-								bind[i].call(T,$(this),e);
-								return false;
-							})
-						})(i);
-					}
-				}
-			})();
-		},
-		setPos : function(){
-			var T = this,
-				ph = this.now.outerHeight(),
-				pt = this.now.offset().top,
-				pl = this.now.offset().left,
-				left = pl+this.offset[0],
-				top = pt+ph+this.offset[1];
-
-			if(this.align=='right'){
-				left -= this.menu.outerWidth()-this.now.outerWidth();
-			}
-			this.menu.removeAttr('style').css({
-				'left' : left,
-				'top' : top,
-				'z-index' : '999',
-				'display':'block'
-			})
-			if(!this.autoWidth){
-				this.menu.width(this.now.outerWidth());
-			}
-			(function(){
-				var h = T.menu.outerHeight(),
-					win = $(window),
-					stop = win.scrollTop(),
-					H = $(window).height();
-				if(top+h-stop>H){
-					top = pt-h;
-					if(top<0){
-						T.menu.css({'top':0,'overflow':'auto','height':pt-2-T.offset[1]});
-						top = 0;
-					}else{
-						T.menu.css({'top':top-T.offset[1]});
-					}
-				}
-			})();
-		},
-		setCon : function(con){
-			con = con || this.content;
-			this.menu.children('.wrap').empty().append(con);
-		}
-	};
 	
 	//placeholder for ie
 	function placeHolder(input,index){

@@ -13,7 +13,7 @@ define({
 				{id:'ui_info',text:'说明',link:'ui/index'},
 				{id:'tools',text:'jQuery扩展工具',link:'ui/tools'},
 				
-				{id:'ui_core',text:'核心ui组件',open:0,data:[
+				{id:'ui_core',text:'核心ui组件',open:1,data:[
 					{id:'ui_align',text:'ui.align',link:'ui/align'},
 					{id:'ui_overlay',text:'ui.overlay',link:'ui/overlay'},
 					{id:'ui_layer',text:'ui.layer',link:'ui/layer'},
@@ -22,7 +22,6 @@ define({
 					{id:'ui_select',text:'ui.select',link:'ui/select'},
 					{id:'ui_switch',text:'ui.Switch',link:'ui/switch'},
 					{id:'ui_slide',text:'ui.slide',link:'ui/slide'},
-					{id:'ui_menu',text:'ui.menu',link:'ui/menu'},
 					{id:'ui_ico',text:'ui.ico',link:'ui/ico'}
 				]}
 			]},

@@ -48,28 +48,28 @@ input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg
 .n_b_so:active,.n_b_bo:active{border-top-color:#c00}
 .n_b_sb:active,.n_b_bb:active{border-top-color:#369}
 /*select*/
-.nj_select{margin-right:8px;position:relative;float:left;font-size:12px;background:#fff}
-.nj_select .wrap{float:left}
-.nj_select ul,.nj_menu{display:none;position:absolute;border:1px solid #ccc;background:#fff}
-.nj_select ul{left:0}
-.nj_select i,.nj_select li,.nj_select a,.nj_menu .item a{padding:0 20px 0 12px;line-height:23px;white-space:nowrap;color:#333;cursor:pointer}
-.nj_menu{box-shadow:2px 2px 5px rgba(0,0,0,0.1)}
-.nj_select .link{padding:0}
-.nj_select a,.nj_menu .item a{display:block}
-.nj_select li.select,.nj_select li:hover,.nj_menu .item a:hover{background-color:#f3f0f0;text-decoration:none;color:#000} 
-.nj_select li,.nj_menu .item{color:#7E7E7E;border-top:1px solid #fff;border-bottom:1px solid #ddd}
-.nj_select i{float:left;vertical-align:top;color:#333;border:1px solid #BFC0C2;cursor:default;-webkit-transition:width .1s linear;-moz-transition:width .1s linear;overflow:hidden;text-overflow:ellipsis}
-.nj_select a:hover{text-decoration:none}
+.nj_select{margin-right:8px;position:relative;display:inline-block;vertical-align:top;font-size:12px;background:#fff}
 .nj_select .nj_arrow{right:8px;top:11px}
-.nj_select_hover{position:relative;z-index:99}
-.nj_select .last,.nj_menu .last{border-bottom:none}
+.nj_select .nj_s_wrap,.nj_select_list dd,.nj_select_list dt{padding:0 20px 0 7px;line-height:23px;white-space:nowrap;color:#333}
+.nj_select .nj_s_wrap{display:block;border:1px solid #BFC0C2;cursor:default}
+.nj_select:focus{outline:0}
+.nj_select:focus .nj_s_wrap{border-color:#02A6EF}
+.nj_select_list dl{margin:0 0 -1px}
+.nj_select_list dd.link{padding:0}
+.nj_select_list dt{font-weight:800;color:#666}
+.nj_select_list .group{margin-top:-1px}
+.nj_select_list .group dt{border-top:1px solid #ddd}
+.nj_select_list .group dd{padding-left:15px;border:none}
+.nj_select_list dd.select{background-color:#f3f0f0;color:#000} 
+.nj_select_list dd:hover{background:#eee;color:#000}
+.nj_select_list dd{color:#7E7E7E;border-top:1px solid #fff;border-bottom:1px solid #ddd;cursor:pointer}
+.nj_select_list .last{border-bottom:none}
+.nj_select_show,.nj_select:hover{box-shadow:inset 0 1px 4px #ccc}
 
-.nj_select_s a,.nj_select_s li,.nj_select_s i{height:19px;line-height:19px;padding:0 22px 0 5px}/*small select*/
-.nj_select_s .wrap{height:21px}
-.nj_select_s .nj_arrow{top:9px}
-
-.nj_menu{border:none}
-.nj_menu .wrap{border:1px solid #c4c4c4}
+.nj_menu{display:none;position:absolute;border:1px solid #ccc;background:#fff}
+.nj_menu,.nj_overlay{border:none;box-shadow:2px 2px 5px rgba(0,0,0,0.1);background:#fff}
+.nj_menu .wrap,.nj_overlay .nj_overlay_wrap{border:1px solid #c4c4c4}
+.nj_select_list .nj_overlay_wrap{border-top:none;overflow:hidden}
 /*switch*/
 .nj_s_m{cursor:pointer}
 .nj_s_c{display:none}
@@ -110,7 +110,7 @@ input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg
 /*layer*/
 #nj_layer{background:#eee;display:none;width:100%;height:100%;z-index:990;top:0;left:0;position:fixed;opacity:0;filter:alpha(opacity=0)}
 /*win*/
-.nj_win{font-family:'微软雅黑';display:none;z-index:991;box-shadow:0 0 25px rgba(0,0,0,0.3)}
+.nj_win{font-family:'微软雅黑';z-index:991;box-shadow:0 0 25px rgba(0,0,0,0.3)}
 .nj_win .win_wrap{border:1px solid #ccc;background-color:#fbfbfb;font-size:12px;color:#333}
 .nj_win .win_tit{font-size:14px;color:#333;padding:12px 20px 0}
 .nj_win .win_close{position:absolute!important;top:12px;right:12px;z-index:60}
