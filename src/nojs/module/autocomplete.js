@@ -68,11 +68,7 @@ define(function(require,$){
 						},99);
 	            }
 			}).click(function(e){
-				if ( e.stopPropagation ){
-					e.stopPropagation();
-				}else{
-					e.cancelBubble = true;
-				}
+				e.stopPropagation();
 			})
 			$(document).click(function(){
 				T.showBox("hide");
@@ -86,11 +82,7 @@ define(function(require,$){
 					m.addClass('current').siblings().removeClass('current');
 					T.move('enter');
 				}
-				if ( e.stopPropagation ){
-					e.stopPropagation();
-				}else{
-					e.cancelBubble = true;
-				}
+				e.stopPropagation();
 			})			
 		},
 		/*

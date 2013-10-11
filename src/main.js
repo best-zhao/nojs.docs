@@ -202,12 +202,22 @@ define(function(require,$,ui){
 								var wrap = this.con.eq(index), call;
 								demo.index = index;
 								call = demoAction.item[index].callback;
+								if( call ){
+                                    call.onShow && call.onShow();
+                                    call.onChange && call.onChange(index);
+                                }
 								if( !wrap.data('init') ){
 									wrap.data('init', true);									
-									call && call(call);
+									if( call ){
+									    call(call);
+									    call.index = index;
+									}
 								} 
-								call && call.onShow && call.onShow();
 								demoAction.onChange && demoAction.onChange(index);
+							},
+							onHide : function(index){
+							    var call = demoAction.item[index].callback;
+							    call && call.onHide && call.onHide(index);
 							}
 						});
 						window.demoAction.callback && window.demoAction.callback();

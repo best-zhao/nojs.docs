@@ -94,7 +94,8 @@
 </div>
 
 <script type="text/templete" id="demo_tmpl1">
-<p class="mb10">0.5s后自动弹出，适用于页面中气泡提示等类似操作</p>
+<p class="mb10">1s后自动弹出，适用于页面中气泡提示等类似操作</p>
+<a href="" class="nj_text" id="show_tips">tips</a>
 </script>
 
 <script type="text/templete" id="demo_tmpl2">
@@ -160,23 +161,23 @@ noJS.use(function($,ui){
             {content : $('#demo_tmpl1').html(), callback : function(call){
                 noJS.use(function($,ui){
                     var m = new ui.overlay({
-                        nearby : window,
-                        position : {right:0,bottom:0}
-                    });
-                    m.set('content', '<div style="padding:90px">131234</div>');     
+                        nearby : 'show_tips'
+                    }), time;
+                    m.set('content', '<div style="padding:90px">tips</div>');     
                     
                     function show(){
-                        setTimeout(function(){
+                        time = setTimeout(function(){
                             m.show();
-                        }, 500)
+                        }, 1000)
                     }
                     show(); 
                                     
                     //**hide
                     call.onShow = show;
+                    call.onHide = function(index){
+                        time = clearTimeout(time);
+                    }
                     //hide**
-                    
-                    
                 })
             }},
 			{content : $('#demo_tmpl2').html(), callback : function(){
@@ -186,7 +187,7 @@ noJS.use(function($,ui){
                         nearby : 'overlay_test1'
                     })
                     m1.set('content', '<div style="padding:50px">自定义外部事件控制浮动层,click触发</div>');
-                    m1.nearby.click(function(){
+                    m1.nearby.click(function(e){
                         m1[ m1.visible ? 'hide' : 'show' ]();
                         return false;
                     })

@@ -119,7 +119,7 @@ define(function(require,$){
 				this.maxSize.B.push(y+h);
 			}
 			
-			$.stopDefault(e);
+			e.preventDefault();
 			
 			//取出边界值   |单个对象时为其自身边界|
 			//多个对象时为最大边界   可取多个对象一部分作为最大边界 this.group
@@ -160,7 +160,7 @@ define(function(require,$){
 		DragMove : function(e){
 			if( this.moveing && !this.disable && this.drag ){
 				e = e || window.event;
-				$.stopDefault(e);				
+				e.preventDefault();				
 				
 				var i,m,pos,x,y,
 					c = {//鼠标偏移量
@@ -226,7 +226,7 @@ define(function(require,$){
 				T.A = clearTimeout(T.A);
 				this.UpEvent && this.UpEvent.call(this);
 				this.maxSize = this.dragLastPos = this.dragNowPos = null;
-				$.stopDefault(e);
+				e.preventDefault();
 			}
 		}
 	}

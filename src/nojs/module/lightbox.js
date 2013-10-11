@@ -189,7 +189,7 @@ define(function( require, $, ui ){
 				T.hide();
 			})
 			this.page.click(function(e){
-				$.stopDefault(e);
+				e.preventDefault();
 				T.load( $(this).hasClass('prev') ? --T.index : ++T.index );
 				
 			}).hover(function(){

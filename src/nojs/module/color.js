@@ -58,7 +58,7 @@ define(function( require, $ ){
 		}
 		function bind(){
 			box.click(function(e){
-				$.stopBubble(e);
+				e.stopPropagation();
 				var t = e.target,
 					m = $(t);
 				if(m.hasClass('close')){
@@ -92,7 +92,7 @@ define(function( require, $ ){
 					pos.h = pos.h==360?0:pos.h;//色相
 				}
 				moveCall(s);
-				$.stopDefault(e);
+				e.preventDefault();
 			}
 			box.find('.mask,.roll').mousedown(function(e){
 				var m = $(this);
@@ -148,7 +148,7 @@ define(function( require, $ ){
 			for(var i=0;i<len;i++){
 				(function(m){
 					m.click(function(e){
-						$.stopBubble(e);
+						e.stopPropagation();
 						show(m);
 					})
 				})(obj.eq(i));

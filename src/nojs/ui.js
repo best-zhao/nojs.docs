@@ -105,6 +105,7 @@
 	
 	/* 
 	 * [animate动画扩展]
+	 * http://gsgd.co.uk/sandbox/jquery/easing/jquery.easing.1.3.js
 	 * easeIn：加速度缓动；
 	 * easeOut：减速度缓动；
 	 * easeInOut：先加速度至50%，再减速度完成动画
@@ -122,24 +123,9 @@
 		random : function(){
 			//得到一个随机数
 			return String(Math.ceil(Math.random() * 100000) + String(new Date().getTime()));
-		},
-		stopDefault : function( e ){
-			//取消事件的默认动作
-			if ( e.preventDefault ) {
-				e.preventDefault();
-			} else {
-				e.returnValue = false;
-			}
-		},
-		stopBubble : function( e ){
-			//阻止冒泡
-			if ( e.stopPropagation ){
-				e.stopPropagation();
-			}else{
-				e.cancelBubble = true;
-			}
-		},
-		
+		},		
+		//取消事件的默认动作 e.preventDefault()   stopDefault
+		//阻止冒泡 e.stopPropagation()		stopBubble
 		onScroll : function( obejct, onScroll ){
 			//自定义鼠标滚轮事件
 			var scrollFunc = function(e){ 
@@ -149,7 +135,7 @@
 				}else if(e.detail){//Firefox 
 					//e.preventDefault(); 
 				}
-				$.stopDefault(e);
+				e.preventDefault();
 				onScroll && onScroll(e);
 			} 
 			if(document.addEventListener){//firefox
@@ -558,7 +544,7 @@
 				element = self.nearby = $(t);
 			}
 			
-			$.stopBubble(e);
+			e.stopPropagation();
 			isHover ? !function(){
 				hideTime = clearTimeout(hideTime);
 				showTime = setTimeout(function(){
@@ -571,7 +557,7 @@
 			}
 		}
 		hide = function(e){	
-			$.stopBubble(e);
+			e.stopPropagation();
 			hideEvent ? !function(){
 				showTime = clearTimeout(showTime);
 				hideTime = setTimeout(function(){
@@ -593,7 +579,7 @@
 		!isHover && !function(){
 			$(document).click(hide);
 			self.element.click(function(e){
-				$.stopBubble(e);
+			    e.stopPropagation();
 			})
 		}();
 		
@@ -696,12 +682,11 @@
 		    if( this.visible ){
 		    	return;
 		    }
-			//this.set();//重新计算高度并设置居中
 			this.layer && ui.layer.show();
 			fn.call(this, callback);
 			
 			this.element.css({
-				"margin-top" : "-15px"
+				"margin-top" : -20
 			})
 			this.element.stop().animate({
 				"margin-top" : "0",
@@ -726,12 +711,14 @@
 			}//关闭之前确认
 			
 			this.element.animate({
-				"margin-top" : "-20px",
+				"margin-top" : -20,
 				"opacity" : "0"
-			}, 150, 'easeOutExpo');
+			}, 200, 'easeOutExpo', function(){
+			    fn.call(T, callback);
+			});
 			
 			setTimeout(function(){
-				fn.call(T, callback);
+				
 			}, 90)
 			
 	        !this.stillLayer &&	ui.layer.hide();
@@ -1060,19 +1047,20 @@
 		this.opt = opt = opt || {};
 		this.mode = opt.mode=='click'?'click':'mouseover';
 		this.onChange = opt.onChange;
+		this.onHide = opt.onHide;
 		this.index = opt.firstIndex || 0;
 		this.rule = this.rule || opt.rule;
-		this.init(dom,opt);
+		this.bind();
 	}
-	ui.Switch.prototype = {
-		init : function(dom,opt){
-			this.bind();
-		},
+	ui.Switch.prototype = {		
 		bind : function(){
 			var T = this,
 				A,m,
 				delay = T.mode=='mouseover'?100:0;//延迟触发
 				
+			if( !this.menu ){
+			    return;
+			}	
 			this.menu.on(this.mode,function(){
 				m = $(this);
 				if(m.hasClass('current')){return false;}
@@ -1094,6 +1082,7 @@
 				this.con.eq(index).show().siblings().hide();
 				this.menu.eq(index).addClass("current").siblings().removeClass("current");
 			}
+			this.onHide && this.index!=index && this.onHide.call(this, this.index);
 			this.index = index;
 			this.onChange && this.onChange.call(this, index);
 		}
@@ -1135,7 +1124,7 @@
 		//自动播放
 		var T = this;
 		if( this.auto && this.length>1 ){
-			if(this.stopOnHover){				
+			if( this.stopOnHover ){				
 				this.box.off().hover(function(){
 					T.play = clearInterval(T.play);
 				},function(){
@@ -1150,7 +1139,7 @@
 			clearInterval(T.play);
 			T.play = setInterval(function(){
 				T.change(++T.index);
-			},T.time);
+			}, T.time);
 		}
 	}
 	
