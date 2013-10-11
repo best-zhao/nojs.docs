@@ -51,10 +51,10 @@ input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg
 .nj_select{margin-right:8px;position:relative;display:inline-block;vertical-align:top;font-size:12px;background:#fff}
 .nj_select .nj_arrow{right:8px;top:11px}
 .nj_select .nj_s_wrap,.nj_select_list dd,.nj_select_list dt{padding:0 20px 0 7px;line-height:23px;white-space:nowrap;color:#333}
-.nj_select .nj_s_wrap{display:block;border:1px solid #BFC0C2;cursor:default}
+.nj_select .nj_s_wrap{display:block;border:1px solid #BFC0C2;cursor:default;height:23px}
 .nj_select:focus{outline:0}
 .nj_select:focus .nj_s_wrap{border-color:#02A6EF}
-.nj_select_list dl{margin:0 0 -1px}
+.nj_select_list dl{margin:0 0 -1px;overflow:auto;overflow-x:hidden;min-width:50px}
 .nj_select_list dd.link{padding:0}
 .nj_select_list dt{font-weight:800;color:#666}
 .nj_select_list .group{margin-top:-1px}

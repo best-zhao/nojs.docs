@@ -33,7 +33,7 @@
 			<option value="4">类型3</option>
 		</select>
 		
-		<select name="" id="test_type1" value="22">
+		<select name="" id="test_type1" value="2">
 		    <optgroup label="group1">
 		        <option>1</option>
 		        <option value="22">2</option>
@@ -60,18 +60,19 @@
 noJS.use(function($,ui){
     var type1 = new ui.select({
         nearby : 'test_type',
+        //
         mode : 'click'
     }),
     type2 = new ui.select({
-        nearby : 'test_type1'
+        nearby : 'test_type1',
+        max : 1,
     }),
     n = type2.length,
-    i = 1;
+    i;
     
     $('#change_test').click(function(){
-        i++;
-        i = i>n ? 1 : i;
-        type2.select(i);
+        i = type2.index;
+        type2.select(++i);
         return false;
     })
     

@@ -903,8 +903,7 @@
         }
         /*
          * 通用下拉列表,延迟200毫秒触发
-         * @options:可选项{show:只显示几项,只接受整数，固定高度,onSelect:当选择某项的时候触发一个回调}
-         * 默认选中项根据隐藏域的value值来匹配
+         * @options:可选项{max:最多显示选项数,至少大于1,onSelect:当选择某项的时候触发一个回调}
          */     
         //options = $.extend( ui.config.select, options );        
         options = options || {};
@@ -928,7 +927,7 @@
         this.replace();
     };
     Extend(ui.select, ui.overlay);
-    ui.select.prototype.replace = function(){
+    ui.select.prototype.replace = function(I){
         var list = this.nearby.find('option'),
             group = this.nearby.find('optgroup'),
             HTML, _nearby;
@@ -938,7 +937,7 @@
             for( i=0; i<group.length; i++ ){
                 m = group.eq(i);
                 m.before('<dt>'+m.attr('label')+'</dt>').replaceWith(m.html());
-            }            
+            }
         }
         HTML = $('<dl>'+this.nearby.html().replace(/(<\/?)option(>?)/ig, '$1dd$2')+'</dl>');
         group.length && HTML.addClass('group');
@@ -957,27 +956,23 @@
         this.hidden = this.nearby.find("input.hide");
         this.item = this.element.find('dd');
         
-        this.init1();
-    }
-    ui.select.prototype.init1 = function(I){
-        var self = this,
-            h, maxH = 'auto',
-            list = this.element.find('dl');
-        
-        h = this.item.last().outerHeight();
-        if( this.max && /^\d+$/.test(this.max) ){//显示固定个数
+        var maxH = 'auto';
+        if( this.max && /^\d+$/.test(this.max) && this.max>1 ){//显示固定个数
             if( this.max < this.length ){
-                list.css({"overflow-y":"scroll"});
-                maxH = h * this.max;
-                list.height(maxH);
+                m = this.item.last();
+                maxH = m.outerHeight() * this.max;
+                if( group.length ){
+                    maxH += this.item.eq(this.max-1).prevAll('dt').length * m.siblings('dt').outerHeight();
+                }
+                HTML.height(maxH);
             }
         }     
-        self.autoWidth && this.nearby.width(this.element.width());
+        this.autoWidth && this.nearby.width(this.element.width());
         
         !I && this.bindEvent();
         //设置默认选项
         !this.select(this.value, this.defaultEvent) && this.select( 0, this.defaultEvent );//没找到默认第一项
-    }
+    }    
     ui.select.prototype.bindEvent = function(){
         var self = this;
             
@@ -1015,7 +1010,7 @@
             val = this.content.find('dd[value="'+value+'"]');
             if( val.length ){
                 current = val.first();
-                this.index = current.index();
+                this.index = this.item.index(current);
             }else{
                 for( i=0; i<this.length; i++ ){
                     m = this.item.eq(i);
