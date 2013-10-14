@@ -101,6 +101,7 @@ define(function( require, $, ui ){
 			this.ready = imgPreLoad();
 			this.image = $('<img src="" />');
 			this.align = new ui.align({
+			    nearby : window,
 				element : this.wrap
 			})
 			this.bind();

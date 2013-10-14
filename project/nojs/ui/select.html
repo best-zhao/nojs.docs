@@ -58,15 +58,10 @@
 </div>
 <script>
 noJS.use(function($,ui){
-    var type1 = new ui.select({
-        nearby : 'test_type',
-        //
-        mode : 'click'
-    }),
-    type2 = new ui.select({
-        nearby : 'test_type1',
-        max : 1,
-    }),
+    var type1 = new ui.select('test_type'),
+    
+    type2 = new ui.select('test_type1'),
+    
     n = type2.length,
     i;
     

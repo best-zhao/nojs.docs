@@ -296,12 +296,13 @@
 			}
 			
 			if( !this.cssFixed && this.fixed ){
+			    
 				this.nearby.on('scroll.'+ns, function(){
-					self.visible && self.set();
+					self.set();
 				});
 			}
 			$(window).on('resize.'+ns, function(){
-				self.visible && self.set();
+				self.set();
 			})
 			
 			this.set();
@@ -323,6 +324,7 @@
 		},
 		set : function(options){
 			//可设置nearby position offset relative等参数覆盖初始选项
+			
 			if( !this.element ){
 				return;
 			}
@@ -403,8 +405,6 @@
 	
 	/*
 	 * 浮动层
-	 * 自动显示或由外部事件触发
-	 * 可定时隐藏
 	 */
 	ui.overlay = function(options){
 		ui.overlay.baseConstructor.call(this, options);		
@@ -855,7 +855,7 @@
 					
 					win.set('title', tit);
 					win.set('content', '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
-					new ui.ico( win.content.find('i.tip_ico'), {type:C ? 'warn' : type} );
+					new ui.ico( win.content.find('i.tip_ico'), {type : C ? 'warn' : type} );
 					Win[type] = win;
 				}
 				//自动隐藏							
@@ -884,32 +884,35 @@
 			}		
 		}
 	}();
-	ui.select = function( options ){
+	ui.select = function( element, options ){
         if( isNew = instaceofFun(this,arguments) ){
             return isNew;
         }
         /*
-         * 通用下拉列表,延迟200毫秒触发
+         * 下拉列表
+         * @element: selectd对象或id
          * @options:可选项{max:最多显示选项数,至少大于1,onSelect:当选择某项的时候触发一个回调}
          */     
         //options = $.extend( ui.config.select, options );        
         options = options || {};
-        if( !options.nearby ){
+        if( !(options.nearby = getDom(element)) ){
             return;
         }
         options.className = 'nj_select_list '+(options.className || '');
         options.hoverClass = options.hoverClass || 'nj_select_show';
         
         ui.select.baseConstructor.call(this, options);
+        
         if( !this.nearby || this.nearby[0].tagName.toLowerCase()!='select' ){
             return;
         }
+        this._select = this.nearby;
         ui.data( this.nearby[0].id, this );
         this.max = this.options.max;//最多
         this.onSelect = this.options.onSelect;//切换回调
         this.defaultEvent = this.options.defaultEvent==true ? true : false;//首次是否执行回调
         this.autoWidth = this.options.autoWidth==false ? false : true;
-        this.index = 0;        
+        this.index = 0;
         this.value = this.nearby[0].getAttribute('value') || this.nearby.val();   
         this.replace();
     };
@@ -1031,41 +1034,44 @@
 	/*
 	 * switch原型超类|幻灯片、选项卡等
 	 */
-	ui.Switch = function(dom,opt){
+	ui.Switch = function(element, options){
 		if( isNew = instaceofFun(this,arguments) ){
 			return isNew;
 		}
-		if( !(this.box = getDom(dom)) ){
+		if( !(this.element = getDom(element)) ){
 			return;
 		}
-		this.M = this.box.find(".nj_s_menu").first();
+		this.M = this.element.find(".nj_s_menu").first();
 		this.menu = this.M.find(".nj_s_m");
-		this.C = this.box.find(".nj_s_con").first();
+		this.C = this.element.find(".nj_s_con").first();
 		this.con = this.C.children(".nj_s_c");
 		this.length = this.con.length;
 		if(!this.length){return;}
-		this.opt = opt = opt || {};
-		this.mode = opt.mode=='click'?'click':'mouseover';
-		this.onChange = opt.onChange;
-		this.onHide = opt.onHide;
-		this.index = opt.firstIndex || 0;
-		this.rule = this.rule || opt.rule;
+		this.options = options = options || {};
+		this.mode = options.mode=='click' ? 'click' : 'mouseover';
+		this.onChange = options.onChange;
+		this.onHide = options.onHide;
+		this.index = this.getIndex(options.firstIndex);;
+		this.rule = options.rule || this.rule;
 		this.bind();
 	}
-	ui.Switch.prototype = {		
+	ui.Switch.prototype = {
 		bind : function(){
-			var T = this,
+			var self = this,
 				A,m,
-				delay = T.mode=='mouseover'?100:0;//延迟触发
+				delay = this.mode=='mouseover' ? 100 : 0;//延迟触发
 				
 			if( !this.menu ){
 			    return;
 			}	
-			this.menu.on(this.mode,function(){
+			this.menu.on(this.mode+'.nj_switch', function(){
 				m = $(this);
-				if(m.hasClass('current')){return false;}
+				if( m.hasClass('current') ){
+				    return false;
+				}
+				self.onTrigger && self.onTrigger();
 				A = setTimeout(function(){
-					T.change(m.index());
+					self.change(m.index());
 				}, delay)
 				return false;
 			}).mouseout(function(){
@@ -1073,9 +1079,14 @@
 			})
 			this.change(this.index);
 		},
+		getIndex : function(index){
+		    index = parseInt(index) || 0;
+		    index = index>(this.length-1) ? 0 : index;
+            index = index<0 ? (this.length-1) : index;
+            return index;
+		},
 		change : function(index){
-			index = index>(this.length-1) ? 0 : index;
-			index = index<0 ? (this.length-1) : index;
+			index = this.getIndex(index);
 			if(this.rule){
 				this.rule.call(this, index);
 			}else{
@@ -1091,28 +1102,42 @@
 	/*
 	 * slide幻灯片 继承至ui.Switch
 	 */	
-	ui.slide = function(id,opt){
-		ui.slide.baseConstructor.call(this, id, opt);
-		if( !this.box ){
+	ui.slide = function(element, options){
+		ui.slide.baseConstructor.call(this, element, options);
+		if( !this.element ){
 			return;
 		}
-		this.getIndexNum = this.opt.getIndexNum==true?true:false;
-		this.getIndexNum && this.getNum();
 		this.play = null;
-		this.time = this.opt.time || 5000;
-		this.auto = this.opt.auto==false?false:true;
-		this.stopOnHover = this.opt.stopOnHover==false?false:true;
+		this.time = this.options.time || 5000;
+		this.auto = this.options.auto==false ? false : true;
+		this.stopOnHover = this.options.stopOnHover==false ? false : true;
+		
+		var self = this;
+		this.stopOnHover && this.element.hover(function(){
+            self.play = clearInterval(self.play);
+        },function(){
+            self.start();
+        })	
+		
 		this.start(true);
 	}
 	Extend(ui.slide, ui.Switch);
 	ui.slide.prototype.getNum = function(){
+	    if( this.M.children().length ){
+	        return;
+	    }
+	    
 		var list = '';
-		for(var i=1;i<=this.length;i++){
+		for( var i=1; i<=this.length; i++ ){
 			list += '<li class="nj_s_m">'+i+'</li>';
 		}
 		this.M.append(list);
 		this.menu = this.M.find('.nj_s_m');
 		this.bind();
+	}
+	ui.slide.prototype.onTrigger = function(){
+	    //手动触发时要重新开始计时，避免时间重合
+	    !this.stopOnHover && this.start();
 	}
 	ui.slide.prototype.rule = function(index){
 		//切换规则		
@@ -1121,29 +1146,20 @@
 		this.index = index;
 	}
 	ui.slide.prototype.start = function(startNow){
-		//自动播放
-		var T = this;
-		if( this.auto && this.length>1 ){
-			if( this.stopOnHover ){				
-				this.box.off().hover(function(){
-					T.play = clearInterval(T.play);
-				},function(){
-					s();
-				}).mouseout();
-			}else{
-				s();
-			}
+		//开始播放
+		var self = this;
+		if( !this.auto || this.length<2 ){
+			return;
 		}
-		startNow && T.change(T.index);
-		function s(){
-			clearInterval(T.play);
-			T.play = setInterval(function(){
-				T.change(++T.index);
-			}, T.time);
-		}
+		startNow && this.change(this.index);
+		
+		clearInterval(self.play);
+        self.play = setInterval(function(){
+            self.change(++self.index);
+        }, self.time);
 	}
 	
-	ui.ico = function(dom,opt){
+	ui.ico = function(dom, opt){
 		/*
 		 * canvas/vml绘制的图标
 		 */		
@@ -1377,15 +1393,14 @@
 		lab = $('<label for="'+id+'" style="width:'+w+'px;height:'+h+'px" class="ph_lab ph_lab'+index+'">'+v+'</label>');
 		
 		if( /.*\s{2}$/.test(v) && $.browser('ie6 ie7') ){//for ie6/7
-			var F = input.css('float');
-			input.wrap($('<span class="ph_wrap" style="position:relative;float:'+F+'"></span>'));
+			input.wrap($('<span class="ph_wrap" style="position:relative;float:'+input.css('float')+'"></span>'));
 			lab.css('left','0');
 		}
 		if( input[0].tagName.toLowerCase()=='input' ){
 			lab.css( 'line-height', h+'px' );
 		}
-		input.attr( 'id', id ).before(lab);		
-		input.bind( 'blur propertychange', function(){
+		input.attr( 'id', id ).before(lab);
+		input.on( 'blur propertychange', function(){
 			setTimeout(function(){
 				input.val()=='' ? lab.show() : lab.hide();
 			},15)

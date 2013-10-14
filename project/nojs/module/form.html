@@ -396,25 +396,26 @@ noJS.use(function($,ui){
 			}},
 			{content : $('#demo_tmpl3').html(), callback : function(){
 				noJS.use('nojs/module/form', function($,ui,form){
-					//1
 					var win, btn = $('#show_form');
 					function init(){
-						win = new ui.win({width:430});
-						win.setCon('验证邮箱', [
-							'<form action=""><ul class="p_form mt10">',
-								'<li class="clearfix item">',
-									'<span class="p_txt"><label for="" class="lab">邮箱地址：</label><input name="email" class="text"></span>',
-								'</li>',
-							'</ul></form>'
-						].join(''), [
-							['立即验证','sb'],['取消','close']
-						]);
+						win = new ui.popup({width:430});
+						win.set('title', '验证邮箱');
+						win.set('content', [
+                            '<form action=""><ul class="p_form mt10">',
+                                '<li class="clearfix item">',
+                                    '<span class="p_txt"><label for="" class="lab">邮箱地址：</label><input name="email" class="text"></span>',
+                                '</li>',
+                            '</ul></form>'
+                        ].join(''));
+                        win.set('button', [
+                            ['立即验证','sb'],['取消','close']
+                        ])						
 						
 						//提交按钮即为win.button[0]，同时需要指定form区域
 						new form( win.button[0], {
 							'email' : {isNull:'不能为空',isEmail:'格式错误'}
 						}, {
-							form : win.con.find('form'),
+							form : win.content.find('form'),
 							onSubmit : function(){
 								ui.msg.show('ok','验证通过');
 								win.hide();

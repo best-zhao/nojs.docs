@@ -20,31 +20,57 @@ define(function(require,$,ui){
 		showMenu = $('#show_menu'),
 		first = 0, Menu;
 	
-	function setUrl(id){
-		var url = location.href.split('#'), hash = url[1];
-		if( id==undefined ){
-			return hash;
+	function setUrl(key, value){
+	    //@value: null清空参数undefined获取参数值 否则设置参数值
+		var url = location.href.split('#'), 
+            hash = (url[1]||'').split('&'),
+            i, m, _hash = {};
+		
+		key = key || 'id';
+		
+		for( i=0; i<hash.length; i++ ){
+		    m = hash[i].split('=');		    
+		    _hash[m[0]] = m[1];
 		}
-		if(hash==id){
-			return;
+		
+		if( value==_hash[key] ){
+			return _hash[key];
+		}
+		
+		if( value===null ){
+		    delete _hash[key];
+		}else if( value===undefined ){
+            return _hash[key];
+        }else{
+		    _hash[key] = value;
+		    setUrl.key = key;
+		}
+		
+		hash = [];		
+		for( i in _hash ){
+		    hash.push(i+'='+_hash[i]);
 		}
 		first = 1;
-		location.href = url[0] + '#' + id;
-	}	
+		location.href = url[0] + '#' + hash.join('&');
+	}
+	demo.openFirst = setUrl('demo')!=undefined;
+	
 	if( typeof onhashchange!='undefined' ){
 		window.onhashchange = function(){
-			var hash = location.hash, i, m;
-			hash = hash.substring(1, hash.length);
-			if( hash ){
-				for( i=0;i<G.project.length;i++ ){
+		    var id = setUrl(), i, m,
+			    key = setUrl.key;
+			    
+			if( id && key=='id' ){
+				for( i=0; i<G.project.length; i++ ){
 					m = G.project[i];
-					if( m.data.all[hash] ){
+					if( m.data.all[id] ){
 						first = 0;
-						m.select(hash);
+						m.select(id);
 						break;
 					}
 				}
 			}
+			key=='demo' && demo.tab && demo.isOpen && setUrl('demo')!=demo.index && demo.tab.change(setUrl('demo'));
 		}
 	}
 	$(window).bind('popstate', function(e){ 
@@ -53,22 +79,22 @@ define(function(require,$,ui){
 	
 	var treeOptions = {
 		defaultNode : setUrl() || D,//设置默认节点
-		onSelect : function(data){		
+		onSelect : function(data){
 			var link = data.link,
-				id = data.id;	
-				
-			demo.hide();	
-			setUrl(id);
+				id = data.id;
+			
+			demo.hide();
+			setUrl('id', id);
+			
 			if( first>0 ){
 				return;
 			}
-			
 			if(!link){
 				option.hide();
 				return;
 			}
-			window.demoAction = null;
-			demo.init = null;
+			
+			window.demoAction = demo.init = demo.tab = null;
 			
 			frame.html('<i class="load"></i>');
 			new ui.ico( frame.find('i.load'), {
@@ -88,9 +114,11 @@ define(function(require,$,ui){
 				option[window.demoAction?'show':'hide']();
 				if( window.demoAction ){
 					demo.container.html( demo.getHtml() );
+					setUrl('demo')!=undefined && demo.show(setUrl('demo'));
 				}
+				
 				//代码高亮
-				new codeLight({parent:frame});				
+				new codeLight({parent:frame});
 				
 				frame.click(function(e){
 					var t = e.target,
@@ -160,15 +188,17 @@ define(function(require,$,ui){
 		return _demo;
 	}
 	demo.show = function(index){
+	    index = parseInt(index || 0);
 		var btn = option.find('a[data-action=demo]');
+		demo.index = index;
 		!demo.isOpen && btn.click();
-		index!=undefined && demo.tab.change(index);
+		demo.tab.change(index);
 	}
 	demo.hide = function(){
 		var btn = option.find('a[data-action=demo]');
 		demo.isOpen && btn.click();
-		
 	}
+	
 	option.click(function(e){
 		var t = e.target,
 			m, act, isopen;
@@ -184,7 +214,7 @@ define(function(require,$,ui){
 					demo.container.animate({
 						'opacity' : !demo.isOpen ? 0 : 1,
 						'left' : !demo.isOpen ? '100%' : 0
-					}, 400, 'easeOutExpo', function(){
+					}, demo.openFirst ? 0 : 500, 'easeOutExpo', function(){
 						if( demo.isOpen ){
 							window.demoAction && demoAction.onShow && demoAction.onShow();
 							demoAction.onChange && demoAction.onChange(demo.index);
@@ -193,14 +223,18 @@ define(function(require,$,ui){
 					frame.animate({
 						'opacity' : !demo.isOpen ? 1 : 0,
 						'margin-left' : !demo.isOpen ? '0' : '-200px'
-					}, 800, 'easeOutExpo')
+					}, demo.openFirst ? 0 : 500, 'easeOutExpo')
+					
 					if( demo.isOpen && !demo.init ){
 						demo.init = true;
+						
 						demo.tab = new ui.Switch(demo.container, {
+						    firstIndex : demo.index,
 							mode : 'click',
 							onChange : function(index){
 								var wrap = this.con.eq(index), call;
 								demo.index = index;
+								//console.log(index)
 								call = demoAction.item[index].callback;
 								if( call ){
                                     call.onShow && call.onShow();
@@ -214,8 +248,10 @@ define(function(require,$,ui){
 									}
 								} 
 								demoAction.onChange && demoAction.onChange(index);
+								setUrl('demo', demo.index);
 							},
 							onHide : function(index){
+							    //console.log(index)
 							    var call = demoAction.item[index].callback;
 							    call && call.onHide && call.onHide(index);
 							}
@@ -223,11 +259,16 @@ define(function(require,$,ui){
 						window.demoAction.callback && window.demoAction.callback();
 					}
 					!demo.isOpen && window.demoAction && demoAction.onHide && demoAction.onHide();
+					setUrl('demo', demo.isOpen?demo.index:null);
+					if( demo.openFirst ){
+                        delete demo.openFirst;
+                    }
 					break;
 			}
 			return false;
 		}
 	})
+	
 	demo.container.click(function(e){
 		var t = e.target,
 			m, act;

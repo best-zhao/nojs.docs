@@ -345,12 +345,15 @@ define(function(require,$){
 				}else if(tag.hasClass('folder')||tag.hasClass('item')||tag.hasClass('text')||tag.hasClass('line')||tag.hasClass('ico')){//选中
 					
 					if( !tag.hasClass('item') ){
-						tag = tag.parent()
+						tag = tag.parent();
+					}
+					if( T.selected == tag[0].id ){
+					    return false;
 					}
 					T.box.find('a.current').removeClass('current');
 					tag.addClass('current');
-					T.selected = tag[0].id;
 					T.options.onSelect && T.options.onSelect.call( T, T.data.all[tag[0].id] );//执行事件
+					T.selected = tag[0].id;
 					
 				}else if( t.tagName.toLowerCase()=='input' ){
 					
@@ -424,7 +427,9 @@ define(function(require,$){
 		 * @by:属性 通过该属性来查找节点，默认通过id
 		 */
 		select : function( ID, by ){
-			if( !ID ){return;}
+			if( !ID ){
+			    return;
+			}
 			by = by || 'id';
 			var T = this,
 				node = this.box.find('a['+by+'="'+ID+'"]').eq(0),
@@ -466,7 +471,7 @@ define(function(require,$){
 			
 			this.box.find('a.current').removeClass('current');
 			
-			T.selected = ID;//当前选中节点
+			//T.selected = ID;//当前选中节点
 			if( node.parents('ul').first().is(':visible') ){
 				return set();
 			}
@@ -476,8 +481,8 @@ define(function(require,$){
 				m;
 			function set(){
 				node.addClass('current');
-				T.selected = ID;
 				T.options.onSelect && T.options.onSelect.call( T, T.data.all[ID] );//执行事件
+				T.selected = ID;
 				return false;
 			}
 			function s(i){

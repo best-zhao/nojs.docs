@@ -71,19 +71,20 @@ define(function(require,$,ui){
 					'<span class="a"><em>◆</em><i>◆</i></span>',
 				'</div>'
 			].join('');
-			this.faceBox = new ui.menu( this.button, {
-				mode : 'click',
+			
+			this.faceBox = new ui.overlay({
+				nearby : this.button,
 				className : 'face_menu',
 				onShow : function(){
-					if( !this.menu.data('init') ){
-						this.menu.data('init',true);
-						this.setCon(faceHtml);
-						T.itemBox = this.menu.find("ul.list");
-						
+					if( !this.element.data('init') ){
+						this.element.data('init',true);
+						this.set('content',faceHtml);
+						T.itemBox = this.element.find("ul.list");
 						T.loadFace();
 					}
 				}
 			});
+			this.faceBox.on({mode : 'click'})
 		},
 		//载入表情
 		loadFace : function(){
@@ -96,7 +97,7 @@ define(function(require,$,ui){
 			}
 			this.itemBox.html(faceItem);
 			this.item = this.itemBox.find("img");		
-			this.faceBox.menu.click(function(e){
+			this.faceBox.element.click(function(e){
 				var t = e.target, text;
 				if( t.tagName.toLowerCase()=='img' ){
 					text = '[:'+$(t).attr("title")+']';

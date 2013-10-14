@@ -67,7 +67,7 @@
 			return;
 		}
 		if( file.point ){
-			for( i=0;i<file.point.length;i++ ){
+			for( i=0; i<file.point.length; i++ ){
 				m = load.getPath(file.point[i]);
 				file.point[i] = m;
 				modules[m] = {id:m}; 
