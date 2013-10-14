@@ -7,7 +7,7 @@
 	if( typeof define=='function' && define.cmd ){
 		define(factory);
 	}else{
-		window.ui = factory();
+		window.ui = factory(null, jQuery);
 	}
 }(this, function( require, $ ){
 	

@@ -22,13 +22,15 @@ define(function(require,$,ui){
 	
 	function setUrl(key, value){
 	    //@value: null清空参数undefined获取参数值 否则设置参数值
-		var url = location.href.split('#'), 
-            hash = (url[1]||'').split('&'),
+		var hash = location.hash.replace(/^#/,'').split('&'),
             i, m, _hash = {};
 		
 		key = key || 'id';
-		
+	
 		for( i=0; i<hash.length; i++ ){
+		    if( !hash[i] ){
+		        continue;
+		    }
 		    m = hash[i].split('=');		    
 		    _hash[m[0]] = m[1];
 		}
@@ -46,12 +48,14 @@ define(function(require,$,ui){
 		    setUrl.key = key;
 		}
 		
-		hash = [];		
+		hash = [];	
+			
 		for( i in _hash ){
 		    hash.push(i+'='+_hash[i]);
 		}
 		first = 1;
-		location.href = url[0] + '#' + hash.join('&');
+		
+		location.hash = hash.join('&');
 	}
 	demo.openFirst = setUrl('demo')!=undefined;
 	
