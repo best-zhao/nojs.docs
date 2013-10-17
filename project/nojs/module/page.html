@@ -1,0 +1,30 @@
+<style>
+.nj_pages *{margin:0 2px;color:#666;display:inline-block;font-size:12px}   
+.nj_pages .current{color:#fff;background:orange;border-color:red} 
+.nj_pages a{padding:0 6px;border:1px solid #ddd}
+.nj_pages .disabled{color:#ccc}
+.nj_pages a:hover{text-decoration:none}
+</style>
+<h4 class="p_tit">page</h4>
+<h6 class="p_tit">说明:</h6>
+<div class="text_info">
+	<p>分页组件，依赖模块：'nojs/module/page'</p>
+</div>
+<h6 class="p_tit">demo:</h6>
+<div class="text_info">
+	<div id="test_pages" class="nj_pages" data-count="191"></div>
+</div><!--p_con-->
+<script>
+noJS.use('nojs/module/page', function( $, ui, page ){
+	new page('test_pages', {
+	    current : 5,
+	    length : 5,
+	    ajax : {
+	        
+	    },
+	    callback : function(){
+	        
+	    }
+	});
+});
+</script>

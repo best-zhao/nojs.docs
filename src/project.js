@@ -39,7 +39,8 @@ define({
 				{id:'email',text:'email邮箱自动补全',link:'module/email'},
 				//{id:'calendar',text:'calendar日历',link:'module/calendar'},
 				{id:'lazyload',text:'lazyload延迟加载',link:'module/lazyload'},
-				{id:'lightbox',text:'lightbox',link:'module/lightbox'}
+				{id:'lightbox',text:'lightbox',link:'module/lightbox'},
+                {id:'page',text:'page',link:'module/page'}
 			]},
 	
 			{id:'test_page',text:'小测试',open:0,data:[

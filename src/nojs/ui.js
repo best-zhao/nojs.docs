@@ -225,7 +225,7 @@
 		        var secure = options.secure ? '; secure' : '';
 		        document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
 		    } else { 
-		        var cookieValue = null;
+		        var cookieValue = '';
 		        if (document.cookie && document.cookie != '') {
 		            var cookies = document.cookie.split(';');
 		            for (var i = 0; i < cookies.length; i++) {
@@ -278,9 +278,7 @@
 		this.isWrap = this.nearby && (screen || this.nearby.find(this.element).length);//对象是否在参考对象内部
 		this.autoAdjust = options.autoAdjust;//超出屏幕后是否自动调整位置
 		
-		if( this.element ){
-			this.bind();
-		}
+		this.element && this.bind();
 	}
 	ui.align.prototype = {
 		bind : function(){
@@ -1117,8 +1115,8 @@
             self.play = clearInterval(self.play);
         },function(){
             self.start();
-        })	
-		
+        })
+		this.getNum();
 		this.start(true);
 	}
 	Extend(ui.slide, ui.Switch);
