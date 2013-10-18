@@ -1,0 +1,33 @@
+<style>
+.nj_resize_handler{position:absolute;overflow:hidden;font-size:0;line-height:0;z-index:1}    
+.nj_resize_handler_tl,.nj_resize_handler_bl,.nj_resize_handler_tr,.nj_resize_handler_br{width:6px;height:6px;z-index:2;background:black}
+.nj_resize_handler_tl{cursor:nw-resize;top:-3px;left:-3px}
+.nj_resize_handler_tr{cursor:sw-resize;top:-3px;right:-3px}
+.nj_resize_handler_bl{cursor:sw-resize;bottom:-3px;left:-3px}
+.nj_resize_handler_br{cursor:nw-resize;bottom:-3px;right:-3px}
+.nj_resize_handler_t{height:6px;width:100%;top:-3px;cursor:n-resize}
+.nj_resize_handler_b{height:6px;width:100%;bottom:-3px;cursor:n-resize}
+.nj_resize_handler_l{width:6px;height:100%;left:-3px;cursor:e-resize}
+.nj_resize_handler_r{width:6px;height:100%;right:-3px;cursor:e-resize}
+.nj_resize_handler_t,.nj_resize_handler_b,.nj_resize_handler_l,.nj_resize_handler_r{background:rgba(0,0,0,.1)}
+</style>
+<h4 class="p_tit">resize</h4>
+<h6 class="p_tit">说明:</h6>
+<div class="text_info">
+	<p>依赖模块：'nojs/module/resize'</p>
+</div>
+<h6 class="p_tit">demo:</h6>
+<div class="text_info">
+    <div style="width:500px;height:400px;background:#f9f9f9;border:1px solid #ddd;position:relative">
+        <div id="test_resize" style="position:absolute;top:90px;left:40px;width:150px;height:150px;background:#eee;border:1px solid #ccc"></div>
+    </div>
+	
+</div><!--p_con-->
+<script>
+noJS.use(['nojs/module/resize','nojs/module/drag'],function( $, ui, resize, drag ){
+	new resize('test_resize', {
+	    
+	});
+	new drag($('#test_resize'))
+});
+</script>

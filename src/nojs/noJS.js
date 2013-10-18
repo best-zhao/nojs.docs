@@ -44,8 +44,8 @@
 			len = file.length,
 			src, s, m, i, j, q;
 			
-		cf.base = typeof cf.base != 'undefined' ? cf.base : config.base;
-		cf.fix = typeof cf.fix != 'undefined' ? cf.fix : config.fix;
+		cf.base = cf.base != undefined ? cf.base : config.base;
+		cf.fix = cf.fix != undefined ? cf.fix : config.fix;
 		cf.queue = cf.queue===false ? false : config.queue;
 		
 		//整理数组
@@ -58,7 +58,7 @@
 				len--;
 				continue;
 			}else{
-				modules[m] = { id : m };
+				modules[file[i]] = modules[m] = { id : m, config : cf };
 			}
 			//cf.queue!==true && append(m);//并行加载
 		}
@@ -66,11 +66,12 @@
 		if(!len){
 			return;
 		}
+		//打包时 指向真实的模块
 		if( file.point ){
 			for( i=0; i<file.point.length; i++ ){
-				m = load.getPath(file.point[i]);
+				m = load.getPath(file.point[i], cf);
+				modules[file.point[i]] = modules[m] = {id:m, config : cf};
 				file.point[i] = m;
-				modules[m] = {id:m}; 
 			}
 		}
 		
@@ -156,7 +157,7 @@
 	 */
 	load.getPath = function( path, cf ){
 		if(typeof path!='string'){return '';}
-		cf = cf || config;
+		cf = cf || (modules[path] && modules[path].config) || config;
 		
 		var p1 = path.indexOf('./'),
 			p2 = path.lastIndexOf('./'),
@@ -164,6 +165,10 @@
 			fix = cf.fix,
 			n, len, s, i;
 		
+		if( !base || base=='' ){//相对路径
+            return path + fix;
+        }
+        
 		if(p1!=0){//同级
 			return base + path + fix;
 		}else if(p1==p2){//上一级
@@ -320,14 +325,16 @@
 	
 	//将所依赖模块转换成对应的接口
 	function depsToExports( deps, global ){
-		var _mod, j, rect = [];
+		var _mod, j, m, rect = [];
 		
 		for( j=0; j<deps.length; j++ ){
-			_mod = load.getPath( deps[j] );
+		    m = deps[j];
+			_mod = load.getPath( m, modules[m] && modules[m].config );
 			_mod = modules[_mod];
 			if(!_mod){
 				continue;
 			}	
+			
 			getExports(_mod);
 			global ? globalExports.push(_mod['exports']) : rect.push(_mod['exports']);
 		}
@@ -434,13 +441,12 @@
 			return noJS;
 		}
 		
-		
 		var T = load,
 			t = type(path);
 		
 		if( !path ){return noJS;}
 		
-		function call( exports ){			
+		function call( exports ){
 			fun && fun.apply( null, exports );
 		}
 			

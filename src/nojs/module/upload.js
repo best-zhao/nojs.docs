@@ -136,7 +136,7 @@ define(function(require,$){
 				if(!val){return;}
 				//_file = _file.length && Array.prototype.slice.call(_file,0);
 				//_file.shift();
-				//console.log(_file)
+				//console.log(val)
 				
 				if( T.count >= opt.limit ){
 					T.tip( '超出数量', 'warn' );

@@ -65,7 +65,7 @@ define(function(require,$,ui){
 	                	break;
 	            }
 	            if(s){
-	            	$.stopDefault(e);
+	            	e.preventDefault();
 	            	T.showCode(hot,true);
 	            }
 			}).bind('keyup',function(e){
@@ -89,22 +89,24 @@ define(function(require,$,ui){
 			}
 			
 			//选中选区
-			this.imgWrap.bind('click',function(e){
+			this.imgWrap.on('click',function(e){
 				var t = e.target,
 					m = $(t),
 					index,area;
-				$.stopBubble(e);
+				
+				e.stopPropagation();
 				if(t.tagName.toLowerCase()=='div'&&m.hasClass('hotarea')){
 					T.choose(m);
 				}
 				T.img.focus();
 			})
-			this.codeWrap.bind('click',function(e){
+			this.codeWrap.on('click',function(e){
 				if($(this).find('.edit').length){return;}//编辑状态 不关联选中
 				var t = e.target,
 					m = $(t),
 					index,area;
-				$.stopBubble(e);
+					
+				e.stopPropagation();
 				if(t.tagName.toLowerCase()=='li'||m.closest('li').length){
 					m.closest('li').length && (m = m.closest('li'));
 					index = m.index();
@@ -197,7 +199,7 @@ define(function(require,$,ui){
 			this.select = $('body').append('<div class="imghot_select"></div>').find('.imghot_select');
 			
 			this.img.bind('mousedown.imghot',function(e){
-				$.stopDefault(e);
+				e.preventDefault();
 				if($(e.target).hasClass('hotarea')){return;}
 				mouseLast = {
 					x : e.clientX,
@@ -214,7 +216,7 @@ define(function(require,$,ui){
 				T.select.hide();
 				
 				d.bind('mousemove.imghot',function(e){
-					$.stopDefault(e);
+					e.preventDefault();
 					mouseNow = {
 						x : e.clientX+winPos.left,
 						y : e.clientY+winPos.top

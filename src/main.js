@@ -57,6 +57,7 @@ define(function(require,$,ui){
 		
 		location.hash = hash.join('&');
 	}
+	setUrl.key = 'id';
 	demo.openFirst = setUrl('demo')!=undefined;
 	
 	if( typeof onhashchange!='undefined' ){

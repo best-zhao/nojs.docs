@@ -37,7 +37,18 @@
 noJS.use(function($,ui){
 	var win;
 	function init(){
-		win = new ui.popup();
+		win = new ui.popup({
+		    onShow : function(){
+		        win.onbeforehide = function(){
+                    ui.msg.show('confirm','确认关闭?',{
+                        ok : function(){
+                            win.onbeforehide = null;
+                            win.hide();
+                        }
+                    })
+                };
+		    }
+		});
 		win.set('title', '实例');
 		win.set('content', '<div style="height:100px">test</div>');
 		win.set('button', [

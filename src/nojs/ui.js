@@ -469,7 +469,7 @@
 			}, this.timeout)
 		}
 		this.visible = true;
-		callback && callback();
+		callback && callback.call(this);
 		this.onShow && this.onShow.call(this);
 		
 		return;
@@ -496,7 +496,7 @@
 		this.element.css('visibility','hidden');
 		this.autoHide = clearTimeout(this.autoHide);
 		this.visible = false;
-		callback && callback();
+		callback && callback.call(this);
 		this.onHide && this.onHide.call(this);
 	}
 	ui.overlay.prototype.on = function(options){
@@ -609,7 +609,6 @@
 					element : layer
 				});
 			}
-			
 			$.onScroll( layer[0] );
 			arr.element = layer;
 		}
@@ -618,7 +617,7 @@
 			if( layer.is(":visible") ){
 				return;
 			}
-			layer.show().fadeTo( 200, typeof opacity=='number' ? opacity : 0.6 );
+			layer.show().fadeTo( 200, typeof opacity=='number' ? opacity : 0.8 );
 		}
 		function hide(){
 			layer.fadeTo(200,0,function(){
@@ -689,7 +688,9 @@
 			this.element.stop().animate({
 				"margin-top" : "0",
 				"opacity" : "1"
-			}, 400, 'easeOutExpo');		
+			}, 400, 'easeOutExpo');
+			
+			this.bindEsc && ui.popup.focus.push(this);
 		},
 		hide : function(fn, callback){
 			/*
@@ -699,27 +700,33 @@
 			if( !this.visible ){
 		    	return;
 		    }
-			var T = this;
+			var self = this, 
+			    hideLayer = !this.stillLayer;
 			/*
-			 * onbeforehide:关闭之前确认，传入一个数组[fn,true/false]
-			 * fn返回的布尔值;第二个参数true表示是否只有当fn为true时才关闭窗口,false均关闭
+			 * onbeforehide:关闭之前确认
 			 */
-			if(this.onbeforehide && !this.onbeforehide[0]()){			
-				if( this.onbeforehide[1] ) {return false;}
-			}//关闭之前确认
+			if( this.onbeforehide && !this.onbeforehide() ){
+				return;
+			}
+			
+			fn.call(self, callback);
+			this.element.css('visibility','visible');
 			
 			this.element.animate({
 				"margin-top" : -20,
 				"opacity" : "0"
-			}, 200, 'easeOutExpo', function(){
-			    fn.call(T, callback);
+			}, 400, 'easeOutExpo', function(){
+			    self.element.css('visibility','hidden');
 			});
 			
-			setTimeout(function(){
-				
-			}, 90)
-			
-	        !this.stillLayer &&	ui.layer.hide();
+			$.each(ui.popup.item, function(){//检测其他弹窗看是否需要保留遮罩
+			    if( this.key != self.key && this.visible && this.layer ){
+			        hideLayer = false;
+                    return false;
+			    }
+			})
+	        hideLayer && ui.layer.hide();
+	        ui.popup.focus.pop();
 		}
 	})
 	ui.popup.prototype.create = function(){
@@ -727,7 +734,7 @@
 			id = 'nj_popup_' + $.random();
 		
 		ui.popup.item[id] = this;
-		this.key = id;		
+		this.key = id;
 		
 		this.set('content', [
 			'<span class="win_close"></span><div class="win_tit"></div>',
@@ -736,6 +743,7 @@
 		].join(''));
 		this.content.addClass('win_wrap');
 		this.element.css( {'width':self.width, 'opacity':'0'} );
+		this.element[0].id = id;
 		this.close = this.element.find(".win_close");
 		this.title = this.element.find(".win_tit");
 		this.content = this.element.find(".win_con");
@@ -746,11 +754,7 @@
 		this.close.on('click',function(){//绑定关闭按钮事件
 			self.hide();
 		});
-		if(this.bindEsc){
-			$(window).on("keydown",function(e){//按下esc键隐藏弹窗
-				self.element.is(":visible") && e.keyCode==27 && self.hide();
-			})
-		}
+		this.bindEsc && !ui.popup.bind.init && ui.popup.bind();
 		$.onScroll( this.content[0] );		
 	}
 	ui.popup.prototype.addBtn = function(text,callback,color){
@@ -807,6 +811,17 @@
 			win = null;
 		}
 	}
+	ui.popup.focus = [];//处于焦点的弹窗
+	ui.popup.bind = function(){
+	    if( ui.popup.bind.init ){
+	        return;
+	    }
+	    ui.popup.bind.init = true;
+	    $(window).on("keydown",function(e){//按下esc键隐藏弹窗
+	        var focus = ui.popup.focus;
+	        e.keyCode==27 && (pop=focus[focus.length-1]) && pop.bindEsc && pop.visible && pop.hide();
+        })
+	}
 	
 	ui.msg = function(){
 		/*
@@ -834,7 +849,7 @@
 					btn = btn || [
 						['确定',function(){
 							win.hide(function(){
-								try{opt.ok();}catch(e){};
+							    typeof opt.ok=='function' && opt.ok.call(this);
 							});
 						},'sb'],
 						['取消','close']
@@ -843,7 +858,7 @@
 				if( !win || !$('#'+win.key).length ){
 					win = new ui.popup({
 						width : w,
-						bindEsc : false,
+						bindEsc : C ? true : false,
 						className : 'msg_tip_win'
 					});
 					
@@ -855,9 +870,18 @@
 					win.set('content', '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
 					new ui.ico( win.content.find('i.tip_ico'), {type : C ? 'warn' : type} );
 					Win[type] = win;
+					
+					if( C ){
+					    win.onShow = function(){
+					        ui.layer.element.addClass('higher_layer');
+					    }
+					    win.onHide = function(){
+                            ui.layer.element.removeClass('higher_layer');
+                        }
+					}
 				}
 				//自动隐藏							
-				win.timeout = type!='confirm' && type!='loading' && !opt.reload ? timeout : 0;
+				win.timeout = !C && type!='loading' && !opt.reload ? timeout : 0;
 				if( opt.reload ){
 					setTimeout(function(){
 						if( opt.reload===true ){
@@ -1164,24 +1188,31 @@
 		if( isNew = instaceofFun(this,arguments) ){
 			return isNew;
 		}
-		opt = $.extend( ui.config.ico, opt );
+		//opt = $.extend( ui.config.ico, opt );
+		opt = opt || {};
 		this.hasCanvas = !!document.createElement('canvas').getContext;
 		this.type = opt.type || 'ok';
 		this.ico = $('<i class="nj_ico n_i_'+this.type+'"></i>');
-		dom = getDom(dom);
-		dom && dom.length && dom.empty();
-		this.obj = dom || $('body:first');
-		this.obj.append(this.ico);
+		if( !(dom = getDom(dom)) ){
+		    return;
+		}
+		//dom && dom.length && dom.empty();
+		//this.obj = dom || $('body:first');
+		dom.html(this.ico);
 		this.canvas = null;
 		this.ctx = null;
-		this.ico.css('visibility','hidden');
-		this.width = opt.width||this.ico.width();
-		this.height = opt.height||this.ico.height();
-		if(!this.width||!this.height){return;}
-		this.color = opt.color||this.ico.css('color');
-		this.bgcolor = opt.bgcolor||this.ico.css('background-color');
-		this.ico.removeAttr('style');
-		this.ico.css({'background':'none','width':this.width,'height':this.height});
+		//this.ico.css('visibility','hidden');
+		this.width = opt.width || this.ico.width() || 16;
+		this.height = opt.height || this.ico.height() || 16;
+		
+		this.color = opt.color || this.ico.css('color');
+		this.bgcolor = opt.bgcolor || this.ico.css('background-color');
+		//this.ico.removeAttr('style');
+		this.ico.css({
+		    'background' : 'none',
+		    'width' : this.width,
+		    'height' : this.height
+		});
 		this.createSpace();
 	}
 	ui.ico.prototype = {		
@@ -1269,7 +1300,7 @@
 						T.canvas.rotation = startAngle;
 					},15);
 				}
-			}else if(type=='ok'||type=='warn'||type=='error'||type=='close'){
+			}else if( type=='ok' || type=='warn' || type=='error' || type=='close' ){
 				if(this.hasCanvas){
 					ctx.beginPath();
 					ctx.fillStyle = bgcolor;
@@ -1340,34 +1371,13 @@
 							})
 						}
 					}
-					type=='close'&&bind();
+					type=='close' && bind();
 				}
 			}else{
 				//自定义绘图方法
-				this['Draw'+type]&&this['Draw'+type]();
+				this['Draw'+type] && this['Draw'+type]();
 			}
 		}
-	}
-	ui.ico.batch = function(obj,opt){
-		/*
-		 * 批量生成图标
-		 */
-		var i,m,len,j,ico = {},T=this;
-		for(i in obj){
-			m = obj[i];
-			len = m.length;	
-			if(len>1){
-				for(j=0;j<len;j++){
-					new T(i,m.eq(j),opt);
-				}
-			}else if(len==1){
-				new T(i,m,opt);
-			}else{
-				continue;
-			}
-			ico[i] = m;	
-		}
-		return ico;
 	}
 	ui.ico.add = function(type,draw){
 		/*
