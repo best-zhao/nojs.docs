@@ -463,7 +463,9 @@ define(function( require, $, ui ){
 					
 					var tip = element.data("tip");
 					
-					if( json.state==1 || json.status==1 ){//ok
+					if( json.state==1 || json.status==1 ||
+					   param.check && param.check(json)//自定义返回数据是否符合
+					){//ok
 						element.data("state",true);
 						form.state(element,'ok');
 						param.callback && param.callback();//用于submit 返回成功后继续submit操作

@@ -235,7 +235,11 @@
 		return mod && getExports(mod);
 	}
 	require.async = function(){//按需加载模块
-		noJS.use.apply( null, Array.prototype.slice.apply(arguments) );
+	    var mod = arguments[0],
+	        call = arguments[1],
+	        options = arguments[2] || {};
+	    options.async = true;
+		noJS.use(mod ,call, options);
 	}
 	
 	function parseRequire( code ){
@@ -447,6 +451,7 @@
 		if( !path ){return noJS;}
 		
 		function call( exports ){
+		    exports = opt && opt.async && exports ? exports.slice(globalExports.length,exports.length) : exports;//opt.async按需加载模块 只返回当前模块接口 
 			fun && fun.apply( null, exports );
 		}
 			

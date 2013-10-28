@@ -614,10 +614,7 @@
 		}
 		function show(opacity){
 			!document.getElementById('nj_layer') && init();
-			if( layer.is(":visible") ){
-				return;
-			}
-			layer.show().fadeTo( 200, typeof opacity=='number' ? opacity : 0.8 );
+			layer.show().stop().fadeTo( 200, typeof opacity=='number' ? opacity : 0.8 );
 		}
 		function hide(){
 			layer.fadeTo(200,0,function(){
@@ -656,16 +653,14 @@
 		        @btns:设置操作区按钮，为一个数组，数组项格式同this.getButton,如不设置或设置null则隐藏操作区
 		    */
 			if( key=='title' ){
-				value && this.title.html(value);
+				value && this.title.html(value).show();
 			}else if( key=='button' ){
 				this.button = [];
-				if(value){
-					this.operating.empty();//重设操作区
-					for(var i=0;i<value.length;i++){
+				if( value ){
+					this.operating.empty().show();//重设操作区
+					for( var i=0; i<value.length; i++ ){
 						this.addBtn.apply( this, value[i] );
 					}
-				}else if(this.operating.html().replace(/\s/g,"")==""){//不传入且未设置过操作区则隐藏操作区
-					this.operating.css("display","none");
 				}
 			}else{
 				fn.call(this, key, value);
@@ -690,7 +685,10 @@
 				"opacity" : "1"
 			}, 400, 'easeOutExpo');
 			
-			this.bindEsc && ui.popup.focus.push(this);
+			//this.bindEsc && ui.popup.focus.push(this);
+			if( this.bindEsc && !ui.popup.focus[this.key] ){
+			    ui.popup.focus[this.key] = this;
+			}
 		},
 		hide : function(fn, callback){
 			/*
@@ -719,14 +717,15 @@
 			    self.element.css('visibility','hidden');
 			});
 			
-			$.each(ui.popup.item, function(){//检测其他弹窗看是否需要保留遮罩
+			this.layer && $.each(ui.popup.item, function(){//检测其他弹窗看是否需要保留遮罩
 			    if( this.key != self.key && this.visible && this.layer ){
 			        hideLayer = false;
                     return false;
 			    }
 			})
 	        hideLayer && ui.layer.hide();
-	        ui.popup.focus.pop();
+	        //ui.popup.focus.pop();
+	        delete ui.popup.focus[this.key];
 		}
 	})
 	ui.popup.prototype.create = function(){
@@ -738,16 +737,16 @@
 		
 		this.set('content', [
 			'<span class="win_close"></span><div class="win_tit"></div>',
-			'<div class="win_con"></div>',
+			'<div class="win_con clearfix"></div>',
 			'<div class="win_opt"></div>'
 		].join(''));
 		this.content.addClass('win_wrap');
 		this.element.css( {'width':self.width, 'opacity':'0'} );
 		this.element[0].id = id;
 		this.close = this.element.find(".win_close");
-		this.title = this.element.find(".win_tit");
+		this.title = this.element.find(".win_tit").hide();
 		this.content = this.element.find(".win_con");
-		this.operating = this.element.find(".win_opt");
+		this.operating = this.element.find(".win_opt").hide();
 		
 		new ui.ico( this.close, {type:'close'} );
 		
@@ -777,7 +776,7 @@
 			callback = null;
 		}	
 		btn.attr({
-			"class" : color=='no' ? '' : "nj_btn n_b_" + color
+			"class" : color=='no' ? 'no' : "nj_btn n_b_" + color
 		});
 		btn.html('<i>'+text+'</i>');
 		this.operating.append(btn);
@@ -811,15 +810,22 @@
 			win = null;
 		}
 	}
-	ui.popup.focus = [];//处于焦点的弹窗
+	ui.popup.focus = {};//处于焦点的弹窗
 	ui.popup.bind = function(){
 	    if( ui.popup.bind.init ){
 	        return;
 	    }
 	    ui.popup.bind.init = true;
 	    $(window).on("keydown",function(e){//按下esc键隐藏弹窗
-	        var focus = ui.popup.focus;
-	        e.keyCode==27 && (pop=focus[focus.length-1]) && pop.bindEsc && pop.visible && pop.hide();
+	        //var focus = ui.popup.focus;
+	        //e.keyCode==27 && (pop=focus[focus.length-1]) && pop.bindEsc && pop.visible && pop.hide();
+	        if( e.keyCode==27 ){
+	            var i, pop;
+	            for( i in ui.popup.focus ){
+	                pop = ui.popup.focus[i];
+	            }
+	            pop.bindEsc && pop.visible && pop.hide();
+	        }
         })
 	}
 	
