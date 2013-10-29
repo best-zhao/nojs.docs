@@ -288,7 +288,7 @@ define(function( require, $, ui ){
 			 * 表单提交
 			 */
 			var m,state;
-			if( this.onBeforeSubmit && !this.onBeforeSubmit() ){
+			if( this.onBeforeSubmit && !this.onBeforeSubmit.call(this) ){
 				return false;
 			}
 			for(var i=0,n = this.item.length;i<n;i++){
