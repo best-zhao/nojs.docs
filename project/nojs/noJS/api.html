@@ -4,7 +4,7 @@
 	<p class="mb10">noJS对外提供3个接口：noJS.config, noJS.use, define; 模块工厂函数内部提供一个require方法。</p>
 </div>
 <h6 class="p_tit">noJS.config：</h6>
-<div class="text_info"><p class="about_link"><a href="" id="noJS_config">见参数配置</a></p></div>
+<div class="text_info"><p class="about_link"><a href="" data-id="noJS_config">见参数配置</a></p></div>
 <h6 class="p_tit">noJS.use：</h6>
 <div class="text_info">
 	<p>1.用于在页面中加载模块，noJS.use( modules,callback, options );</p>
@@ -33,7 +33,7 @@
 	noJS.use( ['init','main'], {base:''} );
 	</script>
 	
-	<p class="mb10">2.或者执行一段依赖页面之前载入所有模块的代码，这段代码会先存入队列中，等待整个依赖链加载完毕后依次执行。</p>
+	<p class="mb10">2.或者执行一个函数，该函数会先存入队列中，等待全局模块加载完毕后依次执行。函数的参数为全局模块的接口</p>
 	<script type="text/codelight" code="javascript" key="use">
 	noJS.use(function( $, ui ){
 		var a = $('#id');

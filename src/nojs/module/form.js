@@ -333,7 +333,7 @@ define(function( require, $, ui ){
 		}
 		offset = m.offset();
 		m.siblings('.nj_f_tip').remove();
-		m.after(wrap);
+		m.after(wrap).focus();
 		//m[0].tagName.toLowerCase()=='input' && wrap.css('line-height',m.innerHeight()+'px');
 		new ui.ico(t,{type:s});		
 		wrap.addClass('nj_f_'+s);

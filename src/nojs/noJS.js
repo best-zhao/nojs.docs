@@ -26,7 +26,10 @@
 			queue : true,//默认为串行加载，false为并行加载
 			fix : '.js'
 		},
+		//noJS本身加载完成之后的回调函数
 		onReady,
+		//标示全局模块加载完成，默认true表示不设置全局模块
+		globalReady = true,
 		configFile = 0;
 	
 	//检测对象类型	
@@ -120,7 +123,7 @@
 			}else if( cf.queue===true ){
 				s && loader(num);
 			}
-			( s||state ) && check( modules[src] );
+			( s||state ) && done( modules[src] );
 		}
 	}
 	
@@ -268,7 +271,7 @@
 		current['factory'] = factory;
 		
 		function over(){
-			check( current );
+			done( current );
 		}
 		
 		if( _type=='function' ){
@@ -298,12 +301,9 @@
 	}
 	define.cmd = true;
 	
-	function check( mod ){
-		//mod.state = mod.state || 0;
-		//mod.state++;
+	function done( mod ){
 		//当最后一个依赖模块加载完毕时
 		if( !load.state ){
-			
 			var i, j, _mod, rect = [], call;
 			for( i in modules ){
 				_mod = modules[i];
@@ -313,18 +313,19 @@
 				_mod['factory'] && rect.push( _mod );
 			}
 			//从依赖关系的最末端开始初始化工厂函数并提取数据接口
-			
 			for( i=rect.length-1; i>=0; i-- ){
 				_mod = rect[i];
 				getExports(_mod);
-			}
-			
-			//初始化noJS.use队列的回调
-			while( modules['start'].length ){
-				call = modules['start'].shift();
-				call( depsToExports(call['deps']) );
-			}
+			}		
 		}
+	}
+	done.use = function(){
+	    //初始化 使用use执行代码块 队列回调  全局模块就绪后执行
+	    var call;
+	    while( modules['start'].length ){
+            call = modules['start'].shift();
+            call( depsToExports(call['deps']) );
+        }
 	}
 	
 	//将所依赖模块转换成对应的接口
@@ -384,8 +385,8 @@
 		var global = config.global;
 		if( !globalExports && global ){
 			global = typeof global=='string' ? [global] : global;
+			globalReady = null;
 			if( type(global)=='array' ){
-				
 				globalExports = [];
 				defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
 				//打包后，全局依赖模块都并入第一个文件,并使用point指向真实的模块
@@ -397,6 +398,8 @@
 				load.add( global, function(){
 					//保存全局依赖模块的接口
 					depsToExports( defaultLoad['deps'], true );
+					globalReady = true;
+					done.use();
 				}, null, true);
 			}			
 		}
@@ -460,10 +463,8 @@
 			fun = path;
 			call['deps'] = [].concat( defaultLoad['gdeps'] );
 			modules['start'].push(call);
-			
-			if( !load.state ){
-				check();
-			}			
+			globalReady && done.use();
+					
 		}else if( t=='array' || t=='string' ){//1/2个参数，添加模块,array
 			t=='string' && ( path=[path] );//只添加一个模块 也可传入字符串
 			
@@ -571,6 +572,8 @@
 	 * 1.noJS.use(a);noJS.use(b);当模块a的依赖模块中存在b时，会出现错误(已解决,len--)
 	 * 2.载入外部配置文件的时候，use方法先缓存起来，文件载入完毕后再执行，防止use执行于配置之前
 	 * 3.ie9缓存配置文件导致出错
+	 * 4.解决相对路径模块的接口问题，原因是在获取完整路径时使用了全局配置，导致无法正确匹配模块。解决后将模块配置连同自身一起保存在modules对象中
+	 * 5.优化use方法：执行代码块不必等整个依赖链都加载完毕才执行，而是全局模块就绪即可
 	 */
 	
 })( this );

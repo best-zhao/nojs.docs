@@ -18,12 +18,22 @@ define(function(require,$){
 			return;
 		}	
 		this.max = options.max || tree.max;
+		/*
+		 * checkbox
+		 * @isCheck : true显示
+		 * @radio : 单选
+		 * @relationChildren : 选择父节点时是否全选其子节点
+		 * @relationParent : 选择子节点关联父节点
+		 */
+		this.relationChildren = this.options.relationChildren==false ? false : true;
+		this.relationParent = this.options.relationParent==false ? false : true;
+		this.radio = this.options.radio;
 		
 		//ajax模式获取数据后，所有节点都应先初始化为包含子节点的节点
 		if( this.ajaxMode ){
 			var T = this;			
 			tree.ajax({
-				url : this._data,
+				url : this._data + tree.rootID,
 				tree : this,
 				success : function(){
 					T.init( null, true, true );
@@ -200,7 +210,10 @@ define(function(require,$){
 				all = this.data.all,
 				level = isChild ? all[node].level+1 : 0,
 				data = isChild ? all[node][_child] : this.data.level[level],
-				isCheck = this.options.isCheck,
+				isCheck = this.options.isCheck, 
+				
+				//ajax加载到倒数第二级时 其子级(最后一级)初始化为无子节点的节点 即最后一级不会发送请求
+				noChild = this.ajaxMode && this.options.level && this.options.level-1==level,
 				item = '', i, j, now, m, link, line, id, open, check, more;
 			
 			if( !data.length ){
@@ -232,7 +245,7 @@ define(function(require,$){
 				open = typeof m[_open]!=='undefined' ? 'open="'+m[_open]+'"' : '';
 				check = isCheck ? '<input type="checkbox" value="'+id+'" />' : '';
 				
-				item += '<a class="item" href="'+link+'" reallink="'+link+'" id="'+id+'" '+open+'>'+line+'<i class="ico"></i>'+check+'<i class="folder"></i><span class="text">'+m[_name]+'</span></a>';
+				item += '<a class="item'+(noChild?' no_child':'')+'" href="'+link+'" reallink="'+link+'" id="'+id+'" '+open+'>'+line+'<i class="ico"></i>'+check+'<i class="folder"></i><span class="text">'+m[_name]+'</span></a>';
 				
 				if(  m[ _child ].length ){
 					//暂不加载子节点，除默认打开节点外
@@ -244,7 +257,7 @@ define(function(require,$){
 						item += '<ul>';
 					}
 					item += '</ul>';
-				}else if( this.ajaxMode ){
+				}else if( this.ajaxMode && !noChild ){
 					item += '<ul></ul>';
 				}
 				item += '</li>';
@@ -294,6 +307,7 @@ define(function(require,$){
 		},
 		bind : function(){
 			var T = this,
+			    radio = this.options.radio,//单选模式
 				tag, par, sec, link, t;
 			this.box.off('click.tree').on( 'click.tree', function(e){
 				t = e.target;
@@ -318,32 +332,34 @@ define(function(require,$){
 							//初始化该节点
 							if( T.ajaxMode ){
 								tree.ajax({
-									url : T._data,
+									url : T._data+node,
 									data : {id:node},
 									tree : T,
 									success : function(data){
 										if( data && data.length ){
-											T.init(node,true);
+											T.init(node, true);
 										}else{
 											tag.addClass('no_child').next('ul').remove();
 											if( tag.find('.last_ico1').length ){
 												tag.find('.last_ico1').addClass('last_ico').removeClass('last_ico1');
 											}
-										}
-										sec.data('init',true);
+											//sec.data('init', null);
+										}										
 									}
 								})
 							}else{
 								T.init(node,true);
-								sec.data('init',true);
 							}
+							sec.data('init', true);
 						}
 						sec && sec.is(":hidden") && sec.show();
 						tag.addClass('open');
 					}
 				
 				}else if(tag.hasClass('folder')||tag.hasClass('item')||tag.hasClass('text')||tag.hasClass('line')||tag.hasClass('ico')){//选中
-					
+					if( !T.options.onSelect ){
+					    return false;
+					}
 					if( !tag.hasClass('item') ){
 						tag = tag.parent();
 					}
@@ -355,39 +371,52 @@ define(function(require,$){
 					T.options.onSelect && T.options.onSelect.call( T, T.data.all[tag[0].id] );//执行事件
 					T.selected = tag[0].id;
 					
-				}else if( t.tagName.toLowerCase()=='input' ){
-					
+				}else if( t.tagName.toLowerCase()=='input' && t.type=='checkbox' ){
 					var children = tag.closest('a.item').next('ul').find('input'),
 						parent = tag.parents('ul'),
-						i, m, checked;
+						i, m;
 					if( t.checked ){
-						children.attr('checked','checked');
+					    if( T.options.onCheckBefore && !T.options.onCheckBefore.call( T, T.data.all[t.value] ) ){
+					        return false;
+					    }
+					    //选择后 子项全部选中
+					    //T.relationChildren
+					    //T.relationParent
+					    radio && tag.closest('ul').find('input').not(t).attr('checked', false);
+						T.relationChildren && children.attr('checked','checked');
+						
+						//子项全部选中后，父项自动选中
 						for( var i=0; i<parent.length; i++ ){
 							m = parent.eq(i);
-							if( !m.find('input').not(':checked').length ){
-								m.prev('a.item').find('input').attr('checked','checked');
+							if( !m.find('input').not(':checked').length || radio ){
+							    if( radio ){//取消同级选择
+							        //m.parent().siblings('li').find('input').attr('checked',false);
+							    }
+								T.relationParent && m.prev('a.item').find('input').attr('checked','checked');
 							}
 						}
 					}else{
-						children.attr('checked',false);
-						parent.prev('a.item').find('input').attr('checked',false);
+						T.relationChildren && children.attr('checked',false);
+						T.relationParent && parent.prev('a.item').find('input').attr('checked',false);
 					}
-					checked = T.box.find(':checked');
 					
-					T.checked = checked.length ? (function(){
-						var rect = [];
-						checked.each(function(){
-							rect.push( this.value );
-						})
-						return rect;
-					})() : null;
-					T.options.onCheck && T.options.onCheck.call( T, t.id );
-					
+					T.getChecked();
+					T.options.onCheck && !T.options.onCheck.call( T, T.data.all[t.value], t );
 					return true;
 				}
 				
 				return false;
 			})
+		},
+		getChecked : function(){
+		    var checked = this.box.find('input:checked');
+            this.checked = checked.length ? (function(){
+                var rect = [];
+                checked.each(function(){
+                    rect.push( this.value );
+                })
+                return rect;
+            })() : null;
 		},
 		addClass : function(area,root){
 			area = area || this.box;

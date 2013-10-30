@@ -174,7 +174,7 @@
 <script type="text/templete" id="demo_style">
 <style>
 /*demo style*/
-.test_tree{font-size:12px;width:40%;min-width:170px;border:1px solid #ddd;margin:0 1% 9px 0;padding:9px 0;overflow:auto;height:200px}	
+.test_tree{font-size:12px;width:47%;min-width:170px;border:1px solid #ddd;margin:0 1% 9px 0;padding:9px 0;overflow:auto;height:400px}	
 .test_tree select{padding:5px;margin:4px 0 0 15px;width:80%}
 .test_tree h6{text-indent:1em;font-weight:400;color:#999}
 .p_txt .t{margin:0}
@@ -191,6 +191,9 @@
 		<input type="button" id="render_tree" value="生成" class="nj_btn" />
 	</div>
 	<div id="tree_test2" class="nj_tree"></div>
+</div>
+<div class="test_tree fl">
+    <div id="tree_test22" class="nj_tree"></div>
 </div>
 </script>
 
@@ -279,6 +282,22 @@ noJS.use(function($,ui){
 						},0)
 						return false;
 					});
+				
+				
+				    new tree('tree_test22', {
+				        data : data,
+				        isCheck : true,
+				        //radio : 's',
+				        //relationChildren : false,
+				        relationParent : false,
+				        onCheckBefore : function(){
+				            return true;    
+				        },
+                        onCheck : function(id){
+                            console.log(this.checked);
+                        }
+				    })
+				
 				})
 			}},
 			{content : $('#demo_tmpl2').html(), callback : function(){
@@ -288,8 +307,8 @@ noJS.use(function($,ui){
 						'children' : 'data'
 					}									
 					new tree( 'tree_test1', {
-						data : 'tree.php',
-						defaultNode : 'tree'
+						data : 'tree.php?id=',
+						level : 5
 					});					
 				});
 			}},
@@ -310,7 +329,7 @@ noJS.use(function($,ui){
 					}	
 					tree.select( $('#tree_test4'), {data:config.nojs.data, select:['nj_ui','ui_core','ui_msg']} );
 					tree.select( $('#tree_test5'), {
-						data : 'tree.php?act=select'
+						data : 'tree.php?act=select&id='
 					});
 				});
 			}}
