@@ -185,7 +185,7 @@
 <div class="test_tree fl">
 	<div id="set_tree_data" class="clearfix gray9" style="padding:0 9px 9px">
 		<span class="p_txt">
-			<input value="20000" style="width:50px;text-align:center" class="text" id="data_number" />
+			<input value="4000" style="width:50px;text-align:center" class="text" id="data_number" />
 			<i class="t"> *5(层级)= </i><b class="t orange" id="total_number"></b><i class="t">(节点数)</i>
 		</span>
 		<input type="button" id="render_tree" value="生成" class="nj_btn" />
@@ -232,6 +232,7 @@ noJS.use(function($,ui){
 						'name' : 'text',
 						'children' : 'data'
 					}
+					tree.max = 20;
 					function testData(number){
 						//模拟数据 number*s.length 个节点
 						var rect = [], i, j, p, s = ['a','b','c','d','e'];
@@ -249,29 +250,37 @@ noJS.use(function($,ui){
 						date2,
 						number = $('#data_number'),
 						total = $('#total_number'),
-						btn = $('#render_tree');
+						btn = $('#render_tree'),
+						first;
 					
 					number.keyup(function(){
 						if( isNaN(this.value) ){
 							this.value = parseInt(this.value,10);
 						}
 						setTotal(this.value);
+						first = false;
 					}).keyup();	
 					function setTotal(n){
 						n *= 5;	
 						n = n>=10000 ? n/10000+'万' : n;
 						total.text( n );
 					}	
+					var n = parseInt(number.val(),10),
+                        testdata = testData(n);
+                    setTotal(n);
+                    first = true;
 					btn.click(function(){
 						$('#tree_test2').empty();
 						setTimeout(function(){
 							date1 = (+new Date);
-							var n = parseInt(number.val(),10),
-								data = testData(n);
-							setTotal(n);
+							if( !first ){
+							    n = parseInt(number.val(),10);
+    						    testdata = testData(n);
+    							setTotal(n);
+							}							
 							
 							new tree( 'tree_test2', {
-								data : data,
+								data : testdata,
 								isCheck : true,
 								onCheck : function(id){
 									//console.log(this.checked);
@@ -282,19 +291,18 @@ noJS.use(function($,ui){
 						},0)
 						return false;
 					});
-				
-				
+
 				    new tree('tree_test22', {
 				        data : data,
 				        isCheck : true,
 				        //radio : 's',
 				        //relationChildren : false,
-				        relationParent : false,
+				        //relationParent : false,
 				        onCheckBefore : function(){
 				            return true;    
 				        },
                         onCheck : function(id){
-                            console.log(this.checked);
+                            //console.log(this.checked);
                         }
 				    })
 				
@@ -308,7 +316,7 @@ noJS.use(function($,ui){
 					}									
 					new tree( 'tree_test1', {
 						data : 'tree.php?id=',
-						level : 5
+						level : 4
 					});					
 				});
 			}},

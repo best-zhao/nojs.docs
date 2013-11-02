@@ -3,7 +3,6 @@ define(function(require,$,ui){
 		codeLight = require('nojs/module/codelight'),
 		project = require('project'),
 		G = {};
-	
 	var page = $('#ui_page'),
 		main = $('#main_content'),
 		head = $('#ui_head'),

@@ -839,7 +839,7 @@
 				opt = opt || {};
 				var T = this,
 					btn = opt.button,
-					timeout = opt.timeout || 1600,
+					timeout = opt.timeout!=undefined ? opt.timeout : 1600,
 					C = type=='confirm',
 					tit = C ? '温馨提醒：' : null,
 					w = opt.width || (C ? 400 : 'auto'),
@@ -869,8 +869,8 @@
 					});
 					
 					win.element.find('div.nj_overlay_wrap').addClass('msg_tip_'+type);
-					win.layer = C ? true : false;
-					win.stillLayer = C ? false : true;
+					
+					//win.stillLayer = C ? false : true;
 					
 					win.set('title', tit);
 					win.set('content', '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
@@ -886,6 +886,7 @@
                         }
 					}
 				}
+				win.layer = C ? true : opt.layer;
 				//自动隐藏							
 				win.timeout = !C && type!='loading' && !opt.reload ? timeout : 0;
 				if( opt.reload ){

@@ -61,7 +61,8 @@
 				len--;
 				continue;
 			}else{
-				modules[file[i]] = modules[m] = { id : m, config : cf };
+				modules[m] = { id : m, config : cf };
+				modules[file[i]] = { id : m, config : cf, init : true };
 			}
 			//cf.queue!==true && append(m);//并行加载
 		}
@@ -115,7 +116,8 @@
 			}
 			if( num>=len ){
 				T.now[1] && T.now[1]();//当前队列回调
-				if( T.fileItem.length ){//继续下一个队列
+				if( T.fileItem.length>0 ){//继续下一个队列
+				    //console.log(T.fileItem,T.state);
 					T.begin();
 				}else{//所有队列执行完毕
 					T.state = false;
@@ -271,6 +273,7 @@
 		current['factory'] = factory;
 		
 		function over(){
+		    //console.log(current)
 			done( current );
 		}
 		
@@ -291,6 +294,7 @@
 					}
 					return;
 				}
+				
 				load.add( _modules, over );
 			}else {
 				over();
@@ -304,6 +308,7 @@
 	function done( mod ){
 		//当最后一个依赖模块加载完毕时
 		if( !load.state ){
+		    
 			var i, j, _mod, rect = [], call;
 			for( i in modules ){
 				_mod = modules[i];
@@ -316,7 +321,8 @@
 			for( i=rect.length-1; i>=0; i-- ){
 				_mod = rect[i];
 				getExports(_mod);
-			}		
+			}	
+			done.use();	
 		}
 	}
 	done.use = function(){
@@ -324,6 +330,7 @@
 	    var call;
 	    while( modules['start'].length ){
             call = modules['start'].shift();
+            //console.log(call['deps'])
             call( depsToExports(call['deps']) );
         }
 	}
@@ -339,7 +346,6 @@
 			if(!_mod){
 				continue;
 			}	
-			
 			getExports(_mod);
 			global ? globalExports.push(_mod['exports']) : rect.push(_mod['exports']);
 		}
@@ -348,6 +354,7 @@
 	
 	//获取单模块的数据接口
 	function getExports( mod ){
+	    
 		if(mod.init){
 			return mod['exports'];
 		}

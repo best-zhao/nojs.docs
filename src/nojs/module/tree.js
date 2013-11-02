@@ -35,8 +35,9 @@ define(function(require,$){
 			tree.ajax({
 				url : this._data + tree.rootID,
 				tree : this,
-				success : function(){
+				success : function(data){
 					T.init( null, true, true );
+					T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data);
 				}
 			})
 		}else{
@@ -44,7 +45,7 @@ define(function(require,$){
 		}
 	}
 	tree.key = {};
-	tree.max = 100;//一次一级最多能处理的节点数
+	tree.max = 50;//一次一级最多能处理的节点数
 	tree.rootID = -1;//根节点id
 	/*
 	 * 通过ajax获取数据
@@ -195,6 +196,10 @@ define(function(require,$){
 	}
 	
 	tree.prototype = {
+	    /*
+	     * @set为false表示只返回html
+	     * @setDefault
+	     */
 		init : function( node, set, setDefault ){
 			//@node:节点id，初始化该节点下所有一级子节点，为空表示初始化根节点
 			var T = this,
@@ -220,6 +225,9 @@ define(function(require,$){
 				return;
 			}
 			data['break'] = data['break'] || 0;
+			if( isChild ){
+			   all[node].init = 2; //其子节点已初始化
+			} 
 			
 			line = '';
 			if( level ){
@@ -240,7 +248,7 @@ define(function(require,$){
 				
 				m.init = 1;//标记节点本身初始化
 				item += '<li level="'+level+'">';
-				link = m[_link] ? m[_link] : '';
+				link = m[_link] ? m[_link] : 'javascript:void(0)';//javascript:void(0)for firefox
 				
 				open = typeof m[_open]!=='undefined' ? 'open="'+m[_open]+'"' : '';
 				check = isCheck ? '<input type="checkbox" value="'+id+'" />' : '';
@@ -344,7 +352,8 @@ define(function(require,$){
 												tag.find('.last_ico1').addClass('last_ico').removeClass('last_ico1');
 											}
 											//sec.data('init', null);
-										}										
+										}	
+										T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data, T.data.all[node]);									
 									}
 								})
 							}else{
@@ -408,6 +417,7 @@ define(function(require,$){
 				return false;
 			})
 		},
+		//更新属性this.checked
 		getChecked : function(){
 		    var checked = this.box.find('input:checked');
             this.checked = checked.length ? (function(){
@@ -525,6 +535,38 @@ define(function(require,$){
 			s(len-1);//从最外层父ul开始展开
 			set();
 		},
+		/*
+		 * 选中指定的checkbox
+		 * @id string|number单个id | Array一组id 
+		 */
+		check : function(id, checked){
+		    var self = this, tag;
+		    function deal(id){
+                if( id && self.data.all[id] ){
+                    checked = checked==false ? false : true;
+                    tag = $('#'+id).find('input')[0];
+                    if( checked ){
+                        !tag.checked && tag.click();
+                    }else{
+                        tag.checked && tag.click();
+                    }
+                    self.getChecked();
+                }
+            }
+		    typeof id=='number' || typeof id=='string' ? deal(id) : $.each(id, function(i, _id){
+		        deal(_id);
+		    })
+		    
+		},
+		//打开某个节点
+		open : function(id){
+		    var tag;
+            if( id && this.data.all[id] ){
+                this.data.all[id].init = 'pending';//标记正在打开 判断重复ajax操作时可以用该状态检测
+                tag = $('#'+id);
+                !tag.hasClass('open') && tag.find('.ico').click();
+            }
+        },
 		replaceLink : function(area){
 			//ie67下会自动补全url为绝对路径
 			//使用 getAttribute( 'href', 2 ) 可解决

@@ -1,6 +1,6 @@
 /*tree*/
 .nj_tree{line-height:2}
-.nj_tree li{width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.nj_tree li{width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;clear:both}
 .nj_tree ul ul{display:none}
 .nj_tree .item{display:block;color:#333;margin:0 0 1px;-webkit-transition:background .2s linear;-moz-transition:background .2s linear;padding:0 20px}
 .nj_tree .item:hover{background:#f4f4f4;text-decoration:none}
