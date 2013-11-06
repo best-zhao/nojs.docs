@@ -92,7 +92,7 @@
 			})(value[i], Class.prototype[i]);
 		}
 	}
-	
+	ui.extend = Extend;
 	ui.data = function( id, Class ){
 		if( Class ){//set
 			cache[id] = Class;
@@ -550,7 +550,7 @@
 				}, 10)
 			}() : !hideEvent && self.visible ? self.hide() : self.show();
 			
-			if( agent && el ){
+			if( mode=='click' ){
 				return false;
 			}
 		}

@@ -35,7 +35,7 @@ input.nj_btn,button.nj_btn{height:25px}
 	background:-moz-linear-gradient(top,#FFA847,#f60);
 	background:-ms-linear-gradient(top,#FFA847,#ff6600);
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFA847',endColorstr='#ff6600')!important}
-.n_b_so:hover,.n_b_bo:hover{background:#FF8925;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF8925',endColorstr='#FF8925')}
+.n_b_so:hover,.n_b_bo:hover{color:#fff;background:#FF8925;filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF8925',endColorstr='#FF8925')}
 .n_b_bg,.n_b_bo,.n_b_bb{font:800 14px/33px a;font-family:inherit;height:33px;padding:0 26px}
 input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg{height:35px}
 .n_b_sb,.n_b_bb{

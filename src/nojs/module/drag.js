@@ -33,7 +33,7 @@ define(function(require,$){
 		this.overflow = opt.overflow;
 		this.A = null;
 		
-		this.delay = this.opt.delay || 6;
+		this.delay = this.opt.delay || 9;
 		if(!this.delegat){
 			if(move){
 				this.move.css("cursor","move");

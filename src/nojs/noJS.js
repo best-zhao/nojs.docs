@@ -20,7 +20,8 @@
 		modules = {
 			'start' : []//use入口回调
 		},
-		globalExports,//全局依赖接口
+		entrance = [],//入口id
+		globalExports = [],//全局依赖接口
 		//配置选项
 		config = {
 			queue : true,//默认为串行加载，false为并行加载
@@ -45,7 +46,8 @@
 			cf = T.now[2],
 			num = 0,
 			len = file.length,
-			src, s, m, i, j, q;
+			_entrance = file.entrance,
+			i, m;
 			
 		cf.base = cf.base != undefined ? cf.base : config.base;
 		cf.fix = cf.fix != undefined ? cf.fix : config.fix;
@@ -62,6 +64,9 @@
 				continue;
 			}else{
 				modules[m] = { id : m, config : cf };
+				if( _entrance ){
+				    modules[m].entrance = _entrance;
+				}
 				modules[file[i]] = { id : m, config : cf, init : true };
 			}
 			//cf.queue!==true && append(m);//并行加载
@@ -69,6 +74,10 @@
 		len = file.length;
 		if(!len){
 			return;
+		}
+		if( _entrance && !entrance[_entrance] && T.now[1] ){//该组模块为入口模块
+		    entrance[_entrance] = {branch:len, callback:T.now[1]};//记录该组分支数及回调
+		    T.now[1] = null;
 		}
 		//打包时 指向真实的模块
 		if( file.point ){
@@ -91,7 +100,7 @@
 		function append( src ){
 			T.point = file.point ? file.point : src;
 			//创建script
-	        s = d.createElement("script");
+	        var s = d.createElement("script");
 	        s.async = true;
 	        
 	        T.event( s, function(){
@@ -115,9 +124,8 @@
 				head.removeChild(s);//载入完毕后清除script标记
 			}
 			if( num>=len ){
-				T.now[1] && T.now[1]();//当前队列回调
+			    T.callback(T.now[1]);//当前队列回调
 				if( T.fileItem.length>0 ){//继续下一个队列
-				    //console.log(T.fileItem,T.state);
 					T.begin();
 				}else{//所有队列执行完毕
 					T.state = false;
@@ -227,6 +235,9 @@
         	s.onreadystatechange = s.onload = s.onerror = null;
         }
 	}
+	load.callback = function(call){
+	    call && call( depsToExports(call.deps) );
+	}
 	
 	/*
 	 * 引入依赖模块
@@ -267,19 +278,19 @@
 			factory = args.slice(-1)[0],
 			_type = type( factory ),
 			current = type(load.point)=='array' ? load.point.shift() : load.point,//当前载入模块的uri
-			_modules, exports;
-			
+			_modules, exports, _entrance, _entranceID, call;
+		
 		current = modules[current];
 		current['factory'] = factory;
 		
 		function over(){
-		    //console.log(current)
 			done( current );
 		}
 		
 		if( _type=='function' ){
 			//解析内部所有require并提前载入
 			_modules = parseRequire( factory.toString() );
+			_entranceID = current.entrance;
 			if( _modules.length ){
 				current['deps'] = [].concat( _modules );
 				
@@ -294,11 +305,22 @@
 					}
 					return;
 				}
+				if( _entranceID ){//整个依赖链都要关联该id
+				    _modules.entrance = _entranceID;
+				}
 				
 				load.add( _modules, over );
 			}else {
 				over();
 			}
+            if( _entranceID ){
+                _entrance = entrance[_entranceID];
+                _entrance.branch += _modules.length-1;
+                if( _entrance.branch==0 ){//该入口模块整个依赖链加载完毕
+                    load.callback(_entrance.callback);
+                    _entrance = null;
+                }
+            }
 		}else{
 			current['exports'] = factory;
 		}
@@ -308,7 +330,6 @@
 	function done( mod ){
 		//当最后一个依赖模块加载完毕时
 		if( !load.state ){
-		    
 			var i, j, _mod, rect = [], call;
 			for( i in modules ){
 				_mod = modules[i];
@@ -329,16 +350,16 @@
 	    //初始化 使用use执行代码块 队列回调  全局模块就绪后执行
 	    var call;
 	    while( modules['start'].length ){
-            call = modules['start'].shift();
-            //console.log(call['deps'])
-            call( depsToExports(call['deps']) );
+            load.callback( modules['start'].shift() );
         }
 	}
 	
 	//将所依赖模块转换成对应的接口
 	function depsToExports( deps, global ){
 		var _mod, j, m, rect = [];
-		
+		if( !deps ){
+		    return rect;
+		}
 		for( j=0; j<deps.length; j++ ){
 		    m = deps[j];
 			_mod = load.getPath( m, modules[m] && modules[m].config );
@@ -354,7 +375,6 @@
 	
 	//获取单模块的数据接口
 	function getExports( mod ){
-	    
 		if(mod.init){
 			return mod['exports'];
 		}
@@ -390,11 +410,11 @@
 		
 		//设置全局依赖模块,会在其他模块之前引入，只能设置一次
 		var global = config.global;
-		if( !globalExports && global ){
+		if( !globalExports.length && global ){
 			global = typeof global=='string' ? [global] : global;
 			globalReady = null;
 			if( type(global)=='array' ){
-				globalExports = [];
+				//globalExports = [];
 				defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
 				//打包后，全局依赖模块都并入第一个文件,并使用point指向真实的模块
 				if( config.pack ){
@@ -480,12 +500,10 @@
 				fun = null;
 			}
 			//保存所依赖模块 
-			defaultLoad['deps'] = defaultLoad['deps'].concat( path );
-			call['deps'] = defaultLoad['gdeps'].concat( path );
-			
-			T.add( path, function(){
-				modules['start'].push(call);
-			}, opt );
+			defaultLoad.deps = defaultLoad.deps.concat( path );
+			call.deps = defaultLoad.gdeps.concat( path );
+			path.entrance = entrance.length+'';//toString
+			T.add(path, call, opt);
 		}
 		return noJS;
 	}
@@ -581,6 +599,7 @@
 	 * 3.ie9缓存配置文件导致出错
 	 * 4.解决相对路径模块的接口问题，原因是在获取完整路径时使用了全局配置，导致无法正确匹配模块。解决后将模块配置连同自身一起保存在modules对象中
 	 * 5.优化use方法：执行代码块不必等整个依赖链都加载完毕才执行，而是全局模块就绪即可
+	 * 6.由5导致的bug，载入入口模块a，a依赖b,当a完成而b正在载入时，后续use执行的代码块会直接触发done.use方法，导致前面入口模块a的回调一同执行，所以报错。优化后，回调会在该条入口模块链都完成后执行，添加全局变量entrance
 	 */
 	
 })( this );
