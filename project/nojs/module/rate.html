@@ -60,8 +60,8 @@
 	<p class="mb10">2. Rate.reset方法可重置所选</p>
 </div>
 <script>
-noJS.use('nojs/module/rate',function( $, ui, rate ){
-	var Rate = rate($('#test_rate1'), {
+noJS.use('nojs/module/score',function( $, ui, score ){
+	var Rate = new score('test_rate1', {
 		//title : [11,22,33,44,55],
 		onSelect : function(index){
 			//console.log(Rate.index)

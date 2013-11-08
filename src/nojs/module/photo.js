@@ -405,6 +405,12 @@ define(function( require, $, ui ){
                     T.load(T.index, true);
                 },300)
             })
+            //添加全屏切换事件示例
+            this.wrap[0].addEventListener(fullscreen.fullScreenEventName, function() {
+                !fullscreen.isFullScreen() && T.hide();//退出全屏
+            }, true);
+            
+            
             fn.call(this);
         }
     })
