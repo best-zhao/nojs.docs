@@ -172,6 +172,7 @@
 </div>
 
 <script type="text/templete" id="demo_style">
+<link rel="stylesheet" href="css/tree.css" />    
 <style>
 /*demo style*/
 .test_tree{font-size:12px;width:47%;min-width:170px;border:1px solid #ddd;margin:0 1% 9px 0;padding:9px 0;overflow:auto;height:400px}	
@@ -226,8 +227,7 @@ noJS.use(function($,ui){
 		item : [
 			{content : $('#demo_tmpl').html(), callback : function(){
 				noJS.use(['nojs/module/tree','project'], function($,ui,tree,config){
-					var date1 = (+new Date),
-						data = config.nojs.data;
+					var data = config.nojs.data;
 					tree.key = {
 						'name' : 'text',
 						'children' : 'data'
@@ -246,9 +246,7 @@ noJS.use(function($,ui){
 						return rect;
 					}
 					
-					var date1 = (+new Date),
-						date2,
-						number = $('#data_number'),
+					var number = $('#data_number'),
 						total = $('#total_number'),
 						btn = $('#render_tree'),
 						first;
@@ -267,8 +265,10 @@ noJS.use(function($,ui){
 					}	
 					var n = parseInt(number.val(),10),
                         testdata = testData(n);
+                        
                     setTotal(n);
                     first = true;
+                    
 					btn.click(function(){
 						$('#tree_test2').empty();
 						setTimeout(function(){
@@ -278,16 +278,13 @@ noJS.use(function($,ui){
     						    testdata = testData(n);
     							setTotal(n);
 							}							
-							
 							new tree( 'tree_test2', {
 								data : testdata,
 								isCheck : true,
 								onCheck : function(id){
-									//console.log(this.checked);
+									console.log(this.checked);
 								}
-							});
-							//date2 = (+new Date);
-							//console.log(date2-date1);
+							});							
 						},0)
 						return false;
 					});
