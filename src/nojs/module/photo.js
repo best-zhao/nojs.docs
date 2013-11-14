@@ -200,13 +200,12 @@ define(function( require, $, ui ){
 				}
 				this.drawLine(point,false,4);
 			}
-			
-			ui.ico.add('prev',function(){
-				draw.call(this,'prev');
-			});
-			ui.ico.add('next',function(){
-				draw.call(this,'next');
-			});
+			ui.ico.prototype['Drawprev'] = function(){
+			    draw.call(this,'prev');
+			}
+			ui.ico.prototype['Drawnext'] = function(){
+                draw.call(this,'next');
+            }
 			var options = {type:'prev',width:50,height:110,color:'#000000',bgcolor:'#cccccc'};
 			
 			new ui.ico(page.eq(0),options);

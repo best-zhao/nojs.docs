@@ -90,15 +90,14 @@
         if( file.point ){
             for( i=0; i<file.point.length; i++ ){
                 m = load.getPath(file.point[i], cf);
-                modules[file.point[i]] = modules[m] = {id:m, config : cf};
+                modules[file.point[i]] = {id:m, config : cf};
+                modules[m] = {id:m, config : cf};
                 file.point[i] = m;
             }
         }
         
         num = 0;
-        if( cf.queue===true ){
-            loader(0);
-        }
+        cf.queue===true && loader(0);
         
         function loader( index ){
             append( T.getPath( file[index], cf ) );
@@ -132,7 +131,7 @@
             if( _entrance && entrance[_entrance]  ){
                 if( !modules[src].cmd ){//存在非标准模块
                     entrance[_entrance].branch--;
-                    if( entrance[_entrance].branch==0 ){
+                    if( entrance[_entrance].branch<=0 ){
                         T.now[1] = entrance[_entrance].callback;
                         entrance[_entrance] = null;
                     }
@@ -149,7 +148,6 @@
             }else if( cf.queue===true ){
                 s && loader(num);
             }
-            ( s||state ) && done( modules[src] );
         }
     }
     
@@ -264,7 +262,6 @@
         var mod;
         id = load.getPath( id );
         mod = modules[id];
-        //console.log(mod.id,getExports(mod))
         return mod && getExports(mod);
     }
     require.async = function(){//按需加载模块
@@ -301,69 +298,66 @@
         current.factory = factory;
         current.cmd = 1;//标示标准模块
         
-        function over(){
-            done( current );
+        _entranceID = current.entrance;
+        if( _entranceID ){
+            _entrance = entrance[_entranceID];
         }
+        //设置打包后，当前模块所依赖模块会并入自身
+        var types = type(load.point);
+        config.pack && types=='array' && !load.point.length && check();
         
-        if( _type=='function' ){
-            //解析内部所有require并提前载入
-            _modules = parseRequire( factory.toString() );
-            _entranceID = current.entrance;
-            if( _modules.length ){
-                current.deps = [].concat( _modules );
-                
-                //设置打包后，当前模块所依赖模块会并入自身
-                if( config.pack && typeof load.point=='string' ){
-                    load.point = load.getPaths(_modules); 
-                    var i, m; 
-                    for( i=0;i<_modules.length;i++ ){
-                        //m = load.getPath(_modules[i]);
-                        m = load.point[i];
-                        modules[m] = {id:m};
-                    }
-                    return;
-                }
-                if( _entranceID ){//整个依赖链都要关联该id
-                    _modules.entrance = _entranceID;
-                }
-                
-                load.add( _modules, over );
-            }else {
-                over();
-            }
-            if( _entranceID ){
-                _entrance = entrance[_entranceID];
-                _entrance.branch += _modules.length-1;
-                if( _entrance.branch==0 ){//该入口模块整个依赖链加载完毕
+        function check(step){
+            step = step || 0;
+            if( _entrance ){
+                _entrance.branch += step-1;
+                if( _entrance.branch<=0 ){//该入口模块整个依赖链加载完毕
                     load.callback(_entrance.callback);
                     _entrance = null;
                 }
             }
+        }
+        if( _type=='function' ){
+            //解析内部所有require并提前载入
+            _modules = parseRequire( factory.toString() );
+            
+            if( config.pack ){
+                if( types=='string' ){
+                    if( _modules.length ){
+                        var i, m; 
+                        load.point = load.getPaths(_modules); 
+                        for( i=0;i<_modules.length;i++ ){
+                            m = load.point[i];
+                            if( modules[m] ){
+                                //_modules.splice(i,1);
+                                continue;
+                            }
+                            modules[m] = {id : m};
+                            if( _entrance ){
+                                modules[m].entrance = _entranceID;
+                            }
+                        }
+                    }else{
+                        check();
+                    }
+                }
+                return;
+            }
+            if( _modules.length ){
+                current.deps = [].concat( _modules );
+                if( _entrance ){//整个依赖链都要关联该id
+                    _modules.entrance = _entranceID;
+                }
+                load.add(_modules);
+            }
+            
         }else{
             current['exports'] = factory;
         }
+        check(_modules&&_modules.length);
     }
     define.cmd = true;
     
-    function done( mod ){
-        //当最后一个依赖模块加载完毕时
-        if( !load.state ){
-            var i, j, _mod, rect = [], call;
-            for( i in modules ){
-                _mod = modules[i];
-                if( i=='start' || _mod.init ){
-                    continue;
-                }
-                _mod['factory'] && rect.push( _mod );
-            }
-            //从依赖关系的最末端开始初始化工厂函数并提取数据接口
-            for( i=rect.length-1; i>=0; i-- ){
-                _mod = rect[i];
-                getExports(_mod);
-            }   
-            done.use(); 
-        }
-    }
+    function done(){}
     done.use = function(){
         //初始化 使用use执行代码块 队列回调  全局模块就绪后执行
         var call;
@@ -432,7 +426,6 @@
             global = typeof global=='string' ? [global] : global;
             globalReady = null;
             if( type(global)=='array' ){
-                //globalExports = [];
                 defaultLoad['deps'] = defaultLoad['gdeps'] = [].concat( global );
                 //打包后，全局依赖模块都并入第一个文件,并使用point指向真实的模块
                 if( config.pack ){
@@ -561,7 +554,6 @@
                             configFile = 2; //配置文件正在载入
                             T.add( [_config], function(){
                                 //配置文件加载完毕
-                                //configFile = null;
                                 if( defer ){
                                     for( var i=0; i<defer.length; i++ ){
                                         noJS.use.apply(null, defer[i]);

@@ -118,9 +118,8 @@ define(function(require,$,ui){
 				option[window.demoAction?'show':'hide']();
 				if( window.demoAction ){
 					demo.container.html( demo.getHtml() );
-					setUrl('demo')!=undefined && demo.show(setUrl('demo'));
-				}
-				
+					demo.openFirst && demo.show(setUrl('demo'));
+				}				
 				//代码高亮
 				new codeLight({parent:frame});
 				
@@ -417,7 +416,7 @@ define(function(require,$,ui){
 	}else{
 		fLink.append('<a href="m.html">nojs mobile</a>');
 	}
-	fLink.append('<a href="http://nolure.com">blog: http://nolure.com</a>');
+	//fLink.append('<a href="http://nolure.com">blog: http://nolure.com</a>');
 	
 	return G;
 });

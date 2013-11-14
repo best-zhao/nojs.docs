@@ -699,7 +699,7 @@
 		    	return;
 		    }
 			var self = this, 
-			    hideLayer = !this.stillLayer;
+			    hideLayer = this.layer && !this.stillLayer;
 			/*
 			 * onbeforehide:关闭之前确认
 			 */
@@ -724,7 +724,6 @@
 			    }
 			})
 	        hideLayer && ui.layer.hide();
-	        //ui.popup.focus.pop();
 	        delete ui.popup.focus[this.key];
 		}
 	})
@@ -1386,15 +1385,7 @@
 			}
 		}
 	}
-	ui.ico.add = function(type,draw){
-		/*
-		 * 添加自定义绘图方法
-		 */
-		if(!ui.ico.prototype['Draw'+type]){
-			ui.ico.prototype['Draw'+type] = draw;
-		}
-	}
-	
+		
 	//placeholder for ie
 	function placeHolder(input,index){
 		var w = input.innerWidth()*0.98,

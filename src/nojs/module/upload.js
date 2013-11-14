@@ -41,7 +41,8 @@ define(function(require,$){
 			//若需要单独显示每个文件的进度可在onSelect中动态添加dom，内部包含一个class="up_progress"的div即可
 			'upProgress' : null,
 			'fileDomain' : '',					//上传文件的域名地址
-			'dataField' : null					//设置一些数据字段
+			'dataField' : null,					//设置一些数据字段
+			'formData' : {}
 			
 		}, upload.config );
 		
@@ -51,6 +52,7 @@ define(function(require,$){
 		opt.dataField = $.extend( opt.dataField, {
 			file : 'file' 						//上传成功后返回数据中文件url所对应的key
 		})
+		//opt.formData = $.extend( opt.formData)
 		
 		this.button = button;
 		this.parent = this.button.parent();
@@ -296,9 +298,13 @@ define(function(require,$){
 					
 					xhr.open( "POST", opt.uploader, true );
 					xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+					
 					var fd = new FormData();
 					fd.append( T.button[0].name, _file.files );
-					fd.append('uploadID',id);
+					fd.append('uploadID', id);
+					for( var i in opt.formData){
+					    fd.append(i, opt.formData[i]);
+					}
 					xhr.send(fd);
 				}
 
@@ -335,9 +341,12 @@ define(function(require,$){
 			}else{
 				var name = 'uploadiframe' + (+new Date),
 					callback = 'upload' + (+new Date),
-					action = opt.uploader + (opt.uploader.indexOf('?') <0 ? '?' : '&') + 'jsoncallback='+callback;
-				
-				this.form = $('<form target="'+name+'" action="'+action+'" method="post" enctype="multipart/form-data" style="position:absolute;left:-999em"><input type="hidden" name="uploadID" value="'+id+'" /></form>').appendTo(document.body);
+					action = opt.uploader + (opt.uploader.indexOf('?') <0 ? '?' : '&') + 'jsoncallback='+callback,
+					formData = '<input type="hidden" name="uploadID" value="'+id+'" />';
+				for( var i in opt.formData){
+                    formData += '<input type="hidden" name="'+i+'" value="'+opt.formData[i]+'" />';
+                }
+				this.form = $('<form target="'+name+'" action="'+action+'" method="post" enctype="multipart/form-data" style="position:absolute;left:-999em">'+formData+'</form>').appendTo(document.body);
 				this.iframe = $('<iframe name="'+name+'" style="display:none"></iframe>').appendTo(document.body);
 				_file.button.appendTo(this.form);
 				

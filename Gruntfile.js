@@ -1,4 +1,11 @@
 module.exports = function(grunt) {
+    var date = (function(){
+        var _date = new Date(),
+            year = _date.getFullYear(),
+            month = _date.getMonth()+1,
+            day = _date.getDate();
+        return year+'/'+month+'/'+day;    
+    })();
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
         transport: {        	
@@ -17,19 +24,11 @@ module.exports = function(grunt) {
             }
         },
         concat: {
-        	nojs : {
-        		options : {
-        			noncmd : true
-        		},
-        		files : {
-        			'js/nojs/noJS.js' : ['src/nojs/noJS.js','src/conf.js'],
-        			'js/conf.js' : ['src/conf.js']
-        		}
-        	},
             dist: {
             	options : {
-            		paths : ['src'],
-            		include : 'all'
+            		paths : ['.build'],
+            		include : 'all',
+            		noncmd : false
 		        },
 		        files : [
 		        	{
@@ -40,22 +39,31 @@ module.exports = function(grunt) {
 		        	}
 		        ]
             },
-        	global : {
-        		options : {
-        			noncmd : true
-        		},
-        		files : {
-        			'js/nojs/jquery.js':['.build/nojs/jquery.js','.build/nojs/ui.js'],
-        			'js/m/zepto.js':['.build/m/zepto.js','.build/m/ui.js']
-        		}
-        	}
+            nojs : {
+                options : {
+                    noncmd : true
+                },
+                files : {
+                    'js/nojs/noJS.js' : ['src/nojs/noJS.js','src/conf.js'],
+                    'js/conf.js' : ['src/conf.js']
+                }
+            },
+            global : {   
+                options : {
+                    noncmd : true
+                },             
+                files : {
+                    'js/nojs/jquery.js' : ['src/nojs/jquery.js','src/nojs/ui.js'],
+                    'js/m/zepto.js' : ['.build/m/zepto.js','.build/m/ui.js']
+                }
+            }
         },
         clean : {
 			build : ['.build','js/**/*-debug.js'] //清除
 		},
         uglify : {
         	options: {
-        		banner: '/*<%= pkg.author %>|<%= pkg.docs %>*/',
+        		banner: '/*'+date+'-<%= pkg.docs %>*/',
 		    	mangle: {
 		        	except: ['require']
 		    	}

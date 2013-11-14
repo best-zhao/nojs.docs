@@ -117,6 +117,7 @@ noJS.use(function($,ui){
 				var list = $('#photo_player'),
 					img = list.find('.list img'),
 					c;
+					
 				new photo.player(list, {
 					srcRule : function(src,obj){
 						return obj.attr('big');

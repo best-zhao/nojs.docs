@@ -1,5 +1,4 @@
 <style>
-
 #preview{margin:10px 0}
 #preview li{position:relative;height:140px;width:150px;background:#DB552D;float:left;font-size:12px;margin:5px 5px 0 0;color:#fff}
 #preview li:hover .pic img{opacity:.8}
@@ -151,6 +150,8 @@ noJS.use( ['nojs/module/upload'], function($,ui,upload){
 	up = new upload( btn, {
 		//dragUp : $('#drag_up'),
 		auto : false,
+		//fileType : '.txt',
+		showPreview : false,
 		onSelect : function( data ){
 			var wrap = $([
 				'<li class="clearfix">',
