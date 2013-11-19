@@ -3,6 +3,8 @@ define(function(require,$,ui){
 		codeLight = require('nojs/module/codelight'),
 		project = require('project'),
 		G = {};
+		
+	require('./a');	
 	var page = $('#ui_page'),
 		main = $('#main_content'),
 		head = $('#ui_head'),
@@ -417,7 +419,6 @@ define(function(require,$,ui){
 		fLink.append('<a href="m.html">nojs mobile</a>');
 	}
 	//fLink.append('<a href="http://nolure.com">blog: http://nolure.com</a>');
-	
 	return G;
 });
 /*

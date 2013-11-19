@@ -6,7 +6,7 @@
 	}
 	noJS.config({
 		base : debug ? 'src/' : 'js/',
-		pack : !debug && true,
+		pack : !debug && {relative:true},
 		global : location.href.indexOf('m.html')>0?['m/zepto','m/ui']:['nojs/jquery','nojs/ui'],
 		page : 'main'
 	});

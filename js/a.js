@@ -1,0 +1,1 @@
+/*2013/11/19-http://nolure.github.io/nojs.docs*/define("a",[],function(){});

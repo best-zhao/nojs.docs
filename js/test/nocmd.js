@@ -1,1 +1,1 @@
-/*2013/11/14-http://nolure.github.io/nojs.docs*/define("test/nocmd",["./Gruntfile"],function(){require("./Gruntfile")});
+/*2013/11/19-http://nolure.github.io/nojs.docs*/define("test/nocmd",["../a"],function(require){require("../a")}),define("a",[],function(){});

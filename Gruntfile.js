@@ -18,7 +18,11 @@ module.exports = function(grunt) {
                     	expand: true,
                     	cwd: 'src/',
                         src : '**/*.js',
-                        dest : '.build'
+                        dest : '.build',
+                        filter : function(file){
+                            //console.log(grunt.file.isDir(file));
+                            return file.indexOf('node_modules')<0;
+                        }
                     }
                 ]
             }
@@ -27,8 +31,7 @@ module.exports = function(grunt) {
             dist: {
             	options : {
             		paths : ['.build'],
-            		include : 'all',
-            		noncmd : false
+            		include : 'relative'
 		        },
 		        files : [
 		        	{
@@ -92,23 +95,29 @@ module.exports = function(grunt) {
 			}
         },
 		watch: {			
-			another: {
+			js : {
 				files: ['src/**/*.js'],
-				tasks: ['transport','concat','clean','uglify'],
+				tasks: ['transport','concat','clean','uglify:main'],
 				options: {
 			        livereload: 1337,
-				},
+				}
 			}
+		},
+		jshint : {
+		    js : ['src/conf.js']
 		}
 	});
+	
 	
 	grunt.loadNpmTasks('grunt-cmd-transport');
     grunt.loadNpmTasks('grunt-cmd-concat');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 	
 	grunt.registerTask('default',['transport','concat','clean','uglify:main']);
     grunt.registerTask('min',['uglify:min']);
+    grunt.registerTask('check',['jshint']);
     
 };
