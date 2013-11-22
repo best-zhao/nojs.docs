@@ -22,6 +22,7 @@
         },
         pathMap = {},//require中模块标识和完整路径的对应
         entrance = [],//入口id
+        Update = {},//需要更新版本号的模块
         globalExports = [],//全局依赖接口
         //配置选项
         config = {
@@ -178,7 +179,7 @@
      */
     load.resolve = function(path, ptype){
         var _type = type(path);
-        ptype = ptype || 0;//0标准路径 1相对路径 2普通路径
+        ptype = ptype || 0;//0 require入口    1 use入口
         
         if( _type == 'array' ){
             var rect = [], i;
@@ -194,31 +195,24 @@
             return pathMap[path];
         }
         var base = load.point,
-            fix = config.fix;
+            _path = path;
             
-        if( /\?|#/.test(path) ){
-            path = path.replace(/#$/, '');
-            fix = '';
-        }
-        if( /\.js$/.test(path) ){
-            fix = '';
-        }
         if( /^(http|\/|file)/.test(path) ){
-            return path+fix;
+            return load.fix(path);//path+fix;
         }
         if( /^\.\//.test(path) ){//同级目录
             path = path.replace(/^\.\//, '');
             path = ptype==0 ? base.split('/').slice(0,-1).join('/')+'/'+path : path;
-            return path+fix;
+            return load.fix(path, _path);//path+fix
         }
         
         if( !/^\.{2}\//.test(path) ){//标准路径
-            return config.base+path+fix;
+            return load.fix(config.base+path, _path);//config.base+path+fix
         }
         
         //相对路径 ../开头
-        if( ptype==2 ){//相对当前页面
-            return path+fix;
+        if( ptype==1 ){//相对当前页面
+            return path+fix;//load.fix(path)
         }
         //相对require所在模块   需先获取当前模块路径
         var p1 = path.indexOf('../'),
@@ -237,9 +231,31 @@
             base = base.join('/');
             base = base=='' ? '' : base+'/';
         }else{
-            return base[0]+'/'+path+fix;
+            return load.fix(base[0]+'/'+path, _path);//base[0]+'/'+path+fix
         }
-        return base + path + fix;
+        return load.fix(base + path, _path);//base + path + fix
+    }
+    /*
+     * 添加后缀
+     * @uri:解析过得uri
+     * @path:原模块标识名， 默认等于uri
+     */
+    load.fix = function(uri, path){
+        var fix = config.fix,
+            version = '';
+            
+        path = path || uri;
+        if( /\?|#/.test(path) ){
+            path = path.replace(/#$/, '');//去掉末尾# 不需要添加后缀
+            fix = '';
+        }
+        if( /\.js$/.test(path) ){
+            fix = '';
+        }
+        if( Update=='all' || Update[path] ){
+            version = (/\?/.test(uri)?'&':'?') + 't=' + config.update.version;
+        }
+        return uri + fix + version;
     }
     load.event = function( script, success, error ){
         script.onload = script.onreadystatechange = function(){
@@ -368,7 +384,6 @@
                             }else{
                                 push(m,i);
                             }
-                            
                         }
                         add();
                     }
@@ -393,7 +408,7 @@
         done(_entranceID, branch);
     }
     define.cmd = true;
-    define.resolve = load.resolve;
+    //define.resolve = load.resolve;
     
     /*
      * 检测一条依赖链是否完成，更新其分支数 为0的时候即表示完成并执行回调
@@ -460,11 +475,10 @@
         if( !option.pack && configFile==1 ){//配置文件为外部调用，载入之前禁用配置全局，避免重复
             return;
         }
-        
-        if( !option.pack && onReady ){
+        //if( !option.pack && onReady ){
             //线上模式时，模板中引入的noJS.js是合并了conf.js的，当切换到开发模式时，noJS的路径并不容易切换，所以需要阻止noJS.config的执行(只限于修改了conf.js而没有重新构建的情况下)
             //return;
-        }
+        //}
         
         var i;
         for( i in option ){
@@ -472,6 +486,18 @@
         }
         configFile = null;
         
+        //添加需要更新版本号的模块组
+        var update = config.update || {};
+        if( update.version ){
+            if( type(update.files)=='array' ){
+                update = update.files;
+                for( i=0; i<update.length; i++ ){
+                    Update[update[i]] = 1;
+                }
+            }else{
+                Update = 'all';//更新全部
+            }
+        }  
         
         //设置全局依赖模块,会在其他模块之前引入，只能设置一次
         var global = config.global;
@@ -504,29 +530,28 @@
         if( page ) {
             if( typeof page=='string' ){
                 noJS.use( page );
-                return noJS;    
-            }
-            href = location.href.split(/[#?]/)[0]; 
-            host = location.host;
-            mainReg = (function(){//主域
-                return /^www[\.]/.test(host) || host.indexOf('.')==host.lastIndexOf('.') || /^(\d+\.){3}\d+(:\d+)?$/.test(location.host);
-            })();
-            hostReg = new RegExp(host.replace(/\./g,'\\.')+'/$').test(href);//检测域名首页
-            
-            _host:
-            for( i in page ){
-                if( i=='main' && mainReg || new RegExp('^'+i+'[\.]').test(host) ){
-                    p = page[i];
-                    for( j in p ){
-                        if( j=='index' && hostReg || href.indexOf(j)>1 ){
-                            noJS.use( p[j] );
-                            break _host;
+            }else{
+                href = location.href.split(/[#?]/)[0]; 
+                host = location.host;
+                mainReg = (function(){//主域
+                    return /^www[\.]/.test(host) || host.indexOf('.')==host.lastIndexOf('.') || /^(\d+\.){3}\d+(:\d+)?$/.test(location.host);
+                })();
+                hostReg = new RegExp(host.replace(/\./g,'\\.')+'/$').test(href);//检测域名首页
+                
+                _host:
+                for( i in page ){
+                    if( i=='main' && mainReg || new RegExp('^'+i+'[\.]').test(host) ){
+                        p = page[i];
+                        for( j in p ){
+                            if( j=='index' && hostReg || href.indexOf(j)>1 ){
+                                noJS.use( p[j] );
+                                break _host;
+                            }
                         }
                     }
                 }
-                
-            }           
-        }       
+            }
+        }  
         return noJS;
     }
     
@@ -681,6 +706,10 @@
 		base : debug ? 'src/' : 'js/',
 		pack : !debug && {relative:true},
 		global : mobile ? ['m/zepto','m/ui'] : ['nojs/jquery','nojs/ui'],
-		page : 'main'
+		page : 'main',
+		update : {
+		    version : '2013.11.22',
+		    files : ['main']
+		}
 	});
 }();

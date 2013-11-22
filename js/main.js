@@ -1,5 +1,5 @@
-define("main", [ "nojs/module/tree", "project", "./demo", "nojs/module/codelight", "./url", "./a" ], function(require, $, ui) {
-    var tree = require("nojs/module/tree"), project = require("project"), demo = require("./demo"), codeLight = require("nojs/module/codelight"), setUrl = require("./url"), G = {};
+define("main", [ "nojs/module/tree", "nojs/module/codelight", "project", "./demo", "./url", "./a" ], function(require, $, ui) {
+    var tree = require("nojs/module/tree"), codeLight = require("nojs/module/codelight"), project = require("project"), demo = require("./demo"), setUrl = require("./url"), G = {};
     var page = $("#ui_page"), main = $("#main_content"), head = $("#ui_head"), option = head.find(".options"), win = $(window), D = window.Page == "mobile" ? "mb_intro" : "nojs_info", frame = $("#iframe_content"), side = $("#side_menu"), wrap = page.children("div.ui_wrap"), showMenu = $("#show_menu"), first = 0, Menu;
     if (typeof onhashchange != "undefined") {
         window.onhashchange = function() {

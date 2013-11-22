@@ -12,6 +12,10 @@
 		base : debug ? 'src/' : 'js/',
 		pack : !debug && {relative:true},
 		global : mobile ? ['m/zepto','m/ui'] : ['nojs/jquery','nojs/ui'],
-		page : 'main'
+		page : 'main',
+		update : {
+		    version : '2013.11.22',
+		    files : ['main']
+		}
 	});
 }();
