@@ -1,1 +1,5 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("test/nocmd",["../a"],function(require){require("../a")}),define("a",[],function(){});
+define("test/nocmd", [ "../a" ], function(require) {
+    require("../a");
+});
+
+define("a", [], function(require) {});

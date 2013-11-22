@@ -116,7 +116,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
 	
-	grunt.registerTask('default',['transport','concat','clean','uglify:main']);
+	grunt.registerTask('default',['transport','concat','clean']);
     grunt.registerTask('min',['uglify:min']);
     grunt.registerTask('check',['jshint']);
     

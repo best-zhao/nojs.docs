@@ -1,1 +1,88 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("nojs/module/lazyload",[],function(require,a){function b(a){this.options=a=a||{},this.scroll=a.scroll||c,this.area=a.area||(this.scroll[0]===window?d:this.scroll),this.attr=a.attr||"data-lazyload",this.init()}var c=a(window),d=a(document);return b.prototype={init:function(){var a,b=this;this.scroll.on("scroll.lazyload resize.lazyload",function(){clearTimeout(a),a=setTimeout(function(){b.load()},15)}),this.load()},load:function(b,c){function d(a){f=b.eq(a),f.length&&(h=f.attr(l.attr),h&&(c?e(f,h):(l.scroll[0]!==window&&(m.top=0),g=f.offset().top-n,i=g>m.top&&g<m.height+m.top,j=f.outerHeight()+g<m.height&&f.outerHeight()+g>=0,k=0>=g&&f.outerHeight()+g>m.height,(i||j||k)&&e(f,h))),a++,file=l.area.find("img["+l.attr+"]"),setTimeout(function(){d(a)},10))}function e(b,c){b.off("load.lazyload error.lazyload").on("load.lazyload error.lazyload",function(){a(this).fadeTo(200,1),l.options.onload&&l.options.onload.call(this),a(this).off("load.lazyload error.lazyload")}),b.attr("src",c).removeAttr(l.attr)}if(b=b||this.area.find("img["+this.attr+"]").css("opacity",.2),!b.length&&a.isReady)return this.scroll.off("scroll.lazyload resize.lazyload"),void 0;var f,g,h,i,j,k,l=this,m=this.position(),n=this.scroll[0]===window?0:this.scroll.offset().top;d(0)},position:function(){var a=this.scroll;return{width:a.width(),height:a.innerHeight(),top:a.scrollTop(),left:a.scrollLeft()}}},b});
+/*
+ * lazyload图片延迟加载
+ * nolure@vip.qq.com
+ * 2013-9-5
+ */
+define("nojs/module/lazyload", [], function(require, $) {
+    var _window = $(window), _document = $(document);
+    function lazyload(options) {
+        this.options = options = options || {};
+        this.scroll = options.scroll || _window;
+        //滚动区域
+        this.area = options.area || (this.scroll[0] === window ? _document : this.scroll);
+        //获取图片的区域，默认同滚动区域
+        this.attr = options.attr || "data-lazyload";
+        this.init();
+    }
+    lazyload.prototype = {
+        init: function() {
+            var _this = this, A;
+            this.scroll.on("scroll.lazyload resize.lazyload", function() {
+                clearTimeout(A);
+                A = setTimeout(function() {
+                    _this.load();
+                }, 15);
+            });
+            this.load();
+        },
+        load: function(f, isCtrl) {
+            f = f || this.area.find("img[" + this.attr + "]").css("opacity", .2);
+            //如全部加载完则解除绑定滚动事件
+            if (!f.length && $.isReady) {
+                this.scroll.off("scroll.lazyload resize.lazyload");
+                return;
+            }
+            var _this = this, m, top, h, src, P = this.position(), t1, t2, t3, Top = this.scroll[0] === window ? 0 : this.scroll.offset().top;
+            function show(i) {
+                m = f.eq(i);
+                if (!m.length) {
+                    return;
+                }
+                src = m.attr(_this.attr);
+                if (src) {
+                    if (!isCtrl) {
+                        if (_this.scroll[0] !== window) {
+                            P.top = 0;
+                        }
+                        top = m.offset().top - Top;
+                        t1 = top > P.top && top < P.height + P.top;
+                        //图片上半部分出现在可视区域
+                        t2 = m.outerHeight() + top < P.height && m.outerHeight() + top >= 0;
+                        //图片下半部分出现在可视区域
+                        t3 = top <= 0 && m.outerHeight() + top > P.height;
+                        if (t1 || t2 || t3) {
+                            set(m, src);
+                        }
+                    } else {
+                        set(m, src);
+                    }
+                }
+                i++;
+                //重新获取未加载图片
+                file = _this.area.find("img[" + _this.attr + "]");
+                setTimeout(function() {
+                    show(i);
+                }, 10);
+            }
+            function set(m, src) {
+                m.off("load.lazyload error.lazyload").on("load.lazyload error.lazyload", function() {
+                    $(this).fadeTo(200, 1);
+                    _this.options.onload && _this.options.onload.call(this);
+                    $(this).off("load.lazyload error.lazyload");
+                });
+                m.attr("src", src).removeAttr(_this.attr);
+            }
+            show(0);
+        },
+        position: function() {
+            var area = this.scroll;
+            return {
+                width: area.width(),
+                height: area.innerHeight(),
+                top: area.scrollTop(),
+                left: area.scrollLeft()
+            };
+        }
+    };
+    return lazyload;
+});

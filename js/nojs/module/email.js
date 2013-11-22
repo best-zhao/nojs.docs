@@ -1,1 +1,36 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("nojs/module/email",["nojs/module/autocomplete"],function(require){function a(a,d){function e(a){var b,c=0,d=f.length,e="";if(!a)return e;for(a=a.split("@");d>c;c++)b=f[c],a[1]?0==b.indexOf(a[1])&&(e+="<dd>"+a[0]+"@"+b+"</dd>"):e+="<dd>"+a[0]+"@"+b+"</dd>";return e}var f;d=d||{},f=d.data||c,new b(a,{rule:e,rewriteOnMove:!1})}var b=require("nojs/module/autocomplete"),c=["qq.com","163.com","126.com","vip.qq.com","gmail.com","sina.cn","hotmail.com","sohu.com","189.cn","yahoo.com","yahoo.com.cn"];return a});
+/*
+ * email邮箱自动补全
+ * nolure@vip.qq.com
+ * 2013-8-30
+ */
+define("nojs/module/email", [ "nojs/module/autocomplete" ], function(require, $) {
+    var autocomplete = require("nojs/module/autocomplete"), Email = [ "qq.com", "163.com", "126.com", "vip.qq.com", "gmail.com", "sina.cn", "hotmail.com", "sohu.com", "189.cn", "yahoo.com", "yahoo.com.cn" ];
+    function email(text, options) {
+        var data;
+        options = options || {};
+        data = options.data || Email;
+        new autocomplete(text, {
+            rule: rule,
+            rewriteOnMove: false
+        });
+        function rule(value) {
+            var i = 0, n = data.length, html = "", m;
+            if (!value) {
+                return html;
+            }
+            value = value.split("@");
+            for (;i < n; i++) {
+                m = data[i];
+                if (value[1]) {
+                    if (m.indexOf(value[1]) == 0) {
+                        html += "<dd>" + value[0] + "@" + m + "</dd>";
+                    }
+                } else {
+                    html += "<dd>" + value[0] + "@" + m + "</dd>";
+                }
+            }
+            return html;
+        }
+    }
+    return email;
+});

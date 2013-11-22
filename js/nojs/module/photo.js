@@ -1,1 +1,396 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("nojs/module/photo",["nojs/module/fullscreen"],function(require,a,b){function c(){var a=[],b=null,c=function(){for(var b=0;b<a.length;b++)a[b].end?a.splice(b--,1):a[b]();!a.length&&d()},d=function(){clearInterval(b),b=null};return function(d,e,f,g){var h,i,j,k,l,m=new Image;return m.src=d,m.complete?(e.call(m),f&&f.call(m),void 0):(i=m.width,j=m.height,m.onerror=function(){g&&g.call(m),h.end=!0,m=m.onload=m.onerror=null},h=function(){k=m.width,l=m.height,(k!==i||l!==j||k*l>1024)&&(e.call(m),h.end=!0)},h(),m.onload=function(){!h.end&&h(),f&&f.call(m),m=m.onload=m.onerror=null},h.end||(a.push(h),null===b&&(b=setInterval(c,40))),void 0)}}function d(b,c){this.box="string"==typeof b?a("#"+b):b,this.options=c=c||{},this.item=this.box.find(".pic_list .list").children(),this.length=this.item.length,this.wrap=c.wrap||this.box,this.full=null,this.index=c.index||0,this.type=c.type,this.init()}function e(c,d){d=d||{},d.type="lightbox",d.wrap=a('<div class="lightbox_wrap"><div class="content"><div class="img"></div><i class="loading"></i><i class="p prev"></i><i class="p next"></i><i class="close"></i></div><div class="info"></div></div>').appendTo(a("body")),this.layer=b.layer,this.align=new b.align({nearby:window,element:d.wrap}),this.fullScreen=d.fullScreen,e.baseConstructor.call(this,c,d)}var f=require("nojs/module/fullscreen");return d.prototype={init:function(){this.content=this.wrap.children(".content"),this.info=this.wrap.children(".info"),this.img=this.wrap.find(".img"),this.close=this.wrap.find(".close"),this.loading=this.wrap.find(".loading"),this.ready=c(),this.image=a('<img src="" />'),this.bind()},bind:function(){for(var b,c=this,d=0,b=0;b<this.length;b++)d+=this.item.eq(b).outerWidth(!0);this.info.find(".pic_list .list").width(d),this.number=this.wrap.find(".num"),this.number.find("i").text(this.length),this.page=this.wrap.find("i.p").css({opacity:"0.4"}),this.createPageIco(this.page),this.page.click(function(b){b.preventDefault(),c.load(a(this).hasClass("prev")?--c.index:++c.index)}).hover(function(){a(this).is(":visible")&&a(this).stop().fadeTo(200,1)},function(){a(this).is(":visible")&&a(this).stop().fadeTo(200,.2)}),this.wrap.click(function(b){var d,f,g,h,i=b.target,j=i.tagName.toLowerCase();if("a"==j){if(f=a(i),d=f.attr("data-action"),"full"==d){if(!c.full){var k=a.extend({},c.options);k.onChange=function(a){c.load(a)},c.full=new e(c.box,k)}c.full.show(c.index)}else"full_screen"==d?(g=a(window).height(),h||(h=c.content.height()/g),c.fullScreen=c.fullScreen?null:!0,c.content.animate({height:c.fullScreen?g:g*h},200,function(){c.fullScreen?c.content.height("100%"):c.content.removeAttr("style"),c.load(c.index,!0)}),c.close.hide(),f.text(c.fullScreen?"退出全屏":"全屏")):"close"==d&&c.hide();return!1}}),this.item.each(function(b){var d=a(this);!function(a){d.click(function(){return c.load(a),!1})}(b)}),"lightbox"!=this.type&&this.load(this.index)},createPageIco:function(c){function d(b){var c,d=this.width,e=this.height,f=this.ctx;this.hasCanvas?(f.lineWidth=7,f.strokeStyle="#000"):(this.canvas=a("<i></i>"),this.ico.append(this.canvas),this.color="#BABABA"),c="prev"==b?[.8*d,0,.1*d,.5*e,.8*d,e]:[.2*d,0,.9*d,.5*e,.2*d,e],this.drawLine(c,!1,3),this.hasCanvas?(f.lineWidth=5,f.strokeStyle="rgba(255,255,255,0.7)"):this.color="#000000",this.drawLine(c,!1,4)}b.ico.prototype.Drawprev=function(){d.call(this,"prev")},b.ico.prototype.Drawnext=function(){d.call(this,"next")};var e={type:"prev",width:50,height:110,color:"#000000",bgcolor:"#cccccc"};new b.ico(c.eq(0),e),e.type="next",new b.ico(c.eq(1),e),e.width=18,e.height=36,new b.ico(c.eq(3),e),e.type="prev",new b.ico(c.eq(2),e),new b.ico(this.loading,{type:"loading",color:"#006CFF",width:48,height:48}),new b.ico(this.close,{type:"close",bgcolor:"#999",color:"#000",width:32,height:32})},srcRule:function(a,b){return this.options.srcRule?this.options.srcRule(a,b):a},load:function(b,c){if(b=b>this.length-1?0:b,b=0>b?this.length-1:b,c)return this.setCenter(this.image[0]),void 0;var d,e,f=this,g=a(this.item[b]);if(g.length&&("img"==g[0].tagName.toLowerCase()||(g=g.find("img"),g.length))){this.img.find("img").length||(this.img.show(),this.img.append(this.image)),d=g.attr("src");var e=this.info.find(".wrap img");this.info.find(".wrap").stop().animate({scrollLeft:e.outerWidth()*(b-2)},200),this.number.find("em").text(b+1),this.wrap.find(".title").html(g.attr("data-title")||""),this.wrap.find(".desc").html(g.attr("data-desc")||""),d=this.srcRule(d,g),this.image.attr("src",d).hide(),this.loading.show(),this.ready(d,function(){f.image.data("size",{width:this.width,height:this.height}),f.setCenter(this)},function(){f.loading.hide(),setTimeout(function(){f.image.show()},100)},function(){f.close.show(),f.loading.hide()}),this.index=b,this.page.show(),0==b&&this.page.eq(0).hide(),b==this.item.length-1&&this.page.eq(1).hide(),this.options.onChange&&this.options.onChange(b),this.info.find(".pic_list img").eq(b).addClass("current").siblings().removeClass("current")}},setCenter:function(a){var b=this,c=this.image.data("size"),d=c?c.width:a.width,e=c?c.height:a.height,f=2*(parseInt(this.img.css("padding-left"),10)||0),g=this.limit({width:d+f,height:e+f}),h=200;d=g.width,e=g.height,this.img.animate({"margin-left":-d/2,"margin-top":-e/2,width:d-f,height:e-f},h,function(){b.close.show()}),d-=f,e-=f,this.image.animate({"margin-left":-d/2,"margin-top":-e/2,width:d,height:e},h),this.close.css({left:this.content.width()/2+d/2+f/2,top:this.content.height()/2-e/2-f/2,display:"none",margin:"-16px 0 0 -16px"})},limit:function(a){var b=a.width,c=a.height,d=this.content.width(),e=this.content.height(),f=b/c,g=d/e;return f>g&&b>d?(b=d,c=b/f):g>=f&&c>e&&(c=e,b=c*f),{width:b,height:c}}},b.extend(e,d),b.extend.proto(e,{bind:function(b){var c,d=this,e=this.info.append(['<div class="pic_list">','<i class="p prev" data-action="scroll"></i>','<i class="p next" data-action="scroll"></i>','<div class="wrap"><div class="list"></div></div>',"</div>",'<div class="txt">','<div class="num"><em></em> / <i></i></div>','<div class="title"></div>','<div class="desc"></div>',"</div>"].join("")).find(".pic_list .list");a.each(this.item,function(b,c){var d="img"==c.tagName.toLowerCase()?a(c):a(c).find("img");d.length&&(d=d.clone().attr({style:""}),e.append(d))}),this.item=e.find("img"),this.close.click(function(){d.hide()}),a(window).resize(function(){clearTimeout(c),d.close.hide(),c=setTimeout(function(){d.load(d.index,!0)},300)}),this.wrap[0].addEventListener(f.fullScreenEventName,function(){!f.isFullScreen()&&d.hide()},!0),b.call(this)}}),e.prototype.show=function(b){f.requestFullScreen(this.wrap[0]),a("html").addClass("lightbox"),this.align.set(),this.wrap.fadeIn(300),this.layer.show(.95),"function"==typeof this.options.onShow&&this.options.onShow.call(this),this.load(b),this.fullScreen&&(this.fullScreen=null,this.info.find("a[data-action=full_screen]").click())},e.prototype.hide=function(){f.cancelFullScreen(this.wrap[0]),a("html").removeClass("lightbox"),this.wrap.hide(),this.layer.hide(),"function"==typeof this.options.onHide&&this.options.onHide.call(this)},{player:d,lightbox:e}});
+/*
+ * 图片播放器
+ * nolure@vip.qq.com
+ * 2013-9-10
+ */
+define("nojs/module/photo", [ "nojs/module/fullscreen" ], function(require, $, ui) {
+    var fullscreen = require("nojs/module/fullscreen");
+    function imgPreLoad() {
+        var list = [], intervalId = null, // 用来执行队列
+        tick = function() {
+            var i = 0;
+            for (;i < list.length; i++) {
+                list[i].end ? list.splice(i--, 1) : list[i]();
+            }
+            !list.length && stop();
+        }, // 停止所有定时器队列
+        stop = function() {
+            clearInterval(intervalId);
+            intervalId = null;
+        };
+        return function(url, ready, load, error) {
+            var onready, width, height, newWidth, newHeight, img = new Image();
+            img.src = url;
+            // 如果图片被缓存，则直接返回缓存数据
+            if (img.complete) {
+                ready.call(img);
+                load && load.call(img);
+                return;
+            }
+            width = img.width;
+            height = img.height;
+            // 加载错误后的事件
+            img.onerror = function() {
+                error && error.call(img);
+                onready.end = true;
+                img = img.onload = img.onerror = null;
+            };
+            // 图片尺寸就绪
+            onready = function() {
+                newWidth = img.width;
+                newHeight = img.height;
+                if (newWidth !== width || newHeight !== height || // 如果图片已经在其他地方加载可使用面积检测
+                newWidth * newHeight > 1024) {
+                    ready.call(img);
+                    onready.end = true;
+                }
+            };
+            onready();
+            // 完全加载完毕的事件
+            img.onload = function() {
+                // onload在定时器时间差范围内可能比onready快
+                // 这里进行检查并保证onready优先执行
+                !onready.end && onready();
+                load && load.call(img);
+                // IE gif动画会循环执行onload，置空onload即可
+                img = img.onload = img.onerror = null;
+            };
+            // 加入队列中定期执行
+            if (!onready.end) {
+                list.push(onready);
+                // 无论何时只允许出现一个定时器，减少浏览器性能损耗
+                if (intervalId === null) {
+                    intervalId = setInterval(tick, 40);
+                }
+            }
+        };
+    }
+    function player(id, options) {
+        this.box = typeof id == "string" ? $("#" + id) : id;
+        //if(!this.box.length){return;}
+        this.options = options = options || {};
+        //this.tag = options.tag || 'img';
+        this.item = this.box.find(".pic_list .list").children();
+        this.length = this.item.length;
+        this.wrap = options.wrap || this.box;
+        this.full = null;
+        //全屏对象
+        this.index = options.index || 0;
+        this.type = options.type;
+        this.init();
+    }
+    player.prototype = {
+        init: function() {
+            var T = this;
+            this.content = this.wrap.children(".content");
+            this.info = this.wrap.children(".info");
+            this.img = this.wrap.find(".img");
+            this.close = this.wrap.find(".close");
+            this.loading = this.wrap.find(".loading");
+            this.ready = imgPreLoad();
+            this.image = $('<img src="" />');
+            this.bind();
+        },
+        bind: function() {
+            var T = this, i, width = 0;
+            for (var i = 0; i < this.length; i++) {
+                width += this.item.eq(i).outerWidth(true);
+            }
+            this.info.find(".pic_list .list").width(width);
+            this.number = this.wrap.find(".num");
+            this.number.find("i").text(this.length);
+            this.page = this.wrap.find("i.p").css({
+                opacity: "0.4"
+            });
+            this.createPageIco(this.page);
+            this.page.click(function(e) {
+                e.preventDefault();
+                T.load($(this).hasClass("prev") ? --T.index : ++T.index);
+            }).hover(function() {
+                $(this).is(":visible") && $(this).stop().fadeTo(200, 1);
+            }, function() {
+                $(this).is(":visible") && $(this).stop().fadeTo(200, .2);
+            });
+            this.wrap.click(function(e) {
+                var t = e.target, tag = t.tagName.toLowerCase(), open, act, m, height, p;
+                if (tag == "a") {
+                    m = $(t);
+                    act = m.attr("data-action");
+                    if (act == "full") {
+                        //全屏
+                        if (!T.full) {
+                            var options = $.extend({}, T.options);
+                            options.onChange = function(index) {
+                                T.load(index);
+                            };
+                            T.full = new lightbox(T.box, options);
+                        }
+                        T.full.show(T.index);
+                    } else if (act == "full_screen") {
+                        height = $(window).height();
+                        if (!p) {
+                            p = T.content.height() / height;
+                        }
+                        T.fullScreen = T.fullScreen ? null : true;
+                        T.content.animate({
+                            height: T.fullScreen ? height : height * p
+                        }, 200, function() {
+                            if (T.fullScreen) {
+                                T.content.height("100%");
+                            } else {
+                                T.content.removeAttr("style");
+                            }
+                            T.load(T.index, true);
+                        });
+                        T.close.hide();
+                        m.text(T.fullScreen ? "退出全屏" : "全屏");
+                    } else if (act == "close") {
+                        T.hide();
+                    }
+                    return false;
+                }
+            });
+            this.item.each(function(i) {
+                var m = $(this);
+                (function(i) {
+                    m.click(function() {
+                        T.load(i);
+                        return false;
+                    });
+                })(i);
+            });
+            this.type != "lightbox" && this.load(this.index);
+        },
+        createPageIco: function(page) {
+            function draw(D) {
+                var w = this.width, h = this.height, ctx = this.ctx, point;
+                if (this.hasCanvas) {
+                    ctx.lineWidth = 7;
+                    ctx.strokeStyle = "#000";
+                } else {
+                    this.canvas = $("<i></i>");
+                    this.ico.append(this.canvas);
+                    this.color = "#BABABA";
+                }
+                point = D == "prev" ? [ .8 * w, 0, .1 * w, .5 * h, .8 * w, h ] : [ .2 * w, 0, .9 * w, .5 * h, .2 * w, h ];
+                this.drawLine(point, false, 3);
+                if (this.hasCanvas) {
+                    ctx.lineWidth = 5;
+                    ctx.strokeStyle = "rgba(255,255,255,0.7)";
+                } else {
+                    this.color = "#000000";
+                }
+                this.drawLine(point, false, 4);
+            }
+            ui.ico.prototype["Drawprev"] = function() {
+                draw.call(this, "prev");
+            };
+            ui.ico.prototype["Drawnext"] = function() {
+                draw.call(this, "next");
+            };
+            var options = {
+                type: "prev",
+                width: 50,
+                height: 110,
+                color: "#000000",
+                bgcolor: "#cccccc"
+            };
+            new ui.ico(page.eq(0), options);
+            options.type = "next";
+            new ui.ico(page.eq(1), options);
+            options.width = 18;
+            options.height = 36;
+            new ui.ico(page.eq(3), options);
+            options.type = "prev";
+            new ui.ico(page.eq(2), options);
+            new ui.ico(this.loading, {
+                type: "loading",
+                color: "#006CFF",
+                width: 48,
+                height: 48
+            });
+            new ui.ico(this.close, {
+                type: "close",
+                bgcolor: "#999",
+                color: "#000",
+                width: 32,
+                height: 32
+            });
+        },
+        srcRule: function(src, obj) {
+            if (this.options.srcRule) {
+                return this.options.srcRule(src, obj);
+            } else {
+                return src;
+            }
+        },
+        //@resize:改变窗口大小时
+        load: function(index, resize) {
+            index = index > this.length - 1 ? 0 : index;
+            index = index < 0 ? this.length - 1 : index;
+            if (resize) {
+                this.setCenter(this.image[0]);
+                return;
+            }
+            var T = this, obj = $(this.item[index]), src, small;
+            if (!obj.length) {
+                return;
+            }
+            if (obj[0].tagName.toLowerCase() != "img") {
+                obj = obj.find("img");
+                if (!obj.length) {
+                    return;
+                }
+            }
+            if (!this.img.find("img").length) {
+                this.img.show();
+                this.img.append(this.image);
+            }
+            src = obj.attr("src");
+            var small = this.info.find(".wrap img");
+            this.info.find(".wrap").stop().animate({
+                scrollLeft: small.outerWidth() * (index - 2)
+            }, 200);
+            this.number.find("em").text(index + 1);
+            this.wrap.find(".title").html(obj.attr("data-title") || "");
+            this.wrap.find(".desc").html(obj.attr("data-desc") || "");
+            src = this.srcRule(src, obj);
+            this.image.attr("src", src).hide();
+            this.loading.show();
+            this.ready(src, function() {
+                T.image.data("size", {
+                    width: this.width,
+                    height: this.height
+                });
+                T.setCenter(this);
+            }, function() {
+                T.loading.hide();
+                setTimeout(function() {
+                    T.image.show();
+                }, 100);
+            }, function() {
+                //失败
+                T.close.show();
+                T.loading.hide();
+            });
+            this.index = index;
+            this.page.show();
+            index == 0 && this.page.eq(0).hide();
+            index == this.item.length - 1 && this.page.eq(1).hide();
+            this.options.onChange && this.options.onChange(index);
+            this.info.find(".pic_list img").eq(index).addClass("current").siblings().removeClass("current");
+        },
+        setCenter: function(img) {
+            var T = this, Size = this.image.data("size"), w = Size ? Size.width : img.width, h = Size ? Size.height : img.height, p = (parseInt(this.img.css("padding-left"), 10) || 0) * 2, size = this.limit({
+                width: w + p,
+                height: h + p
+            }), delay = 200;
+            w = size.width;
+            h = size.height;
+            this.img.animate({
+                "margin-left": -w / 2,
+                "margin-top": -h / 2,
+                width: w - p,
+                height: h - p
+            }, delay, function() {
+                T.close.show();
+            });
+            w -= p;
+            h -= p;
+            this.image.animate({
+                "margin-left": -w / 2,
+                "margin-top": -h / 2,
+                width: w,
+                height: h
+            }, delay);
+            this.close.css({
+                left: this.content.width() / 2 + w / 2 + p / 2,
+                top: this.content.height() / 2 - h / 2 - p / 2,
+                display: "none",
+                margin: "-16px 0 0 -16px"
+            });
+        },
+        limit: function(size) {
+            var width = size.width, height = size.height, W = this.content.width(), H = this.content.height(), k = width / height, K = W / H;
+            if (k > K && width > W) {
+                width = W;
+                height = width / k;
+            } else if (k <= K && height > H) {
+                height = H;
+                width = height * k;
+            }
+            return {
+                width: width,
+                height: height
+            };
+        }
+    };
+    function lightbox(id, options) {
+        options = options || {};
+        options.type = "lightbox";
+        options.wrap = $('<div class="lightbox_wrap"><div class="content"><div class="img"></div><i class="loading"></i><i class="p prev"></i><i class="p next"></i><i class="close"></i></div><div class="info"></div></div>').appendTo($("body"));
+        this.layer = ui.layer;
+        this.align = new ui.align({
+            nearby: window,
+            element: options.wrap
+        });
+        this.fullScreen = options.fullScreen;
+        lightbox.baseConstructor.call(this, id, options);
+    }
+    ui.extend(lightbox, player);
+    ui.extend.proto(lightbox, {
+        bind: function(fn) {
+            var T = this, A;
+            var pic = this.info.append([ '<div class="pic_list">', '<i class="p prev" data-action="scroll"></i>', '<i class="p next" data-action="scroll"></i>', '<div class="wrap"><div class="list"></div></div>', "</div>", '<div class="txt">', '<div class="num"><em></em> / <i></i></div>', '<div class="title"></div>', '<div class="desc"></div>', "</div>" ].join("")).find(".pic_list .list");
+            $.each(this.item, function(i, m) {
+                var img = m.tagName.toLowerCase() == "img" ? $(m) : $(m).find("img");
+                if (img.length) {
+                    img = img.clone().attr({
+                        style: ""
+                    });
+                    pic.append(img);
+                }
+            });
+            this.item = pic.find("img");
+            this.close.click(function() {
+                T.hide();
+            });
+            $(window).resize(function() {
+                clearTimeout(A);
+                T.close.hide();
+                A = setTimeout(function() {
+                    T.load(T.index, true);
+                }, 300);
+            });
+            //添加全屏切换事件示例
+            this.wrap[0].addEventListener(fullscreen.fullScreenEventName, function() {
+                !fullscreen.isFullScreen() && T.hide();
+            }, true);
+            fn.call(this);
+        }
+    });
+    lightbox.prototype.show = function(index) {
+        fullscreen.requestFullScreen(this.wrap[0]);
+        $("html").addClass("lightbox");
+        this.align.set();
+        this.wrap.fadeIn(300);
+        this.layer.show(.95);
+        typeof this.options.onShow == "function" && this.options.onShow.call(this);
+        this.load(index);
+        if (this.fullScreen) {
+            this.fullScreen = null;
+            this.info.find("a[data-action=full_screen]").click();
+        }
+    };
+    lightbox.prototype.hide = function() {
+        fullscreen.cancelFullScreen(this.wrap[0]);
+        $("html").removeClass("lightbox");
+        this.wrap.hide();
+        this.layer.hide();
+        typeof this.options.onHide == "function" && this.options.onHide.call(this);
+    };
+    return {
+        player: player,
+        lightbox: lightbox
+    };
+});

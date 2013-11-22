@@ -1,1 +1,1289 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/!function(a,b){"function"==typeof define&&define.cmd?define("nojs/ui",[],b):a.ui=b(null,jQuery)}(this,function(require,$){function instaceofFun(a,b){return a instanceof b.callee?!1:newFun(b.callee,Array.prototype.slice.call(b))}function newFun(a,b){function c(a,b){a.apply(this,b)}return c.prototype=a.prototype,isNew=null,new c(a,b)}function getDom(a){if(a){var b,c=typeof a;return"string"==c?b=$("#"+a):"object"==c&&(b=a.nodeType||a==window?$(a):a),b=b.length?b:null}}function Extend(a,b){var c=function(){};c.prototype=b.prototype,a.prototype=new c,a.prototype.constructor=a,a.baseConstructor=b,a.baseClass=b.prototype}function placeHolder(a,b){var c,d=.98*a.innerWidth(),e=a.outerHeight(),f=a.attr("id"),g=a.attr("placeholder");b=b||0,f=f||"ph_lab"+b,c=$('<label for="'+f+'" style="width:'+d+"px;height:"+e+'px" class="ph_lab ph_lab'+b+'">'+g+"</label>"),/.*\s{2}$/.test(g)&&$.browser("ie6 ie7")&&(a.wrap($('<span class="ph_wrap" style="position:relative;float:'+a.css("float")+'"></span>')),c.css("left","0")),"input"==a[0].tagName.toLowerCase()&&c.css("line-height",e+"px"),a.attr("id",f).before(c),a.on("blur propertychange",function(){setTimeout(function(){""==a.val()?c.show():c.hide()},15)}),setTimeout(function(){""!=a.val()&&c.hide()},150)}var ui={};ui.init=function(area){area=area||$("body");var dom=area.find("[data-ui]"),i,elem,method,options;for(i=0;i<dom.length;i++)elem=dom[i],method=elem.getAttribute("data-ui"),ui[method]&&((options=elem.getAttribute("data-config"))&&(options=eval("({"+options+"})")||{}),ui[method](elem,options))};var isNew,cache={};return Extend.proto=function(a,b){for(var c in b)!function(b,d){a.prototype[c]=function(){b.apply(this,[d].concat(Array.prototype.slice.call(arguments)))}}(b[c],a.prototype[c])},ui.extend=Extend,ui.data=function(a,b){return b?(cache[a]=b,void 0):cache[a]},ui.config={},$.extend($.easing,{easeOutExpo:function(a,b,c,d,e){return b==e?c+d:d*(-Math.pow(2,-10*b/e)+1)+c}}),$.extend({type:function(a){return null==a?String(a):Object.prototype.toString.call(a).slice(8,-1).toLowerCase()},random:function(){return String(Math.ceil(1e5*Math.random())+String((new Date).getTime()))},onScroll:function(a,b){var c=function(a){a=a||window.event,a.wheelDelta||a.detail,a.preventDefault(),b&&b(a)};document.addEventListener&&a.addEventListener("DOMMouseScroll",c,!1),a.onmousewheel=c},browser:function(){var a,b=navigator.userAgent.toLowerCase(),c={version:b.match(/(?:firefox|opera|safari|chrome|msie)[\/: ]([\d.]+)/)[0],safari:/version.+safari/.test(b),chrome:/chrome/.test(b),firefox:/firefox/.test(b),ie:/msie/.test(b),ie6:/msie 6.0/.test(b),ie7:/msie 7.0/.test(b),ie8:/msie 8.0/.test(b),ie9:/msie 9.0/.test(b),opera:/opera/.test(b)};return function(b){return a=!1,b=b.split(" "),$.each(b,function(b,d){return c[d]?(a=!0,!1):void 0}),a}}(),tmpl:function(){var a={};return function(b,c){var d=/\W/.test(b)?new Function("o","var p=[];with(o){p.push('"+b.replace(/[\r\t\n]/g," ").split("<%").join("	").replace(/((^|%>)[^\t]*)'/g,"$1\r").replace(/\t=(.*?)%>/g,"',$1,'").split("	").join("');").split("%>").join("p.push('").split("\r").join("\\'")+"');}return p.join('');"):a[b]=a[b]||$.tmpl(document.getElementById(b).innerHTML);return c?d(c):d}}(),cookie:function(a,b,c){if("undefined"==typeof b){var d="";if(document.cookie&&""!=document.cookie)for(var e=document.cookie.split(";"),f=0;f<e.length;f++){var g=$.trim(e[f]);if(g.substring(0,a.length+1)==a+"="){d=decodeURIComponent(g.substring(a.length+1));break}}return d}c=c||{},null===b&&(b="",c.expires=-1);var h="";if(c.expires&&("number"==typeof c.expires||c.expires.toUTCString)){var i;"number"==typeof c.expires?(i=new Date,i.setTime(i.getTime()+1e3*60*60*24*c.expires)):i=c.expires,h="; expires="+i.toUTCString()}var j=c.path?"; path="+c.path:"",k=c.domain?"; domain="+c.domain:"",l=c.secure?"; secure":"";document.cookie=[a,"=",encodeURIComponent(b),h,j,k,l].join("")},addCss:function(a){if("string"==typeof a){var b;document.createStyleSheet?(window.style=a,document.createStyleSheet("javascript:style")):(b=document.createElement("style"),b.type="text/css",b.innerHTML=a,document.getElementsByTagName("HEAD")[0].appendChild(b))}}}),ui.align=function(a){this.options=a=a||{},this.element=getDom(a.element),this.nearby=getDom(a.nearby);var b=this.nearby&&this.nearby[0]==window;this.position=a.position||(b?{top:50,left:50}:{top:100,left:0}),this.relative=void 0!=a.relative?a.relative:b?!0:!1,this.fixed=void 0==a.fixed&&b?"fixed":a.fixed,this.cssFixed="fixed"==this.fixed&&!$.browser("ie6")&&b,this.offset=a.offset||[0,0],this.isWrap=this.nearby&&(b||this.nearby.find(this.element).length),this.autoAdjust=a.autoAdjust,this.element&&this.bind()},ui.align.prototype={bind:function(){var a=this,b=this.element.data("align");b?this.nearby.add(window).off("."+b):(b="align"+(new Date).getTime(),this.element.data("align",b)),!this.cssFixed&&this.fixed&&this.nearby.on("scroll."+b,function(){a.set()}),$(window).on("resize."+b,function(){a.set()}),this.set()},get:function(a){a=a||this.nearby;var b=a.offset(),c={width:a.outerWidth(),height:a.outerHeight(),x:b?b.left:0,y:b?b.top:0,scrollLeft:this.cssFixed?0:a.scrollLeft(),scrollTop:this.cssFixed?0:a.scrollTop(),WIDTH:this.element.outerWidth(),HEIGHT:this.element.outerHeight()};return c},set:function(a){if(this.element){a=a||{};var b=a.position||this.position,c=getDom(a.nearby)||this.nearby;if(c){var d,e,f,g,h,i,j,k=this.get(c),l={x:{},y:{}},m={};this.isWrap&&(k.x=k.y=0),l.x.element="WIDTH",l.y.element="HEIGHT",l.x.nearby="width",l.y.nearby="height",l.x.offset=0,l.y.offset=1,l.x.scroll="scrollLeft",l.y.scroll="scrollTop";for(e in b)f=g=b[e],h=typeof f,"function"==h&&(f=f(k),h=typeof f),i="top"==e||"bottom"==e?"y":"x",d=l[i],f="number"==h?(k[d.nearby]-(this.relative?k[d.element]:0))*f/100:parseInt(f,10),("bottom"==e||"right"==e)&&(f*=-1,f-=k[d.element]-k[d.nearby]),f+=k[i]+this.offset[d.offset]+k[d.scroll],this.autoAdjust&&(j=this.isWrap?k[d.nearby]:$(window)[d.nearby](),f+k[d.element]-k[d.scroll]>j?f=k[d.element]<k[i]-k[d.scroll]?k[i]-k[d.element]:k[d.scroll]:f<k[d.scroll]&&(f=k[d.scroll])),m["x"==i?"left":"top"]=f;return this.element.css("position",this.cssFixed?"fixed":"absolute"),"animate"==this.fixed?(this.element.stop().animate(m,200),void 0):(this.element.css(m),void 0)}}}},ui.overlay=function(a){ui.overlay.baseConstructor.call(this,a),this.visible=!1,this.content=null,this.arrow=this.options.arrow,this.timeout=this.options.timeout,this.onShow=this.options.onShow,this.onHide=this.options.onHide,ui.overlay.item.push(this),this.init()},Extend(ui.overlay,ui.align),Extend.proto(ui.overlay,{set:function(a,b,c){"content"==b?this.content.empty().append(c):a.call(this,c)}}),ui.overlay.item=[],ui.overlay.hide=function(){for(var a=ui.overlay.item,b=a.length,c=0;b>c;c++)a[c].hide()},ui.overlay.prototype.init=function(){var a=this.options.className;a="string"==typeof a?a:"",this.element=$('<div class="nj_overlay '+a+'"><div class="nj_overlay_wrap"></div></div>').appendTo(document.body).css({display:"block",visibility:"hidden"}),this.content=this.element.find(".nj_overlay_wrap"),this.arrow&&(this.arrow.element=$('<div class="nj_overlay_arrow"></div>').appendTo(this.element),this.arrow.offset=this.arrow.offset||[0,0]),this.bind()},ui.overlay.prototype.show=function(a){if(!this.visible){var b=this;return this.element.css("visibility","visible"),this.set(),this.timeout&&(this.autoHide=setTimeout(function(){b.hide()},this.timeout)),this.visible=!0,a&&a.call(this),this.onShow&&this.onShow.call(this),void 0}},ui.overlay.prototype.hide=function(a){this.visible&&(this.element.css("visibility","hidden"),this.autoHide=clearTimeout(this.autoHide),this.visible=!1,a&&a.call(this),this.onHide&&this.onHide.call(this))},ui.overlay.prototype.on=function(a){a=a||{};var b,c,d,e,f,g,h=this,i=a.mode||"mouseover",j="array"==$.type(a.element)&&a.element.length>1,k=getDom(j?a.element[0]:a.element)||this.nearby,l=this.options.hoverClass||"nj_overlay_show",m=this.onShow,n=this.onHide;k&&(b="mouseover"==i,g=b?" mouseout":"",c=function(c){var d,l,m,n;if(j){if(d=c.target,l=d.tagName.toLowerCase(),n=a.element[1],m=typeof n,"function"==m?n=n.call(d,l):"string"==m&&n==l||(n=null),!n)return;h.nearby&&h.nearby[0]!=d&&h.visible&&h.hide(),k=h.nearby=$(d)}return c.stopPropagation(),b?!function(){f=clearTimeout(f),e=setTimeout(function(){h.show()},10)}():!g&&h.visible?h.hide():h.show(),"click"==i?!1:void 0},d=function(a){a.stopPropagation(),g?!function(){e=clearTimeout(e),f=setTimeout(function(){h.hide()},10)}():h.hide()},this.onShow=function(){k.addClass(l),m&&m.call(h)},this.onHide=function(){k.removeClass(l),n&&n.call(h)},k.on(i,c),g&&k.on(g,d),!b&&!function(){$(document).click(d),h.element.click(function(a){a.stopPropagation()})}(),b&&this.element.hover(function(){f=clearTimeout(f)},d))},ui.layer=function(){function a(){e=$('<div id="nj_layer"></div>').appendTo(document.body),$.browser("ie6")&&(S=function(){e.css({width:d.width(),height:d.height()})},S(),d.on("scroll resize",S),new ui.align({element:e})),$.onScroll(e[0]),f.element=e}function b(b){!document.getElementById("nj_layer")&&a(),e.show().stop().fadeTo(200,"number"==typeof b?b:.8)}function c(){e.fadeTo(200,0,function(){e.hide()})}var d=$(window),e=$("#nj_layer"),f={show:b,hide:c};return f}(),ui.popup=function(a){a=a||{},a.className="nj_win "+(a.className||""),a.nearby=a.nearby||window,ui.popup.baseConstructor.call(this,a),this.width=a.width||400,this.close=null,this.title=null,this.operating=null,this.layer=0==a.layer?!1:!0,this.bindEsc=0==a.bindEsc?!1:!0,this.onShow=a.onShow,this.onHide=a.onHide,this.create()},Extend(ui.popup,ui.overlay),Extend.proto(ui.popup,{set:function(a,b,c){if("title"==b)c&&this.title.html(c).show();else if("button"==b){if(this.button=[],c){this.operating.empty().show();for(var d=0;d<c.length;d++)this.addBtn.apply(this,c[d])}}else a.call(this,b,c)},show:function(a,b){this.visible||(this.layer&&ui.layer.show(),a.call(this,b),this.element.css({"margin-top":-20}),this.element.stop().animate({"margin-top":"0",opacity:"1"},400,"easeOutExpo"),this.bindEsc&&!ui.popup.focus[this.key]&&(ui.popup.focus[this.key]=this))},hide:function(a,b){if(this.visible){var c=this,d=this.layer;(!this.onbeforehide||this.onbeforehide())&&(a.call(c,b),this.element.css("visibility","visible"),this.element.animate({"margin-top":-20,opacity:"0"},400,"easeOutExpo",function(){c.element.css("visibility","hidden")}),this.layer&&$.each(ui.popup.item,function(){return this.key!=c.key&&this.visible&&this.layer?(d=!1,!1):void 0}),d&&ui.layer.hide(),delete ui.popup.focus[this.key])}}}),ui.popup.prototype.create=function(){var a=this,b="nj_popup_"+$.random();ui.popup.item[b]=this,this.key=b,this.set("content",['<span class="win_close"></span><div class="win_tit"></div>','<div class="win_con clearfix"></div>','<div class="win_opt"></div>'].join("")),this.content.addClass("win_wrap"),this.element.css({width:a.width,opacity:"0"}),this.element[0].id=b,this.close=this.element.find(".win_close"),this.title=this.element.find(".win_tit").hide(),this.content=this.element.find(".win_con"),this.operating=this.element.find(".win_opt").hide(),new ui.ico(this.close,{type:"close"}),this.close.on("click",function(){a.hide()}),this.bindEsc&&!ui.popup.bind.init&&ui.popup.bind(),$.onScroll(this.content[0])},ui.popup.prototype.addBtn=function(a,b,c){if(void 0!==a){this.operating.is(":hidden")&&this.operating.show();var d=this,e=$('<a href=""></a>'),c=c?c:"";"string"==typeof b&&"close"!=b&&(c=b,b=null),e.attr({"class":"no"==c?"no":"nj_btn n_b_"+c}),e.html("<i>"+a+"</i>"),this.operating.append(e),this.button.push(e),b&&(b="close"==b?function(){d.hide()}:b,e.on("click",function(){return b.call(d),!1}))}},ui.popup.item={},ui.popup.clear=function(a){function b(a){a.self.remove(),a=null}if(a){var c=ui.popup.item[a];c&&b(c)}else{for(var d in ui.popup.item)b(ui.popup.item[d]);ui.popup.item={},ui.msg.win=null}},ui.popup.focus={},ui.popup.bind=function(){ui.popup.bind.init||(ui.popup.bind.init=!0,$(window).on("keydown",function(a){if(27==a.keyCode){var b,c;for(b in ui.popup.focus)c=ui.popup.focus[b];c.bindEsc&&c.visible&&c.hide()}}))},ui.msg=function(){var a={};return{show:function(b,c,d){d=d||{};var e=d.button,f=void 0!=d.timeout?d.timeout:1600,g="confirm"==b,h=g?"温馨提醒：":null,i=d.width||(g?400:"auto"),j=a[b];this.hide(!0),c=c||"","loading"==b?c=c||"正在处理请求,请稍候……":g&&(e=e||[["确定",function(){j.hide(function(){"function"==typeof d.ok&&d.ok.call(this)})},"sb"],["取消","close"]]),j&&$("#"+j.key).length||(j=new ui.popup({width:i,bindEsc:g?!0:!1,className:"msg_tip_win"}),j.element.find("div.nj_overlay_wrap").addClass("msg_tip_"+b),j.set("title",h),j.set("content",'<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>'),new ui.ico(j.content.find("i.tip_ico"),{type:g?"warn":b}),a[b]=j,g&&(j.onShow=function(){ui.layer.element.addClass("higher_layer")},j.onHide=function(){ui.layer.element.removeClass("higher_layer")})),j.layer=g?!0:d.layer,j.timeout=g||"loading"==b||d.reload?0:f,d.reload&&setTimeout(function(){d.reload===!0?location.reload():"string"==typeof d.reload&&(location.href=d.reload)},1500),!e&&j.operating.hide().empty(),j.set("button",e),j.content.find(".tip_con").html(c),j.show(),g&&j.button[0].focus()},hide:function(b){for(var c in a)b&&a[c].element.stop().css("visibility","hidden"),a[c].hide()}}}(),ui.select=function(a,b){return(isNew=instaceofFun(this,arguments))?isNew:(b=b||{},(b.nearby=getDom(a))&&(b.className="nj_select_list "+(b.className||""),b.hoverClass=b.hoverClass||"nj_select_show",ui.select.baseConstructor.call(this,b),this.nearby&&"select"==this.nearby[0].tagName.toLowerCase()&&(this._select=this.nearby,ui.data(this.nearby[0].id,this),this.max=this.options.max,this.onSelect=this.options.onSelect,this.defaultEvent=1==this.options.defaultEvent?!0:!1,this.autoWidth=0==this.options.autoWidth?!1:!0,this.index=0,this.value=this.nearby[0].getAttribute("value")||this.nearby.val(),this.replace())),void 0)},Extend(ui.select,ui.overlay),ui.select.prototype.replace=function(a){var b,c,d=this.nearby.find("option"),e=this.nearby.find("optgroup");if(e.length){var f,g;for(f=0;f<e.length;f++)g=e.eq(f),g.before("<dt>"+g.attr("label")+"</dt>").replaceWith(g.html())}b=$("<dl>"+this.nearby.html().replace(/(<\/?)option(>?)/gi,"$1dd$2")+"</dl>"),e.length&&b.addClass("group"),this.length=d.length,c=$(['<span class="nj_select" tabindex="-1"><i class="nj_s_wrap"></i><div class="nj_arrow"></div>','<input type="hidden" name="'+this.nearby.attr("name")+'" value="'+this.value+'" class="hide" />',"</span>"].join("")),this.nearby.replaceWith(c),this.nearby=c,this.set("content",b),this.current=this.nearby.find("i"),this.hidden=this.nearby.find("input.hide"),this.item=this.element.find("dd");var h="auto";this.max&&/^\d+$/.test(this.max)&&this.max>1&&this.max<this.length&&(g=this.item.last(),h=g.outerHeight()*this.max,e.length&&(h+=this.item.eq(this.max-1).prevAll("dt").length*g.siblings("dt").outerHeight()),b.height(h)),this.autoWidth&&this.nearby.width(this.element.width()),!a&&this.bindEvent(),!this.select(this.value,this.defaultEvent)&&this.select(0,this.defaultEvent)},ui.select.prototype.bindEvent=function(){var a=this;this.on({mode:this.options.mode}),this.element.click(function(b){var c=b.target;c.getAttribute("value"),"dd"==c.tagName.toLowerCase()&&(a.select(a.item.index(c)),a.nearby.focus(),a.hide())}),this.nearby.keydown(function(b){if(38==b.which)a.index--;else if(40==b.which)a.index++;else{if(13!=b.which)return;a.hide()}a.select(a.index)})},ui.select.prototype.select=function(a,b){var c,d,e,f;if("string"==typeof a){if(f=this.content.find('dd[value="'+a+'"]'),f.length)c=f.first(),this.index=this.item.index(c);else for(e=0;e<this.length;e++)if(d=this.item.eq(e),d.text()==a){c=d,this.index=e;break}}else"number"==typeof a&&(a=0>a?this.length-1:a,a=a>this.length-1?0:a,this.index=a,c=this.item.eq(a),a=c.attr("value")||"");if(c)return this.current.text(c.text()),c.addClass("select").siblings().removeClass("select"),this.hidden.val(a),this.value=a,b!==!1&&this.onSelect&&this.onSelect.call(this,a),c},ui.Switch=function(a,b){return(isNew=instaceofFun(this,arguments))?isNew:((this.element=getDom(a))&&(this.M=this.element.find(".nj_s_menu").first(),this.menu=this.M.find(".nj_s_m"),this.C=this.element.find(".nj_s_con").first(),this.con=this.C.children(".nj_s_c"),this.length=this.con.length,this.length&&(this.options=b=b||{},this.mode="click"==b.mode?"click":"mouseover",this.onChange=b.onChange,this.onHide=b.onHide,this.index=this.getIndex(b.firstIndex),this.rule=b.rule||this.rule,this.bind())),void 0)},ui.Switch.prototype={bind:function(){var a,b,c=this,d="mouseover"==this.mode?100:0;this.menu&&(this.menu.on(this.mode+".nj_switch",function(){return b=$(this),b.hasClass("current")?!1:(c.onTrigger&&c.onTrigger(),a=setTimeout(function(){c.change(b.index())},d),!1)}).mouseout(function(){a=clearTimeout(a)}),this.change(this.index))},getIndex:function(a){return a=parseInt(a)||0,a=a>this.length-1?0:a,a=0>a?this.length-1:a},change:function(a){a=this.getIndex(a),this.rule?this.rule.call(this,a):(this.con.eq(a).show().siblings().hide(),this.menu.eq(a).addClass("current").siblings().removeClass("current")),this.onHide&&this.index!=a&&this.onHide.call(this,this.index),this.index=a,this.onChange&&this.onChange.call(this,a)}},ui.slide=function(a,b){if(ui.slide.baseConstructor.call(this,a,b),this.element){this.play=null,this.time=this.options.time||5e3,this.auto=0==this.options.auto?!1:!0,this.stopOnHover=0==this.options.stopOnHover?!1:!0;var c=this;this.stopOnHover&&this.element.hover(function(){c.play=clearInterval(c.play)},function(){c.start()}),this.getNum(),this.start(!0)}},Extend(ui.slide,ui.Switch),ui.slide.prototype.getNum=function(){if(!this.M.children().length){for(var a="",b=1;b<=this.length;b++)a+='<li class="nj_s_m">'+b+"</li>";this.M.append(a),this.menu=this.M.find(".nj_s_m"),this.bind()}},ui.slide.prototype.onTrigger=function(){!this.stopOnHover&&this.start()},ui.slide.prototype.rule=function(a){this.con.eq(a).fadeIn(300).siblings().hide(),this.menu.eq(a).addClass("current").siblings().removeClass("current"),this.index=a},ui.slide.prototype.start=function(a){var b=this;!this.auto||this.length<2||(a&&this.change(this.index),clearInterval(b.play),b.play=setInterval(function(){b.change(++b.index)},b.time))},ui.ico=function(a,b){return(isNew=instaceofFun(this,arguments))?isNew:(b=b||{},this.hasCanvas=!!document.createElement("canvas").getContext,this.type=b.type||"ok",this.ico=$('<i class="nj_ico n_i_'+this.type+'"></i>'),(a=getDom(a))&&(a.html(this.ico),this.canvas=null,this.ctx=null,this.width=b.width||this.ico.width()||16,this.height=b.height||this.ico.height()||16,this.color=b.color||this.ico.css("color"),this.bgcolor=b.bgcolor||this.ico.css("background-color"),this.ico.css({background:"none",width:this.width,height:this.height}),this.createSpace()),void 0)},ui.ico.prototype={createSpace:function(){var a=document;if(this.hasCanvas)this.canvas=a.createElement("canvas"),this.ctx=this.canvas.getContext("2d"),this.canvas.width=this.width,this.canvas.height=this.height,this.ico.append(this.canvas);else{if(!ui.ico.iscreatevml){var b=a.createStyleSheet(),c=["polyline","oval","arc","stroke","shape"];a.namespaces.add("v","urn:schemas-microsoft-com:vml");for(var d=0;d<c.length;d++)b.addRule("v\\:"+c[d],"behavior:url(#default#VML);display:inline-block;");ui.ico.iscreatevml=!0}this.ico.css("position","relative")}this.draw()},drawLine:function(a,b,c){var d,e=a.length;if(this.hasCanvas){for(this.ctx.beginPath(),this.ctx.moveTo(a[0],a[1]),d=2;e>d;d+=2)this.ctx.lineTo(a[d],a[d+1]);this.ctx.stroke(),b&&this.ctx.fill()}else{var f="",g="";for(d=0;e>d;d+=2)f+=a[d]+","+a[d+1]+" ";g+='<v:polyline strokeWeight="'+c+'" filled="'+(b?"true":"false")+'" class="polyline" strokecolor="'+this.color+'" points="'+f+'" ',b&&(g+='fillcolor="'+this.color+'"'),g+="/>",$(this.canvas).after(g)}},draw:function(){function a(){n.hasCanvas?n.ico.hover(function(){k.clearRect(0,0,g,h),k.beginPath(),k.fillStyle=i,k.strokeStyle=j,k.arc(g/2,h/2,g/2,f,3*f,!1),k.fill(),k.stroke(),k.fillStyle=j,n.drawLine(e,!0)},function(){k.clearRect(0,0,g,h),k.beginPath(),k.fillStyle=j,k.strokeStyle=j,k.arc(g/2,h/2,g/2,f,3*f,!1),k.fill(),k.stroke(),k.fillStyle=i,k.strokeStyle=i,n.drawLine(e,!0)}):n.ico.hover(function(){var a=$(this).find(".oval")[0],b=$(this).find(".polyline")[0];a.fillcolor=a.strokecolor=i,b.fillcolor=b.strokecolor=j},function(){var a=$(this).find(".oval")[0],b=$(this).find(".polyline")[0];a.fillcolor=a.strokecolor=j,b.fillcolor=b.strokecolor=i})}var b,c,d,e,f=Math.PI,g=this.width,h=this.height,i=this.color,j=this.bgcolor,k=this.ctx,l=(this.canvas,this.type),m=document,n=this;"loading"==l?(d=3,this.hasCanvas?(b=f/180,c=200*f/180,k.strokeStyle=this.color,k.lineWidth=d,window.setInterval(function(){k.clearRect(0,0,g,h),b+=.2,c+=.2,k.beginPath(),k.arc(g/2,h/2,g/2-d+1,b,c,!1),k.stroke()},20)):(b=0,d--,this.canvas=m.createElement('<v:arc class="oval" filled="false" style="left:1px;top:1px;width:'+(g-2*d+1)+"px;height:"+(h-2*d+1)+'px" startangle="0" endangle="200"></v:arc>'),$(this.canvas).append('<v:stroke weight="'+d+'" color="'+i+'"/>'),this.ico.append(this.canvas),window.setInterval(function(){b+=6,b=b>360?b-360:b,n.canvas.rotation=b},15))):"ok"==l||"warn"==l||"error"==l||"close"==l?(this.hasCanvas?(k.beginPath(),k.fillStyle=j,k.arc(g/2,h/2,g/2,f,3*f,!1),k.fill(),k.fillStyle=i,k.strokeStyle=i):(this.canvas=m.createElement('<v:oval class="oval" fillcolor="'+j+'" style="width:'+(g-1)+"px;height:"+(h-1)+'px;"></v:oval>'),$(this.canvas).append('<v:stroke color="'+j+'"/>'),this.ico.append(this.canvas)),"ok"==l?(e=[.26*g,.43*h,.45*g,.59*h,.71*g,.33*h,.71*g,.47*h,.45*g,.73*h,.26*g,.57*h],this.drawLine(e,!0)):"warn"==l?(this.hasCanvas?(k.beginPath(),k.arc(.5*g,.73*h,.07*g,f,3*f,!1),k.stroke(),k.fill()):this.ico.append('<v:oval class="oval" fillcolor="#fff" style="width:'+.16*h+"px;height:"+.14*h+"px;left:"+h*($.browser("ie6 ie7")?.43:.4)+"px;top:"+.68*h+'px"><v:stroke color="#fff"/></v:oval>'),e=[.45*g,.22*h,.55*g,.22*h,.55*g,.54*h,.45*g,.54*h],this.drawLine(e,!0)):("error"==l||"close"==l)&&(this.hasCanvas||(g=.95*g,h=.95*h),e=[.33*g,.3*h,.5*g,.46*h,.68*g,.3*h,.72*g,.34*h,.55*g,.52*h,.71*g,.68*h,.68*g,.73*h,.5*g,.56*h,.34*g,.72*h,.29*g,.69*h,.46*g,.51*h,.29*g,.34*h],this.drawLine(e,!0),"close"==l&&a())):this["Draw"+l]&&this["Draw"+l]()}},$.browser("ie6 ie7 ie8 ie9")&&$(function(){var a,b=$("[placeholder]");for(a=0;a<b.length;a++)placeHolder(b.eq(a),a)}),ui});
+/*
+ * nojs UI
+ * 2013-7-30
+ * nolure@vip.qq.com
+ */
+!function(window, factory) {
+    if (typeof define == "function" && define.cmd) {
+        define("nojs/ui", [], factory);
+    } else {
+        window.ui = factory(null, jQuery);
+    }
+}(this, function(require, $) {
+    var ui = {};
+    /*
+     * 触发方式
+     * 1.普通：直接执行相关方法，
+     * 2.区域初始化：通过在Elements上配置相应的属性初始化对应区域内所有ui组件，默认body区域
+     */
+    ui.init = function(area) {
+        area = area || $("body");
+        var dom = area.find("[data-ui]"), i, elem, method, options;
+        for (i = 0; i < dom.length; i++) {
+            elem = dom[i];
+            method = elem.getAttribute("data-ui");
+            if (ui[method]) {
+                if (options = elem.getAttribute("data-config")) {
+                    options = eval("({" + options + "})") || {};
+                }
+                ui[method](elem, options);
+            }
+        }
+    };
+    var isNew, cache = {};
+    function instaceofFun(fun, arg) {
+        if (!(fun instanceof arg.callee)) {
+            return newFun(arg.callee, Array.prototype.slice.call(arg));
+        } else {
+            return false;
+        }
+    }
+    function newFun(parent, args) {
+        function F(parent, args) {
+            parent.apply(this, args);
+        }
+        F.prototype = parent.prototype;
+        isNew = null;
+        return new F(parent, args);
+    }
+    /*
+     * 所有依赖dom的ui组件都可以通过id,element,jQuery来获取dom元素
+     */
+    function getDom(selector) {
+        if (!selector) {
+            return;
+        }
+        var type = typeof selector, elem;
+        if (type == "string") {
+            //通过id
+            elem = $("#" + selector);
+        } else if (type == "object") {
+            elem = selector.nodeType || selector == window ? $(selector) : selector;
+        }
+        elem = elem.length ? elem : null;
+        return elem;
+    }
+    //类继承
+    function Extend(Child, Parent) {
+        var F = function() {};
+        F.prototype = Parent.prototype;
+        Child.prototype = new F();
+        Child.prototype.constructor = Child;
+        Child.baseConstructor = Parent;
+        Child.baseClass = Parent.prototype;
+    }
+    //扩展子类原型方法
+    Extend.proto = function(Class, value) {
+        for (var i in value) {
+            (function(fn, _fn) {
+                Class.prototype[i] = function() {
+                    fn.apply(this, [ _fn ].concat(Array.prototype.slice.call(arguments)));
+                };
+            })(value[i], Class.prototype[i]);
+        }
+    };
+    ui.extend = Extend;
+    ui.data = function(id, Class) {
+        if (Class) {
+            //set
+            cache[id] = Class;
+        } else {
+            return cache[id];
+        }
+    };
+    ui.config = {};
+    /* 
+     * [animate动画扩展]
+     * http://gsgd.co.uk/sandbox/jquery/easing/jquery.easing.1.3.js
+     * easeIn：加速度缓动；
+     * easeOut：减速度缓动；
+     * easeInOut：先加速度至50%，再减速度完成动画
+     */
+    $.extend($.easing, {
+        //指数曲线缓动
+        easeOutExpo: function(x, t, b, c, d) {
+            return t == d ? b + c : c * (-Math.pow(2, -10 * t / d) + 1) + b;
+        }
+    });
+    $.extend({
+        type: function(obj) {
+            return obj == null ? String(obj) : Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
+        },
+        random: function() {
+            //得到一个随机数
+            return String(Math.ceil(Math.random() * 1e5) + String(new Date().getTime()));
+        },
+        //取消事件的默认动作 e.preventDefault()   stopDefault
+        //阻止冒泡 e.stopPropagation()        stopBubble
+        onScroll: function(obejct, onScroll) {
+            //自定义鼠标滚轮事件
+            var scrollFunc = function(e) {
+                e = e || window.event;
+                if (e.wheelDelta) {} else if (e.detail) {}
+                e.preventDefault();
+                onScroll && onScroll(e);
+            };
+            if (document.addEventListener) {
+                //firefox
+                obejct.addEventListener("DOMMouseScroll", scrollFunc, false);
+            }
+            obejct.onmousewheel = scrollFunc;
+        },
+        browser: function() {
+            //检测浏览器
+            var u = navigator.userAgent.toLowerCase(), fn = {
+                version: u.match(/(?:firefox|opera|safari|chrome|msie)[\/: ]([\d.]+)/)[0],
+                //浏览器版本号
+                safari: /version.+safari/.test(u),
+                chrome: /chrome/.test(u),
+                firefox: /firefox/.test(u),
+                ie: /msie/.test(u),
+                ie6: /msie 6.0/.test(u),
+                ie7: /msie 7.0/.test(u),
+                ie8: /msie 8.0/.test(u),
+                ie9: /msie 9.0/.test(u),
+                opera: /opera/.test(u)
+            }, state;
+            return function(name) {
+                //多个用逗号隔开 如'ie6 ie7'
+                state = false;
+                name = name.split(" ");
+                $.each(name, function(i, val) {
+                    if (fn[val]) {
+                        state = true;
+                        return false;
+                    }
+                });
+                return state;
+            };
+        }(),
+        tmpl: function() {
+            /*
+             * js模版引擎
+             * http://ejohn.org/blog/javascript-micro-templating/
+             */
+            var c = {};
+            return function(s, d) {
+                var fn = !/\W/.test(s) ? c[s] = c[s] || $.tmpl(document.getElementById(s).innerHTML) : new Function("o", "var p=[];" + "with(o){p.push('" + s.replace(/[\r\t\n]/g, " ").split("<%").join("	").replace(/((^|%>)[^\t]*)'/g, "$1\r").replace(/\t=(.*?)%>/g, "',$1,'").split("	").join("');").split("%>").join("p.push('").split("\r").join("\\'") + "');}return p.join('');");
+                return d ? fn(d) : fn;
+            };
+        }(),
+        cookie: function(name, value, options) {
+            /*
+             * 读取cookie值: $.cookie("key"); 
+             * 设置/新建cookie的值:    $.cookie("key", "value");
+             * 新建一个cookie 包括有效期(天数) 路径 域名等:$.cookie("key", "value", {expires: 7, path: '/', domain: 'a.com', secure: true});
+             * 删除一个cookie:$.cookie("key", null);    
+             */
+            if (typeof value != "undefined") {
+                options = options || {};
+                if (value === null) {
+                    value = "";
+                    options.expires = -1;
+                }
+                var expires = "";
+                if (options.expires && (typeof options.expires == "number" || options.expires.toUTCString)) {
+                    var date;
+                    if (typeof options.expires == "number") {
+                        date = new Date();
+                        date.setTime(date.getTime() + options.expires * 24 * 60 * 60 * 1e3);
+                    } else {
+                        date = options.expires;
+                    }
+                    expires = "; expires=" + date.toUTCString();
+                }
+                var path = options.path ? "; path=" + options.path : "";
+                var domain = options.domain ? "; domain=" + options.domain : "";
+                var secure = options.secure ? "; secure" : "";
+                document.cookie = [ name, "=", encodeURIComponent(value), expires, path, domain, secure ].join("");
+            } else {
+                var cookieValue = "";
+                if (document.cookie && document.cookie != "") {
+                    var cookies = document.cookie.split(";");
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = $.trim(cookies[i]);
+                        if (cookie.substring(0, name.length + 1) == name + "=") {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        },
+        addCss: function(css) {
+            //动态创建css @css:string
+            if (typeof css != "string") {
+                return;
+            }
+            var i, style;
+            if (document.createStyleSheet) {
+                window.style = css;
+                document.createStyleSheet("javascript:style");
+            } else {
+                style = document.createElement("style");
+                style.type = "text/css";
+                style.innerHTML = css;
+                document.getElementsByTagName("HEAD")[0].appendChild(style);
+            }
+        }
+    });
+    /*
+     * 将对象对齐到某个参考元素nearby
+     * nearby是window对象,即固定在屏幕上
+     * relative为true可设置为类似css的背景图定位方式,只限百分比
+     */
+    ui.align = function(options) {
+        this.options = options = options || {};
+        this.element = getDom(options.element);
+        this.nearby = getDom(options.nearby);
+        var screen = this.nearby && this.nearby[0] == window;
+        this.position = options.position || (screen ? {
+            top: 50,
+            left: 50
+        } : {
+            top: 100,
+            left: 0
+        });
+        this.relative = options.relative != undefined ? options.relative : screen ? true : false;
+        this.fixed = options.fixed == undefined && screen ? "fixed" : options.fixed;
+        //null fixed animate
+        this.cssFixed = this.fixed == "fixed" && !$.browser("ie6") && screen;
+        //直接使用css:fixed来定位
+        this.offset = options.offset || [ 0, 0 ];
+        this.isWrap = this.nearby && (screen || this.nearby.find(this.element).length);
+        //对象是否在参考对象内部
+        this.autoAdjust = options.autoAdjust;
+        //超出屏幕后是否自动调整位置
+        this.element && this.bind();
+    };
+    ui.align.prototype = {
+        bind: function() {
+            var self = this, ns = this.element.data("align"), type;
+            if (ns) {
+                this.nearby.add(window).off("." + ns);
+            } else {
+                ns = "align" + new Date().getTime();
+                this.element.data("align", ns);
+            }
+            if (!this.cssFixed && this.fixed) {
+                this.nearby.on("scroll." + ns, function() {
+                    self.set();
+                });
+            }
+            $(window).on("resize." + ns, function() {
+                self.set();
+            });
+            this.set();
+        },
+        get: function(nearby) {
+            nearby = nearby || this.nearby;
+            var offset = nearby.offset(), size = {
+                width: nearby.outerWidth(),
+                height: nearby.outerHeight(),
+                x: offset ? offset.left : 0,
+                y: offset ? offset.top : 0,
+                scrollLeft: this.cssFixed ? 0 : nearby.scrollLeft(),
+                scrollTop: this.cssFixed ? 0 : nearby.scrollTop(),
+                WIDTH: this.element.outerWidth(),
+                HEIGHT: this.element.outerHeight()
+            };
+            return size;
+        },
+        set: function(options) {
+            //可设置nearby position offset relative等参数覆盖初始选项
+            if (!this.element) {
+                return;
+            }
+            options = options || {};
+            var position = options.position || this.position, nearby = getDom(options.nearby) || this.nearby;
+            if (!nearby) {
+                return;
+            }
+            var size = this.get(nearby), Attr = {
+                x: {},
+                y: {}
+            }, _Attr, attr, value, _value, type, direction, style = {}, wrapSize;
+            if (this.isWrap) {
+                size.x = size.y = 0;
+            }
+            Attr.x.element = "WIDTH";
+            Attr.y.element = "HEIGHT";
+            Attr.x.nearby = "width";
+            Attr.y.nearby = "height";
+            Attr.x.offset = 0;
+            Attr.y.offset = 1;
+            Attr.x.scroll = "scrollLeft";
+            Attr.y.scroll = "scrollTop";
+            for (attr in position) {
+                value = _value = position[attr];
+                type = typeof value;
+                if (type == "function") {
+                    value = value(size);
+                    type = typeof value;
+                }
+                direction = attr == "top" || attr == "bottom" ? "y" : "x";
+                _Attr = Attr[direction];
+                value = type == "number" ? (size[_Attr.nearby] - (this.relative ? size[_Attr.element] : 0)) * value / 100 : parseInt(value, 10);
+                if (attr == "bottom" || attr == "right") {
+                    value *= -1;
+                    value -= size[_Attr.element] - size[_Attr.nearby];
+                }
+                value += size[direction] + this.offset[_Attr.offset] + size[_Attr.scroll];
+                if (this.autoAdjust) {
+                    //屏幕边界限制
+                    wrapSize = this.isWrap ? size[_Attr.nearby] : $(window)[_Attr.nearby]();
+                    if (value + size[_Attr.element] - size[_Attr.scroll] > wrapSize) {
+                        if (size[_Attr.element] < size[direction] - size[_Attr.scroll]) {
+                            value = size[direction] - size[_Attr.element];
+                        } else {
+                            value = size[_Attr.scroll];
+                        }
+                    } else if (value < size[_Attr.scroll]) {
+                        value = size[_Attr.scroll];
+                    }
+                }
+                style[direction == "x" ? "left" : "top"] = value;
+            }
+            this.element.css("position", this.cssFixed ? "fixed" : "absolute");
+            if (this.fixed == "animate") {
+                this.element.stop().animate(style, 200);
+                return;
+            }
+            this.element.css(style);
+        }
+    };
+    /*
+     * 浮动层
+     */
+    ui.overlay = function(options) {
+        ui.overlay.baseConstructor.call(this, options);
+        this.visible = false;
+        //可视状态
+        this.content = null;
+        //内容区域
+        this.arrow = this.options.arrow;
+        //箭头 根据align对齐方式自动调整指向
+        this.timeout = this.options.timeout;
+        this.onShow = this.options.onShow;
+        this.onHide = this.options.onHide;
+        ui.overlay.item.push(this);
+        this.init();
+    };
+    Extend(ui.overlay, ui.align);
+    Extend.proto(ui.overlay, {
+        set: function(fn, key, value) {
+            if (key == "content") {
+                this.content.empty().append(value);
+            } else {
+                fn.call(this, value);
+            }
+        }
+    });
+    ui.overlay.item = [];
+    ui.overlay.hide = function() {
+        var item = ui.overlay.item, n = item.length, i = 0;
+        for (;i < n; i++) {
+            item[i].hide();
+        }
+    };
+    ui.overlay.prototype.init = function() {
+        var self = this, _class = this.options.className;
+        _class = typeof _class == "string" ? _class : "";
+        //添加class 多个用空格隔开
+        this.element = $('<div class="nj_overlay ' + _class + '"><div class="nj_overlay_wrap"></div></div>').appendTo(document.body).css({
+            display: "block",
+            visibility: "hidden"
+        });
+        this.content = this.element.find(".nj_overlay_wrap");
+        if (this.arrow) {
+            this.arrow.element = $('<div class="nj_overlay_arrow"></div>').appendTo(this.element);
+            this.arrow.offset = this.arrow.offset || [ 0, 0 ];
+        }
+        this.bind();
+    };
+    ui.overlay.prototype.show = function(callback) {
+        if (this.visible) {
+            return;
+        }
+        var self = this;
+        this.element.css("visibility", "visible");
+        this.set();
+        if (this.timeout) {
+            this.autoHide = setTimeout(function() {
+                self.hide();
+            }, this.timeout);
+        }
+        this.visible = true;
+        callback && callback.call(this);
+        this.onShow && this.onShow.call(this);
+        return;
+        if (self.arrow) {
+            var top = 0, left = 0, direction = self.arrow.direction || pos[2];
+            if (direction == "up" || direction == "down") {} else if (direction == "left" || direction == "right") {}
+            self.arrow.element.css({
+                top: top,
+                left: left
+            }).attr("class", "nj_overlay_arrow nj_overlay_arrow_" + direction);
+        }
+    };
+    ui.overlay.prototype.hide = function(callback) {
+        if (!this.visible) {
+            return;
+        }
+        this.element.css("visibility", "hidden");
+        this.autoHide = clearTimeout(this.autoHide);
+        this.visible = false;
+        callback && callback.call(this);
+        this.onHide && this.onHide.call(this);
+    };
+    ui.overlay.prototype.on = function(options) {
+        options = options || {};
+        var self = this, mode = options.mode || "mouseover", agent = $.type(options.element) == "array" && options.element.length > 1, element = getDom(agent ? options.element[0] : options.element) || this.nearby, hoverClass = this.options.hoverClass || "nj_overlay_show", onShow = this.onShow, onHide = this.onHide, isHover, show, hide, showTime, hideTime, hideEvent;
+        if (!element) {
+            return;
+        }
+        isHover = mode == "mouseover";
+        hideEvent = isHover ? " mouseout" : "";
+        show = function(e) {
+            var t, tag, type, el;
+            if (agent) {
+                t = e.target;
+                tag = t.tagName.toLowerCase();
+                el = options.element[1];
+                type = typeof el;
+                if (type == "function") {
+                    el = el.call(t, tag);
+                } else if (type == "string" && el == tag) {} else {
+                    el = null;
+                }
+                if (!el) {
+                    return;
+                }
+                if (self.nearby && self.nearby[0] != t && self.visible) {
+                    self.hide();
+                }
+                element = self.nearby = $(t);
+            }
+            e.stopPropagation();
+            isHover ? !function() {
+                hideTime = clearTimeout(hideTime);
+                showTime = setTimeout(function() {
+                    self.show();
+                }, 10);
+            }() : !hideEvent && self.visible ? self.hide() : self.show();
+            if (mode == "click") {
+                return false;
+            }
+        };
+        hide = function(e) {
+            e.stopPropagation();
+            hideEvent ? !function() {
+                showTime = clearTimeout(showTime);
+                hideTime = setTimeout(function() {
+                    self.hide();
+                }, 10);
+            }() : self.hide();
+        };
+        this.onShow = function() {
+            element.addClass(hoverClass);
+            onShow && onShow.call(self);
+        };
+        this.onHide = function() {
+            element.removeClass(hoverClass);
+            onHide && onHide.call(self);
+        };
+        element.on(mode, show);
+        hideEvent && element.on(hideEvent, hide);
+        !isHover && !function() {
+            $(document).click(hide);
+            self.element.click(function(e) {
+                e.stopPropagation();
+            });
+        }();
+        isHover && this.element.hover(function() {
+            hideTime = clearTimeout(hideTime);
+        }, hide);
+    };
+    ui.layer = function() {
+        /*
+         * 遮罩层
+         */
+        var w = $(window), layer = $("#nj_layer"), arr = {
+            show: show,
+            hide: hide
+        };
+        function init() {
+            layer = $('<div id="nj_layer"></div>').appendTo(document.body);
+            if ($.browser("ie6")) {
+                S = function() {
+                    layer.css({
+                        width: w.width(),
+                        height: w.height()
+                    });
+                };
+                S();
+                w.on("scroll resize", S);
+                new ui.align({
+                    element: layer
+                });
+            }
+            $.onScroll(layer[0]);
+            arr.element = layer;
+        }
+        function show(opacity) {
+            !document.getElementById("nj_layer") && init();
+            layer.show().stop().fadeTo(200, typeof opacity == "number" ? opacity : .8);
+        }
+        function hide() {
+            layer.fadeTo(200, 0, function() {
+                layer.hide();
+            });
+        }
+        return arr;
+    }();
+    ui.popup = function(options) {
+        /*
+         * 弹窗
+         */
+        options = options || {};
+        options.className = "nj_win " + (options.className || "");
+        options.nearby = options.nearby || window;
+        ui.popup.baseConstructor.call(this, options);
+        this.width = options.width || 400;
+        //宽
+        this.close = null;
+        //关闭按钮
+        this.title = null;
+        //标题区
+        this.operating = null;
+        //操作区
+        this.layer = options.layer == false ? false : true;
+        this.bindEsc = options.bindEsc == false ? false : true;
+        this.onShow = options.onShow;
+        this.onHide = options.onHide;
+        this.create();
+    };
+    Extend(ui.popup, ui.overlay);
+    Extend.proto(ui.popup, {
+        set: function(fn, key, value) {
+            /*
+                                   设置标题、内容
+            @tit,con:会替换以前的
+            @btns:设置操作区按钮，为一个数组，数组项格式同this.getButton,如不设置或设置null则隐藏操作区
+            */
+            if (key == "title") {
+                value && this.title.html(value).show();
+            } else if (key == "button") {
+                this.button = [];
+                if (value) {
+                    this.operating.empty().show();
+                    //重设操作区
+                    for (var i = 0; i < value.length; i++) {
+                        this.addBtn.apply(this, value[i]);
+                    }
+                }
+            } else {
+                fn.call(this, key, value);
+            }
+        },
+        show: function(fn, callback) {
+            /*
+                                            显示弹窗
+                @callBack:可选参数，回调函数
+            */
+            if (this.visible) {
+                return;
+            }
+            this.layer && ui.layer.show();
+            fn.call(this, callback);
+            this.element.css({
+                "margin-top": -20
+            });
+            this.element.stop().animate({
+                "margin-top": "0",
+                opacity: "1"
+            }, 400, "easeOutExpo");
+            //this.bindEsc && ui.popup.focus.push(this);
+            if (this.bindEsc && !ui.popup.focus[this.key]) {
+                ui.popup.focus[this.key] = this;
+            }
+        },
+        hide: function(fn, callback) {
+            /*
+                                            隐藏弹窗
+                @callBack:可选参数，回调函数
+            */
+            if (!this.visible) {
+                return;
+            }
+            var self = this, hideLayer = this.layer;
+            /*
+             * onbeforehide:关闭之前确认
+             */
+            if (this.onbeforehide && !this.onbeforehide()) {
+                return;
+            }
+            fn.call(self, callback);
+            this.element.css("visibility", "visible");
+            this.element.animate({
+                "margin-top": -20,
+                opacity: "0"
+            }, 400, "easeOutExpo", function() {
+                self.element.css("visibility", "hidden");
+            });
+            this.layer && $.each(ui.popup.item, function() {
+                //检测其他弹窗看是否需要保留遮罩
+                if (this.key != self.key && this.visible && this.layer) {
+                    hideLayer = false;
+                    return false;
+                }
+            });
+            hideLayer && ui.layer.hide();
+            delete ui.popup.focus[this.key];
+        }
+    });
+    ui.popup.prototype.create = function() {
+        var self = this, id = "nj_popup_" + $.random();
+        ui.popup.item[id] = this;
+        this.key = id;
+        this.set("content", [ '<span class="win_close"></span><div class="win_tit"></div>', '<div class="win_con clearfix"></div>', '<div class="win_opt"></div>' ].join(""));
+        this.content.addClass("win_wrap");
+        this.element.css({
+            width: self.width,
+            opacity: "0"
+        });
+        this.element[0].id = id;
+        this.close = this.element.find(".win_close");
+        this.title = this.element.find(".win_tit").hide();
+        this.content = this.element.find(".win_con");
+        this.operating = this.element.find(".win_opt").hide();
+        new ui.ico(this.close, {
+            type: "close"
+        });
+        this.close.on("click", function() {
+            //绑定关闭按钮事件
+            self.hide();
+        });
+        this.bindEsc && !ui.popup.bind.init && ui.popup.bind();
+        $.onScroll(this.content[0]);
+    };
+    ui.popup.prototype.addBtn = function(text, callback, color) {
+        /*
+            增加一个操作区按钮
+            @text:按钮文字
+            @color:按钮样式，即class类名
+            @callBack:按钮click绑定的函数,"close"则为关闭
+        */
+        if (text === undefined) {
+            return;
+        }
+        this.operating.is(":hidden") && this.operating.show();
+        var T = this, btn = $('<a href=""></a>'), color = color ? color : "";
+        if (typeof callback == "string" && callback != "close") {
+            //无回调时，第二个参数作为按钮颜色
+            color = callback;
+            callback = null;
+        }
+        btn.attr({
+            "class": color == "no" ? "no" : "nj_btn n_b_" + color
+        });
+        btn.html("<i>" + text + "</i>");
+        this.operating.append(btn);
+        this.button.push(btn);
+        if (callback) {
+            callback = callback == "close" ? function() {
+                T.hide();
+            } : callback;
+            btn.on("click", function() {
+                callback.call(T);
+                return false;
+            });
+        }
+    };
+    ui.popup.item = {};
+    //保存所有弹框实例对象
+    ui.popup.clear = function(key) {
+        //清空弹框对象
+        if (key) {
+            var win = ui.popup.item[key];
+            win && clear(win);
+        } else {
+            for (var i in ui.popup.item) {
+                clear(ui.popup.item[i]);
+            }
+            ui.popup.item = {};
+            ui.msg.win = null;
+        }
+        function clear(win) {
+            win.self.remove();
+            win = null;
+        }
+    };
+    ui.popup.focus = {};
+    //处于焦点的弹窗
+    ui.popup.bind = function() {
+        if (ui.popup.bind.init) {
+            return;
+        }
+        ui.popup.bind.init = true;
+        $(window).on("keydown", function(e) {
+            //按下esc键隐藏弹窗
+            if (e.keyCode == 27) {
+                var i, pop;
+                for (i in ui.popup.focus) {
+                    pop = ui.popup.focus[i];
+                }
+                pop.bindEsc && pop.visible && pop.hide();
+            }
+        });
+    };
+    ui.msg = function() {
+        /*
+         * 消息提示框
+         */
+        var Win = {};
+        return {
+            show: function(type, tip, opt) {
+                opt = opt || {};
+                var T = this, btn = opt.button, timeout = opt.timeout != undefined ? opt.timeout : 1600, C = type == "confirm", tit = C ? "温馨提醒：" : null, w = opt.width || (C ? 400 : "auto"), win = Win[type];
+                //隐藏其他
+                this.hide(true);
+                tip = tip || "";
+                if (type == "loading") {
+                    tip = tip || "正在处理请求,请稍候……";
+                } else if (C) {
+                    btn = btn || [ [ "确定", function() {
+                        win.hide(function() {
+                            typeof opt.ok == "function" && opt.ok.call(this);
+                        });
+                    }, "sb" ], [ "取消", "close" ] ];
+                }
+                if (!win || !$("#" + win.key).length) {
+                    win = new ui.popup({
+                        width: w,
+                        bindEsc: C ? true : false,
+                        className: "msg_tip_win"
+                    });
+                    win.element.find("div.nj_overlay_wrap").addClass("msg_tip_" + type);
+                    win.set("title", tit);
+                    win.set("content", '<div class="con clearfix"><i class="tip_ico"></i><span class="tip_con"></span></div>');
+                    new ui.ico(win.content.find("i.tip_ico"), {
+                        type: C ? "warn" : type
+                    });
+                    Win[type] = win;
+                    if (C) {
+                        win.onShow = function() {
+                            ui.layer.element.addClass("higher_layer");
+                        };
+                        win.onHide = function() {
+                            ui.layer.element.removeClass("higher_layer");
+                        };
+                    }
+                }
+                win.layer = C ? true : opt.layer;
+                //自动隐藏                            
+                win.timeout = !C && type != "loading" && !opt.reload ? timeout : 0;
+                if (opt.reload) {
+                    setTimeout(function() {
+                        if (opt.reload === true) {
+                            location.reload();
+                        } else if (typeof opt.reload == "string") {
+                            location.href = opt.reload;
+                        }
+                    }, 1500);
+                }
+                !btn && win.operating.hide().empty();
+                //重设操作区
+                win.set("button", btn);
+                win.content.find(".tip_con").html(tip);
+                win.show();
+                C && win.button[0].focus();
+            },
+            hide: function(now) {
+                for (var i in Win) {
+                    now && Win[i].element.stop().css("visibility", "hidden");
+                    Win[i].hide();
+                }
+            }
+        };
+    }();
+    ui.select = function(element, options) {
+        if (isNew = instaceofFun(this, arguments)) {
+            return isNew;
+        }
+        /*
+         * 下拉列表
+         * @element: selectd对象或id
+         * @options:可选项{max:最多显示选项数,至少大于1,onSelect:当选择某项的时候触发一个回调}
+         */
+        //options = $.extend( ui.config.select, options );        
+        options = options || {};
+        if (!(options.nearby = getDom(element))) {
+            return;
+        }
+        options.className = "nj_select_list " + (options.className || "");
+        options.hoverClass = options.hoverClass || "nj_select_show";
+        ui.select.baseConstructor.call(this, options);
+        if (!this.nearby || this.nearby[0].tagName.toLowerCase() != "select") {
+            return;
+        }
+        this._select = this.nearby;
+        ui.data(this.nearby[0].id, this);
+        this.max = this.options.max;
+        //最多
+        this.onSelect = this.options.onSelect;
+        //切换回调
+        this.defaultEvent = this.options.defaultEvent == true ? true : false;
+        //首次是否执行回调
+        this.autoWidth = this.options.autoWidth == false ? false : true;
+        this.index = 0;
+        this.value = this.nearby[0].getAttribute("value") || this.nearby.val();
+        this.replace();
+    };
+    Extend(ui.select, ui.overlay);
+    ui.select.prototype.replace = function(I) {
+        var list = this.nearby.find("option"), group = this.nearby.find("optgroup"), HTML, _nearby;
+        if (group.length) {
+            //分组
+            var i, m;
+            for (i = 0; i < group.length; i++) {
+                m = group.eq(i);
+                m.before("<dt>" + m.attr("label") + "</dt>").replaceWith(m.html());
+            }
+        }
+        HTML = $("<dl>" + this.nearby.html().replace(/(<\/?)option(>?)/gi, "$1dd$2") + "</dl>");
+        group.length && HTML.addClass("group");
+        this.length = list.length;
+        _nearby = $([ '<span class="nj_select" tabindex="-1"><i class="nj_s_wrap"></i><div class="nj_arrow"></div>', '<input type="hidden" name="' + this.nearby.attr("name") + '" value="' + this.value + '" class="hide" />', "</span>" ].join(""));
+        this.nearby.replaceWith(_nearby);
+        this.nearby = _nearby;
+        this.set("content", HTML);
+        this.current = this.nearby.find("i");
+        this.hidden = this.nearby.find("input.hide");
+        this.item = this.element.find("dd");
+        var maxH = "auto";
+        if (this.max && /^\d+$/.test(this.max) && this.max > 1) {
+            //显示固定个数
+            if (this.max < this.length) {
+                m = this.item.last();
+                maxH = m.outerHeight() * this.max;
+                if (group.length) {
+                    maxH += this.item.eq(this.max - 1).prevAll("dt").length * m.siblings("dt").outerHeight();
+                }
+                HTML.height(maxH);
+            }
+        }
+        this.autoWidth && this.nearby.width(this.element.width());
+        !I && this.bindEvent();
+        //设置默认选项
+        !this.select(this.value, this.defaultEvent) && this.select(0, this.defaultEvent);
+    };
+    ui.select.prototype.bindEvent = function() {
+        var self = this;
+        this.on({
+            mode: this.options.mode
+        });
+        this.element.click(function(e) {
+            var t = e.target, v = t.getAttribute("value");
+            if (t.tagName.toLowerCase() == "dd") {
+                self.select(self.item.index(t));
+                self.nearby.focus();
+                self.hide();
+            }
+        });
+        this.nearby.keydown(function(e) {
+            //键盘上下选择 回车选中
+            if (e.which == 38) {
+                self.index--;
+            } else if (e.which == 40) {
+                self.index++;
+            } else if (e.which == 13) {
+                self.hide();
+            } else {
+                return;
+            }
+            self.select(self.index);
+        });
+    };
+    ui.select.prototype.select = function(value, trigger) {
+        var current, m, i, val;
+        if (typeof value == "string") {
+            //通过value值匹配
+            val = this.content.find('dd[value="' + value + '"]');
+            if (val.length) {
+                current = val.first();
+                this.index = this.item.index(current);
+            } else {
+                for (i = 0; i < this.length; i++) {
+                    m = this.item.eq(i);
+                    if (m.text() == value) {
+                        current = m;
+                        this.index = i;
+                        break;
+                    }
+                }
+            }
+        } else if (typeof value == "number") {
+            //通过索引值匹配
+            value = value < 0 ? this.length - 1 : value;
+            value = value > this.length - 1 ? 0 : value;
+            this.index = value;
+            current = this.item.eq(value);
+            value = current.attr("value") || "";
+        }
+        if (!current) {
+            return;
+        }
+        this.current.text(current.text());
+        current.addClass("select").siblings().removeClass("select");
+        this.hidden.val(value);
+        this.value = value;
+        //为其添加事件
+        trigger !== false && this.onSelect && this.onSelect.call(this, value);
+        return current;
+    };
+    /*
+     * switch原型超类|幻灯片、选项卡等
+     */
+    ui.Switch = function(element, options) {
+        if (isNew = instaceofFun(this, arguments)) {
+            return isNew;
+        }
+        if (!(this.element = getDom(element))) {
+            return;
+        }
+        this.M = this.element.find(".nj_s_menu").first();
+        this.menu = this.M.find(".nj_s_m");
+        this.C = this.element.find(".nj_s_con").first();
+        this.con = this.C.children(".nj_s_c");
+        this.length = this.con.length;
+        if (!this.length) {
+            return;
+        }
+        this.options = options = options || {};
+        this.mode = options.mode == "click" ? "click" : "mouseover";
+        this.onChange = options.onChange;
+        this.onHide = options.onHide;
+        this.index = this.getIndex(options.firstIndex);
+        this.rule = options.rule || this.rule;
+        this.bind();
+    };
+    ui.Switch.prototype = {
+        bind: function() {
+            var self = this, A, m, delay = this.mode == "mouseover" ? 100 : 0;
+            //延迟触发
+            if (!this.menu) {
+                return;
+            }
+            this.menu.on(this.mode + ".nj_switch", function() {
+                m = $(this);
+                if (m.hasClass("current")) {
+                    return false;
+                }
+                self.onTrigger && self.onTrigger();
+                A = setTimeout(function() {
+                    self.change(m.index());
+                }, delay);
+                return false;
+            }).mouseout(function() {
+                A = clearTimeout(A);
+            });
+            this.change(this.index);
+        },
+        getIndex: function(index) {
+            index = parseInt(index) || 0;
+            index = index > this.length - 1 ? 0 : index;
+            index = index < 0 ? this.length - 1 : index;
+            return index;
+        },
+        change: function(index) {
+            index = this.getIndex(index);
+            if (this.rule) {
+                this.rule.call(this, index);
+            } else {
+                this.con.eq(index).show().siblings().hide();
+                this.menu.eq(index).addClass("current").siblings().removeClass("current");
+            }
+            this.onHide && this.index != index && this.onHide.call(this, this.index);
+            this.index = index;
+            this.onChange && this.onChange.call(this, index);
+        }
+    };
+    /*
+     * slide幻灯片 继承至ui.Switch
+     */
+    ui.slide = function(element, options) {
+        ui.slide.baseConstructor.call(this, element, options);
+        if (!this.element) {
+            return;
+        }
+        this.play = null;
+        this.time = this.options.time || 5e3;
+        this.auto = this.options.auto == false ? false : true;
+        this.stopOnHover = this.options.stopOnHover == false ? false : true;
+        var self = this;
+        this.stopOnHover && this.element.hover(function() {
+            self.play = clearInterval(self.play);
+        }, function() {
+            self.start();
+        });
+        this.getNum();
+        this.start(true);
+    };
+    Extend(ui.slide, ui.Switch);
+    ui.slide.prototype.getNum = function() {
+        if (this.M.children().length) {
+            return;
+        }
+        var list = "";
+        for (var i = 1; i <= this.length; i++) {
+            list += '<li class="nj_s_m">' + i + "</li>";
+        }
+        this.M.append(list);
+        this.menu = this.M.find(".nj_s_m");
+        this.bind();
+    };
+    ui.slide.prototype.onTrigger = function() {
+        //手动触发时要重新开始计时，避免时间重合
+        !this.stopOnHover && this.start();
+    };
+    ui.slide.prototype.rule = function(index) {
+        //切换规则        
+        this.con.eq(index).fadeIn(300).siblings().hide();
+        this.menu.eq(index).addClass("current").siblings().removeClass("current");
+        this.index = index;
+    };
+    ui.slide.prototype.start = function(startNow) {
+        //开始播放
+        var self = this;
+        if (!this.auto || this.length < 2) {
+            return;
+        }
+        startNow && this.change(this.index);
+        clearInterval(self.play);
+        self.play = setInterval(function() {
+            self.change(++self.index);
+        }, self.time);
+    };
+    ui.ico = function(dom, opt) {
+        /*
+         * canvas/vml绘制的图标
+         */
+        if (isNew = instaceofFun(this, arguments)) {
+            return isNew;
+        }
+        //opt = $.extend( ui.config.ico, opt );
+        opt = opt || {};
+        this.hasCanvas = !!document.createElement("canvas").getContext;
+        this.type = opt.type || "ok";
+        this.ico = $('<i class="nj_ico n_i_' + this.type + '"></i>');
+        if (!(dom = getDom(dom))) {
+            return;
+        }
+        //dom && dom.length && dom.empty();
+        //this.obj = dom || $('body:first');
+        dom.html(this.ico);
+        this.canvas = null;
+        this.ctx = null;
+        //this.ico.css('visibility','hidden');
+        this.width = opt.width || this.ico.width() || 16;
+        this.height = opt.height || this.ico.height() || 16;
+        this.color = opt.color || this.ico.css("color");
+        this.bgcolor = opt.bgcolor || this.ico.css("background-color");
+        //this.ico.removeAttr('style');
+        this.ico.css({
+            background: "none",
+            width: this.width,
+            height: this.height
+        });
+        this.createSpace();
+    };
+    ui.ico.prototype = {
+        createSpace: function() {
+            var d = document;
+            if (this.hasCanvas) {
+                this.canvas = d.createElement("canvas");
+                this.ctx = this.canvas.getContext("2d");
+                this.canvas.width = this.width;
+                this.canvas.height = this.height;
+                this.ico.append(this.canvas);
+            } else {
+                if (!ui.ico["iscreatevml"]) {
+                    //只创建 一次vml
+                    var s = d.createStyleSheet(), shapes = [ "polyline", "oval", "arc", "stroke", "shape" ];
+                    d.namespaces.add("v", "urn:schemas-microsoft-com:vml");
+                    //创建vml命名空间
+                    for (var i = 0; i < shapes.length; i++) {
+                        s.addRule("v\\:" + shapes[i], "behavior:url(#default#VML);display:inline-block;");
+                    }
+                    ui.ico["iscreatevml"] = true;
+                }
+                this.ico.css("position", "relative");
+            }
+            this.draw();
+        },
+        drawLine: function(point, fill, border) {
+            var i, n = point.length;
+            if (this.hasCanvas) {
+                this.ctx.beginPath();
+                this.ctx.moveTo(point[0], point[1]);
+                for (i = 2; i < n; i += 2) {
+                    this.ctx.lineTo(point[i], point[i + 1]);
+                }
+                this.ctx.stroke();
+                fill && this.ctx.fill();
+            } else {
+                var path = "", v = "";
+                for (i = 0; i < n; i += 2) {
+                    path += point[i] + "," + point[i + 1] + " ";
+                }
+                v += '<v:polyline strokeWeight="' + border + '" filled="' + (fill ? "true" : "false") + '" class="polyline" strokecolor="' + this.color + '" points="' + path + '" ';
+                if (fill) {
+                    v += 'fillcolor="' + this.color + '"';
+                }
+                v += "/>";
+                $(this.canvas).after(v);
+            }
+        },
+        draw: function() {
+            var startAngle, endAngle, border, point, p = Math.PI, width = this.width, height = this.height, color = this.color, bgcolor = this.bgcolor, ctx = this.ctx, canvas = this.canvas, type = this.type, d = document, T = this;
+            if (type == "loading") {
+                border = 3;
+                if (this.hasCanvas) {
+                    startAngle = p / 180;
+                    endAngle = 200 * p / 180;
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = border;
+                    window.setInterval(function() {
+                        ctx.clearRect(0, 0, width, height);
+                        startAngle += .2;
+                        endAngle += .2;
+                        ctx.beginPath();
+                        ctx.arc(width / 2, height / 2, width / 2 - border + 1, startAngle, endAngle, false);
+                        ctx.stroke();
+                    }, 20);
+                } else {
+                    startAngle = 0;
+                    border--;
+                    this.canvas = d.createElement('<v:arc class="oval" filled="false" style="left:1px;top:1px;width:' + (width - border * 2 + 1) + "px;height:" + (height - border * 2 + 1) + 'px" startangle="0" endangle="200"></v:arc>');
+                    $(this.canvas).append('<v:stroke weight="' + border + '" color="' + color + '"/>');
+                    this.ico.append(this.canvas);
+                    window.setInterval(function() {
+                        startAngle += 6;
+                        startAngle = startAngle > 360 ? startAngle - 360 : startAngle;
+                        T.canvas.rotation = startAngle;
+                    }, 15);
+                }
+            } else if (type == "ok" || type == "warn" || type == "error" || type == "close") {
+                if (this.hasCanvas) {
+                    ctx.beginPath();
+                    ctx.fillStyle = bgcolor;
+                    ctx.arc(width / 2, height / 2, width / 2, p, 3 * p, false);
+                    ctx.fill();
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = color;
+                } else {
+                    this.canvas = d.createElement('<v:oval class="oval" fillcolor="' + bgcolor + '" style="width:' + (width - 1) + "px;height:" + (height - 1) + 'px;"></v:oval>');
+                    $(this.canvas).append('<v:stroke color="' + bgcolor + '"/>');
+                    this.ico.append(this.canvas);
+                }
+                if (type == "ok") {
+                    point = [ .26 * width, .43 * height, .45 * width, .59 * height, .71 * width, .33 * height, .71 * width, .47 * height, .45 * width, .73 * height, .26 * width, .57 * height ];
+                    this.drawLine(point, true);
+                } else if (type == "warn") {
+                    if (this.hasCanvas) {
+                        ctx.beginPath();
+                        ctx.arc(width * .5, height * .73, width * .07, p, 3 * p, false);
+                        ctx.stroke();
+                        ctx.fill();
+                    } else {
+                        this.ico.append('<v:oval class="oval" fillcolor="#fff" style="width:' + height * .16 + "px;height:" + height * .14 + "px;left:" + height * ($.browser("ie6 ie7") ? .43 : .4) + "px;top:" + height * .68 + 'px"><v:stroke color="#fff"/></v:oval>');
+                    }
+                    point = [ .45 * width, .22 * height, .55 * width, .22 * height, .55 * width, .54 * height, .45 * width, .54 * height ];
+                    this.drawLine(point, true);
+                } else if (type == "error" || type == "close") {
+                    if (!this.hasCanvas) {
+                        width = width * .95;
+                        height = height * .95;
+                    }
+                    point = [ .33 * width, .3 * height, .5 * width, .46 * height, .68 * width, .3 * height, .72 * width, .34 * height, .55 * width, .52 * height, .71 * width, .68 * height, .68 * width, .73 * height, .5 * width, .56 * height, .34 * width, .72 * height, .29 * width, .69 * height, .46 * width, .51 * height, .29 * width, .34 * height ];
+                    this.drawLine(point, true);
+                    function bind() {
+                        if (T.hasCanvas) {
+                            T.ico.hover(function() {
+                                ctx.clearRect(0, 0, width, height);
+                                ctx.beginPath();
+                                ctx.fillStyle = color;
+                                ctx.strokeStyle = bgcolor;
+                                ctx.arc(width / 2, height / 2, width / 2, p, 3 * p, false);
+                                ctx.fill();
+                                ctx.stroke();
+                                ctx.fillStyle = bgcolor;
+                                T.drawLine(point, true);
+                            }, function() {
+                                ctx.clearRect(0, 0, width, height);
+                                ctx.beginPath();
+                                ctx.fillStyle = bgcolor;
+                                ctx.strokeStyle = bgcolor;
+                                ctx.arc(width / 2, height / 2, width / 2, p, 3 * p, false);
+                                ctx.fill();
+                                ctx.stroke();
+                                ctx.fillStyle = color;
+                                ctx.strokeStyle = color;
+                                T.drawLine(point, true);
+                            });
+                        } else {
+                            T.ico.hover(function() {
+                                var a = $(this).find(".oval")[0], b = $(this).find(".polyline")[0];
+                                a.fillcolor = a.strokecolor = color;
+                                b.fillcolor = b.strokecolor = bgcolor;
+                            }, function() {
+                                var a = $(this).find(".oval")[0], b = $(this).find(".polyline")[0];
+                                a.fillcolor = a.strokecolor = bgcolor;
+                                b.fillcolor = b.strokecolor = color;
+                            });
+                        }
+                    }
+                    type == "close" && bind();
+                }
+            } else {
+                //自定义绘图方法
+                this["Draw" + type] && this["Draw" + type]();
+            }
+        }
+    };
+    //placeholder for ie
+    function placeHolder(input, index) {
+        var w = input.innerWidth() * .98, h = input.outerHeight(), id = input.attr("id"), v = input.attr("placeholder"), lab;
+        index = index || 0;
+        id = id || "ph_lab" + index;
+        lab = $('<label for="' + id + '" style="width:' + w + "px;height:" + h + 'px" class="ph_lab ph_lab' + index + '">' + v + "</label>");
+        if (/.*\s{2}$/.test(v) && $.browser("ie6 ie7")) {
+            //for ie6/7
+            input.wrap($('<span class="ph_wrap" style="position:relative;float:' + input.css("float") + '"></span>'));
+            lab.css("left", "0");
+        }
+        if (input[0].tagName.toLowerCase() == "input") {
+            lab.css("line-height", h + "px");
+        }
+        input.attr("id", id).before(lab);
+        input.on("blur propertychange", function() {
+            setTimeout(function() {
+                input.val() == "" ? lab.show() : lab.hide();
+            }, 15);
+        });
+        setTimeout(function() {
+            input.val() != "" && lab.hide();
+        }, 150);
+    }
+    if ($.browser("ie6 ie7 ie8 ie9")) {
+        $(function() {
+            var ph = $("[placeholder]"), i;
+            for (i = 0; i < ph.length; i++) {
+                placeHolder(ph.eq(i), i);
+            }
+        });
+    }
+    return ui;
+});

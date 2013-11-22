@@ -1,1 +1,83 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("nojs/module/page",[],function(require,a){function b(b,c){this.element="string"==typeof b?a("#"+b):a(b),this.element&&this.element.length&&(this.options=c=c||{},this.count=this.element.data("count")||0,this.count&&(this.page=parseInt(c.page)||10,this.pages=Math.ceil(this.count/this.page),this.current=this.parse(c.current||1),this.length=this.parse(void 0==c.length?9:c.length),this.init(),"function"==typeof c.callback&&this.bind()))}return b.prototype={parse:function(a){return a>this.pages?this.pages:a},init:function(){var a,b,c,d,e,f,g,h,i,j="",k=this.length%2?Math.floor(this.length/2):this.length/2-1,l=this.current>k?this.current-k:1,m=l+this.length-1;for(m>this.pages&&(l=m-this.length+1,m=this.pages,m-l+1<this.length&&(l=m-this.length+1)),b=l;m>=b;b++)d=b==this.current?'class="current"':"",c=void 0==this.options.url?"?page="+b:this.options.url.replace(/{page}/,b),j+='<a href="'+c+'" '+d+' class="item">'+b+"</a>";e='class="first'+(1==this.current?" disabled":"")+'"',f='<a href="" data-page="1" '+e+">首页</a>",e='class="prev'+(this.current<=1?" disabled":"")+'"',g='<a href="" data-page="'+(this.current>1?this.current-1:1)+'" '+e+">上一页</a>",e='class="next'+(this.current>=this.pages?" disabled":"")+'"',h='<a href="" data-page="'+(this.current<this.pages?this.current+1:this.pages)+'" '+e+">下一页</a>",e='class="last'+(this.current==this.pages?" disabled":"")+'"',i='<a href="" data-page="'+this.pages+'" '+e+">尾页</a>",a=[f,g,j,h,i,'<span class="page">'+this.current+"/"+this.pages+"页</span>",'<span class="count">共'+this.count+"条记录</span>"].join(""),this.element.html(a)},bind:function(){var b,c,d=this;this.element.click(function(e){return"a"==e.target.tagName.toLowerCase()?(c=a(e.target),b=parseInt(c.text()),c.data("page")&&(b=c.data("page")),d.current!=b&&(d.current=b,d.init(),d.options.callback.call(d)),!1):void 0})}},b});
+/*
+ * 分页组件
+ * nolure@vip.qq.com
+ * 2013-10-15
+ */
+define("nojs/module/page", [], function(require, $) {
+    /*
+     * element传入2个属性总条数data-count 当前分类data-id
+     * count 总条数
+     * page 每页条数
+     * pages 总页数
+     * current 当前页
+     * length 最大显示的页码长度
+     * url 链接url 'page-{page}.html'
+     */
+    function page(element, options) {
+        this.element = typeof element == "string" ? $("#" + element) : $(element);
+        if (!this.element || !this.element.length) {
+            return;
+        }
+        this.options = options = options || {};
+        this.count = this.element.data("count") || 0;
+        if (!this.count) {
+            return;
+        }
+        this.page = parseInt(options.page) || 10;
+        this.pages = Math.ceil(this.count / this.page);
+        this.current = this.parse(options.current || 1);
+        this.length = this.parse(options.length == undefined ? 9 : options.length);
+        this.init();
+        typeof options.callback == "function" && this.bind();
+    }
+    page.prototype = {
+        parse: function(n) {
+            return n > this.pages ? this.pages : n;
+        },
+        init: function() {
+            var html, i, url, current, disabled, first, prev, next, last, item = "", half = this.length % 2 ? Math.floor(this.length / 2) : this.length / 2 - 1, start = this.current > half ? this.current - half : 1, end = start + this.length - 1;
+            //end = end>this.pages ? this.pages : end;
+            if (end > this.pages) {
+                start = end - this.length + 1;
+                end = this.pages;
+                if (end - start + 1 < this.length) {
+                    start = end - this.length + 1;
+                }
+            }
+            for (i = start; i <= end; i++) {
+                current = i == this.current ? 'class="current"' : "";
+                url = this.options.url == undefined ? "?page=" + i : this.options.url.replace(/{page}/, i);
+                item += '<a href="' + url + '" ' + current + ' class="item">' + i + "</a>";
+            }
+            disabled = 'class="first' + (this.current == 1 ? " disabled" : "") + '"';
+            first = '<a href="" data-page="1" ' + disabled + ">首页</a>";
+            disabled = 'class="prev' + (this.current <= 1 ? " disabled" : "") + '"';
+            prev = '<a href="" data-page="' + (this.current > 1 ? this.current - 1 : 1) + '" ' + disabled + ">上一页</a>";
+            disabled = 'class="next' + (this.current >= this.pages ? " disabled" : "") + '"';
+            next = '<a href="" data-page="' + (this.current < this.pages ? this.current + 1 : this.pages) + '" ' + disabled + ">下一页</a>";
+            disabled = 'class="last' + (this.current == this.pages ? " disabled" : "") + '"';
+            last = '<a href="" data-page="' + this.pages + '" ' + disabled + ">尾页</a>";
+            html = [ first, prev, item, next, last, '<span class="page">' + this.current + "/" + this.pages + "页</span>", '<span class="count">共' + this.count + "条记录</span>" ].join("");
+            this.element.html(html);
+        },
+        bind: function() {
+            var self = this, page, m;
+            this.element.click(function(e) {
+                if (e.target.tagName.toLowerCase() == "a") {
+                    m = $(e.target);
+                    page = parseInt(m.text());
+                    if (m.data("page")) {
+                        page = m.data("page");
+                    }
+                    if (self.current != page) {
+                        self.current = page;
+                        self.init();
+                        self.options.callback.call(self);
+                    }
+                    return false;
+                }
+            });
+        }
+    };
+    return page;
+});

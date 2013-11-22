@@ -1,1 +1,86 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("nojs/module/resize",[],function(require,a){function b(b,c){this.element="string"==typeof b?a("#"+b):b,this.element&&this.element.length&&(this.options=c=c||{},this.position=this.element.css("position"),this.points=c.points||["tl","t","tr","r","br","b","bl","l"],"static"==this.position&&this.element.css("position","relative"),this.resizeStart=c.resizeStart,this.resize=c.resize,this.resizeEnd=c.resizeEnd,this.init())}return b.prototype={init:function(){var b="";a.each(this.points,function(a,c){b+='<div class="nj_resize_handler nj_resize_handler_'+c+'" data-direction="'+c+'"></div>'}),this.element.append(b),this.bind()},bind:function(){function b(a){e={x:a.clientX,y:a.clientY};var b=e.x-d.x,c=e.y-d.y,i={};/^(t|b)$/.test(f)||(i.width=g.width+b),/^(l|r)$/.test(f)||(i.height=g.height+c),/^(tl|t|tr)$/.test(f)&&(i.top=g.top+c,i.height=g.height-c),/^(tl|l|bl)$/.test(f)&&(i.left=g.left+b,i.width=g.width-b),h.element.css(i),h.resize&&h.resize.call(h),a.preventDefault()}function c(){i.off("mousemove.resize mouseup.resize"),h.resizeEnd&&h.resizeEnd.call(h)}var d,e,f,g,h=this,i=a(document);this.element.find("div.nj_resize_handler").mousedown(function(a){return f=this.getAttribute("data-direction"),d={x:a.clientX,y:a.clientY},g={width:h.element.width(),height:h.element.height(),top:parseInt(h.element.css("top"))||0,left:parseInt(h.element.css("left"))||0},h.resizeStart&&h.resizeStart.call(h),a.preventDefault(),a.stopPropagation(),i.on("mousemove.resize",b).on("mouseup.resize",c),!1})}},b});
+/*
+ * resize
+ * nolure@vip.qq.com
+ * 2013-10-17
+ */
+define("nojs/module/resize", [], function(require, $) {
+    /*
+     * @element：确保element是闭合的且设置了定位属性的标签
+     */
+    function resize(element, options) {
+        this.element = typeof element == "string" ? $("#" + element) : element;
+        if (!this.element || !this.element.length) {
+            return;
+        }
+        this.options = options = options || {};
+        this.position = this.element.css("position");
+        this.points = options.points || [ "tl", "t", "tr", "r", "br", "b", "bl", "l" ];
+        if (this.position == "static") {
+            this.element.css("position", "relative");
+        }
+        this.resizeStart = options.resizeStart;
+        this.resize = options.resize;
+        this.resizeEnd = options.resizeEnd;
+        this.init();
+    }
+    resize.prototype = {
+        init: function() {
+            var self = this, points = "", html;
+            $.each(this.points, function(i, p) {
+                points += '<div class="nj_resize_handler nj_resize_handler_' + p + '" data-direction="' + p + '"></div>';
+            });
+            this.element.append(points);
+            this.bind();
+        },
+        bind: function() {
+            var self = this, doc = $(document), last, now, direction, size;
+            this.element.find("div.nj_resize_handler").mousedown(function(e) {
+                direction = this.getAttribute("data-direction");
+                last = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                size = {
+                    width: self.element.width(),
+                    height: self.element.height(),
+                    top: parseInt(self.element.css("top")) || 0,
+                    left: parseInt(self.element.css("left")) || 0
+                };
+                self.resizeStart && self.resizeStart.call(self);
+                e.preventDefault();
+                e.stopPropagation();
+                doc.on("mousemove.resize", move).on("mouseup.resize", up);
+                return false;
+            });
+            function move(e) {
+                now = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                var x = now.x - last.x, y = now.y - last.y, css = {};
+                if (!/^(t|b)$/.test(direction)) {
+                    css.width = size.width + x;
+                }
+                if (!/^(l|r)$/.test(direction)) {
+                    css.height = size.height + y;
+                }
+                if (/^(tl|t|tr)$/.test(direction)) {
+                    css.top = size.top + y;
+                    css.height = size.height - y;
+                }
+                if (/^(tl|l|bl)$/.test(direction)) {
+                    css.left = size.left + x;
+                    css.width = size.width - x;
+                }
+                self.element.css(css);
+                self.resize && self.resize.call(self);
+                e.preventDefault();
+            }
+            function up() {
+                doc.off("mousemove.resize mouseup.resize");
+                self.resizeEnd && self.resizeEnd.call(self);
+            }
+        }
+    };
+    return resize;
+});

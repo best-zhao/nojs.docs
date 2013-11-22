@@ -1,1 +1,309 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("nojs/module/imghot",["nojs/module/drag","nojs/module/codelight"],function(require,a){var b=require("nojs/module/drag"),c=require("nojs/module/codelight");return imgHot=function(b,c){c=c||{},this.box=a("#"+b),this.box.length&&(this.btn=c.btn,this.wrap=this.box.find(".wrap"),this.imgWrap=this.box.find(".img_wrap"),this.codeWrap=this.box.find(".code_wrap"),this.arr=null,this.img=null,this.select=null,this.rate=1,this.state=this.box.find(".state"),this.setMode=this.state.find(".mode"),this.prevBox=this.wrap.find(".preview"),this.isBInd=!1,this.init())},imgHot.prototype={init:function(){var a=this;this.img=this.imgWrap.children("img"),this.img.length&&(this.arr=['<script type="text/templete" code="html" key="Map">','<img src="" alt="" usemap="#Map" />','<map name="Map" id="Map">',"</map></script>"],this.codeWrap.html(this.arr.join("\n")),this.img.bind("click blur",function(){a.choose()}).bind("keydown",function(b){var c=a.imgWrap.find(".current"),d=!0;if(c.length){switch(b.keyCode){case 37:parseInt(c.css("left"))>0?c.animate({left:"-=1"},0):d=!1;break;case 38:parseInt(c.css("top"))>0?c.animate({top:"-=1"},0):d=!1;break;case 39:parseInt(c.css("left"))+c.width()<a.imgWrap.width()?c.animate({left:"+=1"},0):d=!1;break;case 40:parseInt(c.css("top"))+c.height()<a.imgWrap.height()?c.animate({top:"+=1"},0):d=!1;break;case 46:a.del(c),d=!1;break;default:d=!1}d&&(b.preventDefault(),a.showCode(c,!0))}}).bind("keyup",function(){}),this.draw(),!this.isBInd&&this.bind())},bind:function(){var c=this;this.isBInd=!0,this.drag=new b(this.imgWrap,null,{delegat:!0,limit:this.imgWrap}),this.drag.UpEvent=function(){c.showCode(this.drag,!0)},this.imgWrap.on("click",function(b){var d=b.target,e=a(d);b.stopPropagation(),"div"==d.tagName.toLowerCase()&&e.hasClass("hotarea")&&c.choose(e),c.img.focus()}),this.codeWrap.on("click",function(b){if(!a(this).find(".edit").length){var d,e=b.target,f=a(e);b.stopPropagation(),("li"==e.tagName.toLowerCase()||f.closest("li").length)&&(f.closest("li").length&&(f=f.closest("li")),d=f.index(),d>1&&f.next("li").length&&c.choose(c.imgWrap.find(".hotarea").eq(d-2)))}}),this.setMode.click(function(){return c.box.hasClass("hot_prev_mode")?(a(this).html("<i>预览</i>"),c.box.removeClass("hot_prev_mode")):(a(this).html("<i>编辑</i>"),c.box.addClass("hot_prev_mode"),c.preview()),!1})},preview:function(){this.prevBox.empty();var a,b=this.img.clone().removeAttr("style"),c="img_hot_map",d=this.arr.length-1,e='<map name="'+c+'" id="'+c+'">';for(b.attr({usemap:c}),a=3;d>a;a++)e+=this.arr[a];e+="</map>",this.prevBox.append(b).append(e)},setImg:function(){var a,b=this.wrap.width(),c=this.wrap.height(),d=b/c,e=this.img.width(),f=this.img.height(),g=e/f;g>d&&e>b?(a=b/e,e=b,this.img.width(b),f=this.img.height()):d>=g&&f>=c&&(a=c/f,f=c,this.img.height(c),e=this.img.width()),this.rate=a,this.state.find(".rate").html("图片缩放比例："+(100*a).toFixed(2)+"%"),this.imgWrap.css({"margin-left":-e/2,"margin-top":-f/2})},choose:function(a){if(a){var b=a.index();a.addClass("current").find(".point").show().end().siblings().removeClass("current").find(".point").hide(),this.codeWrap.find("li").eq(b+1).addClass("current").siblings().removeClass("current"),this.img.focus()}else this.imgWrap.children("").removeClass("current").find(".point").hide(),this.codeWrap.find("li").removeClass("current")},del:function(a){var b=a.index();this.codeWrap.find("li").eq(b+1).remove(),this.arr.splice(b+2,1),a.remove()},draw:function(){if(this.img.length){var b,c,d,e,f,g=this,h=a(document);this.select=a("body").append('<div class="imghot_select"></div>').find(".imghot_select"),this.img.bind("mousedown.imghot",function(i){i.preventDefault(),a(i.target).hasClass("hotarea")||(b={x:i.clientX,y:i.clientY},d={left:a(window).scrollLeft(),top:a(window).scrollTop()},g.select.css({left:b.x,top:b.y}),g.select.hide(),h.bind("mousemove.imghot",function(a){a.preventDefault(),c={x:a.clientX+d.left,y:a.clientY+d.top},e=c.x-b.x,f=c.y-b.y,0>e&&g.select.css({left:c.x}),0>f&&g.select.css({top:c.y}),g.select.css({width:Math.abs(e),height:Math.abs(f)}),g.select.show()}).bind("mouseup.imghot",function(){if(h.unbind("mousemove.imghot mouseup.imghot"),g.select.is(":visible")){var b=g.select.outerWidth(),c=g.select.outerHeight(),d=g.select.offset().left-g.imgWrap.offset().left,e=g.select.offset().top-g.imgWrap.offset().top,f=a(document.createElement("div")).attr({"class":"hotarea",isdrag:"true"}),i=g.img.width(),j=g.img.height();f.append('<div class="point p_tl"></div><div class="point p_tr"></div><div class="point p_bl"></div><div class="point p_br"></div>'),0>d&&(b+=d,d=0),0>e&&(c+=e,e=0),b=b+d>i?i-d:b,c=c+e>j?j-e:c,f.css({left:d,top:e,width:b,height:c}),g.imgWrap.append(f),g.showCode(f),g.select.hide()}}))})}},showCode:function(a,b){var d,e,f,g,h,i,j,k,l=this.arr.pop();if(d=a.width(),e=a.height(),f=parseInt(a.css("left")),g=parseInt(a.css("top")),h=Math.round(f/this.rate)+","+Math.round(g/this.rate)+","+Math.round((d+f)/this.rate)+","+Math.round((e+g)/this.rate),b){for(i=this.arr[a.index()+2].split(" "),k=0;k<i.length;k++)if(j=i[k].split("="),j[1]&&"coords"==j[0]){j[1]='"'+h+'"',i[k]=j.join("=");break}i=i.join(" "),this.arr[a.index()+2]=i}else this.arr.push('	<area shape="rect" coords="'+h+'" href="" alt="" />');this.arr.push(l),this.codeWrap.html(this.arr.join("\n")),new c({parent:this.codeWrap}),this.choose(a)}},imgHot});
+/*
+ * 图像热区绘制工具
+ */
+define("nojs/module/imghot", [ "nojs/module/drag", "nojs/module/codelight" ], function(require, $, ui) {
+    var drag = require("nojs/module/drag"), codeLight = require("nojs/module/codelight");
+    imgHot = function(id, opt) {
+        opt = opt || {};
+        this.box = $("#" + id);
+        if (!this.box.length) {
+            return;
+        }
+        this.btn = opt.btn;
+        this.wrap = this.box.find(".wrap");
+        this.imgWrap = this.box.find(".img_wrap");
+        this.codeWrap = this.box.find(".code_wrap");
+        this.arr = null;
+        this.img = null;
+        this.select = null;
+        this.rate = 1;
+        //图片缩放比率
+        this.state = this.box.find(".state");
+        this.setMode = this.state.find(".mode");
+        //切换模式按钮
+        this.prevBox = this.wrap.find(".preview");
+        this.isBInd = false;
+        this.init();
+    };
+    imgHot.prototype = {
+        init: function(isFirst) {
+            var T = this;
+            this.img = this.imgWrap.children("img");
+            if (!this.img.length) {
+                return;
+            }
+            //this.setImg();
+            this.arr = [ '<script type="text/templete" code="html" key="Map">', '<img src="" alt="" usemap="#Map" />', '<map name="Map" id="Map">', "</map></script>" ];
+            this.codeWrap.html(this.arr.join("\n"));
+            this.img.bind("click blur", function() {
+                T.choose();
+            }).bind("keydown", function(e) {
+                //绑定键盘事件
+                var hot = T.imgWrap.find(".current"), s = true;
+                if (!hot.length) {
+                    return;
+                }
+                switch (e.keyCode) {
+                  case 37:
+                    //left
+                    parseInt(hot.css("left")) > 0 ? hot.animate({
+                        left: "-=1"
+                    }, 0) : s = false;
+                    break;
+
+                  case 38:
+                    //up
+                    parseInt(hot.css("top")) > 0 ? hot.animate({
+                        top: "-=1"
+                    }, 0) : s = false;
+                    break;
+
+                  case 39:
+                    //right
+                    parseInt(hot.css("left")) + hot.width() < T.imgWrap.width() ? hot.animate({
+                        left: "+=1"
+                    }, 0) : s = false;
+                    break;
+
+                  case 40:
+                    //down
+                    parseInt(hot.css("top")) + hot.height() < T.imgWrap.height() ? hot.animate({
+                        top: "+=1"
+                    }, 0) : s = false;
+                    break;
+
+                  case 46:
+                    //del
+                    T.del(hot);
+                    s = false;
+                    break;
+
+                  default:
+                    s = false;
+                    break;
+                }
+                if (s) {
+                    e.preventDefault();
+                    T.showCode(hot, true);
+                }
+            }).bind("keyup", function(e) {});
+            this.draw();
+            !this.isBInd && this.bind();
+        },
+        bind: function() {
+            var T = this;
+            this.isBInd = true;
+            //设置热区可拖动
+            this.drag = new drag(this.imgWrap, null, {
+                delegat: true,
+                limit: this.imgWrap
+            });
+            //拖拽结束回调
+            this.drag.UpEvent = function() {
+                T.showCode(this.drag, true);
+            };
+            //选中选区
+            this.imgWrap.on("click", function(e) {
+                var t = e.target, m = $(t), index, area;
+                e.stopPropagation();
+                if (t.tagName.toLowerCase() == "div" && m.hasClass("hotarea")) {
+                    T.choose(m);
+                }
+                T.img.focus();
+            });
+            this.codeWrap.on("click", function(e) {
+                if ($(this).find(".edit").length) {
+                    return;
+                }
+                //编辑状态 不关联选中
+                var t = e.target, m = $(t), index, area;
+                e.stopPropagation();
+                if (t.tagName.toLowerCase() == "li" || m.closest("li").length) {
+                    m.closest("li").length && (m = m.closest("li"));
+                    index = m.index();
+                    if (index > 1 && m.next("li").length) {
+                        T.choose(T.imgWrap.find(".hotarea").eq(index - 2));
+                    }
+                }
+            });
+            //切换模式
+            this.setMode.click(function() {
+                if (T.box.hasClass("hot_prev_mode")) {
+                    $(this).html("<i>预览</i>");
+                    T.box.removeClass("hot_prev_mode");
+                } else {
+                    $(this).html("<i>编辑</i>");
+                    T.box.addClass("hot_prev_mode");
+                    T.preview();
+                }
+                return false;
+            });
+        },
+        preview: function() {
+            //预览模式 
+            this.prevBox.empty();
+            var img = this.img.clone().removeAttr("style"), id = "img_hot_map", i, n = this.arr.length - 1, list = '<map name="' + id + '" id="' + id + '">';
+            img.attr({
+                usemap: id
+            });
+            for (i = 3; i < n; i++) {
+                list += this.arr[i];
+            }
+            list += "</map>";
+            this.prevBox.append(img).append(list);
+        },
+        setImg: function() {
+            //缩放图片,限制最大宽高
+            var w = this.wrap.width(), h = this.wrap.height(), k = w / h, W = this.img.width(), H = this.img.height(), K = W / H, b;
+            if (K > k && W > w) {
+                b = w / W;
+                W = w;
+                this.img.width(w);
+                H = this.img.height();
+            } else if (K <= k && H >= h) {
+                b = h / H;
+                H = h;
+                this.img.height(h);
+                W = this.img.width();
+            }
+            this.rate = b;
+            this.state.find(".rate").html("图片缩放比例：" + (b * 100).toFixed(2) + "%");
+            this.imgWrap.css({
+                "margin-left": -W / 2,
+                "margin-top": -H / 2
+            });
+        },
+        choose: function(area) {
+            //选中该选区
+            if (area) {
+                var index = area.index();
+                area.addClass("current").find(".point").show().end().siblings().removeClass("current").find(".point").hide();
+                this.codeWrap.find("li").eq(index + 1).addClass("current").siblings().removeClass("current");
+                this.img.focus();
+            } else {
+                //取消选中
+                this.imgWrap.children("").removeClass("current").find(".point").hide();
+                this.codeWrap.find("li").removeClass("current");
+            }
+        },
+        del: function(area) {
+            //删除选区
+            var index = area.index();
+            this.codeWrap.find("li").eq(index + 1).remove();
+            this.arr.splice(index + 2, 1);
+            area.remove();
+        },
+        draw: function() {
+            if (!this.img.length) {
+                return;
+            }
+            var T = this, d = $(document), mouseLast, mouseNow, winPos, w, h;
+            this.select = $("body").append('<div class="imghot_select"></div>').find(".imghot_select");
+            this.img.bind("mousedown.imghot", function(e) {
+                e.preventDefault();
+                if ($(e.target).hasClass("hotarea")) {
+                    return;
+                }
+                mouseLast = {
+                    x: e.clientX,
+                    y: e.clientY
+                };
+                winPos = {
+                    left: $(window).scrollLeft(),
+                    top: $(window).scrollTop()
+                };
+                T.select.css({
+                    left: mouseLast.x,
+                    top: mouseLast.y
+                });
+                T.select.hide();
+                d.bind("mousemove.imghot", function(e) {
+                    e.preventDefault();
+                    mouseNow = {
+                        x: e.clientX + winPos.left,
+                        y: e.clientY + winPos.top
+                    };
+                    w = mouseNow.x - mouseLast.x;
+                    h = mouseNow.y - mouseLast.y;
+                    if (w < 0) {
+                        T.select.css({
+                            left: mouseNow.x
+                        });
+                    }
+                    if (h < 0) {
+                        T.select.css({
+                            top: mouseNow.y
+                        });
+                    }
+                    T.select.css({
+                        width: Math.abs(w),
+                        height: Math.abs(h)
+                    });
+                    T.select.show();
+                }).bind("mouseup.imghot", function(e) {
+                    d.unbind("mousemove.imghot mouseup.imghot");
+                    if (T.select.is(":visible")) {
+                        var w = T.select.outerWidth(), h = T.select.outerHeight(), l = T.select.offset().left - T.imgWrap.offset().left, t = T.select.offset().top - T.imgWrap.offset().top, hot = $(document.createElement("div")).attr({
+                            "class": "hotarea",
+                            isdrag: "true"
+                        }), W = T.img.width(), H = T.img.height();
+                        hot.append('<div class="point p_tl"></div><div class="point p_tr"></div><div class="point p_bl"></div><div class="point p_br"></div>');
+                        if (l < 0) {
+                            w += l;
+                            l = 0;
+                        }
+                        if (t < 0) {
+                            h += t;
+                            t = 0;
+                        }
+                        w = w + l > W ? W - l : w;
+                        h = h + t > H ? H - t : h;
+                        hot.css({
+                            left: l,
+                            top: t,
+                            width: w,
+                            height: h
+                        });
+                        T.imgWrap.append(hot);
+                        T.showCode(hot);
+                        //生成代码
+                        T.select.hide();
+                    }
+                });
+            });
+        },
+        showCode: function(m, isEdit) {
+            //生成代码
+            var w, h, l, t, last = this.arr.pop(), point, area, old, a, i;
+            w = m.width();
+            h = m.height();
+            l = parseInt(m.css("left"));
+            t = parseInt(m.css("top"));
+            point = Math.round(l / this.rate) + "," + Math.round(t / this.rate) + "," + Math.round((w + l) / this.rate) + "," + Math.round((h + t) / this.rate);
+            if (isEdit) {
+                //更改坐标
+                old = this.arr[m.index() + 2].split(" ");
+                //console.log(this.codeWrap.find('li').eq(m.index()+1).html());
+                for (i = 0; i < old.length; i++) {
+                    a = old[i].split("=");
+                    if (a[1] && a[0] == "coords") {
+                        a[1] = '"' + point + '"';
+                        old[i] = a.join("=");
+                        break;
+                    }
+                }
+                old = old.join(" ");
+                this.arr[m.index() + 2] = old;
+            } else {
+                this.arr.push('	<area shape="rect" coords="' + point + '" href="" alt="" />');
+            }
+            this.arr.push(last);
+            this.codeWrap.html(this.arr.join("\n"));
+            new codeLight({
+                parent: this.codeWrap
+            });
+            this.choose(m);
+        }
+    };
+    return imgHot;
+});

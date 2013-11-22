@@ -1,1 +1,27 @@
-/*2013/11/19-http://nolure.github.io/nojs.docs*/define("nojs/module/imgcapture",[],function(require,a){function b(a){this.options=a||{},this.url=a.url,this.url&&"string"==typeof this.url&&(this.wrap=null,this.init())}return b.prototype={init:function(){this.wrap=a("<div></div>").appendTo(document.body),this.wrap.load(this.url,function(){this.contentWindow})}},b});
+/*
+ * capture
+ * nolure@vip.qq.com
+ * 2013-11-14
+ */
+define("nojs/module/imgcapture", [], function(require, $, ui) {
+    function imgcapture(options) {
+        this.options = options || {};
+        this.url = options.url;
+        if (!this.url || typeof this.url != "string") {
+            return;
+        }
+        this.wrap = null;
+        this.init();
+    }
+    imgcapture.prototype = {
+        init: function() {
+            var self = this;
+            //this.wrap = $('<iframe src="'+this.url+'" frameborder="0" style="position:absolute;width:0;height:0"></iframe>').appendTo(document.body);
+            this.wrap = $("<div></div>").appendTo(document.body);
+            this.wrap.load(this.url, function() {
+                var win = this.contentWindow;
+            });
+        }
+    };
+    return imgcapture;
+});

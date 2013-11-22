@@ -43,7 +43,6 @@
      * 从队列中取出一组模块载入到页面中
      */
     function load( file ){  
-        
         var T = load,
             cf = T.now[2],
             num = 0,
@@ -71,17 +70,17 @@
             //cf.queue!==true && append(m);//并行加载
         }
         len = file.length;
-        if(!len){
-            return;
-        }
+        
         if( _entrance ){
             if( entrance[_entrance] ){
-                entrance[_entrance].branch += len-_len;//减去重复模块
+                done(_entrance, len-_len+1);//减去重复模块 这里也需检测分支是否完成
             }else if( T.now[1] ){
                 entrance[_entrance] = {branch:len, callback:T.now[1]};//记录该组分支数 回调 
                 T.now[1] = null; 
             }
-            
+        }
+        if(!len){
+            return;
         }
         //打包时 指向真实的模块
         if( file.point ){
@@ -125,11 +124,9 @@
             }
             if( _entrance && entrance[_entrance]  ){
                 if( !modules[src].cmd ){//存在非标准模块
-                    entrance[_entrance].branch--;
-                    if( entrance[_entrance].branch<=0 ){
-                        T.now[1] = entrance[_entrance].callback;
-                        entrance[_entrance] = null;
-                    }
+                    done(_entrance, 0, function(entrance){
+                        T.now[1] = entrance.callback;
+                    });
                 }
             }
             if( num>=len ){
@@ -174,7 +171,7 @@
         load( load.now[0] );
     }
     /*
-     * 寻址操作
+     * 模块路径解析
      * 1.标准路径：以设置的基址来查找模块
      * 2.相对路径： ./同级目录 ../上级目录   模块中相对当前模块(require和require.async) use中相对路径为普通路径
      * 3.普通路径：不做任何处理 直接加载该路径 以'http'或'/'开头
@@ -201,6 +198,9 @@
             
         if( /\?|#/.test(path) ){
             path = path.replace(/#$/, '');
+            fix = '';
+        }
+        if( /\.js$/.test(path) ){
             fix = '';
         }
         if( /^(http|\/|file)/.test(path) ){
@@ -298,9 +298,11 @@
         //console.log(load.point)
         var args = Array.prototype.slice.call(arguments),
             factory = args.slice(-1)[0],
+            deps = args.length>2 && args[1],
             _type = type( factory ),
-            current = type(load.point)=='array' ? load.point.shift() : load.point,//当前载入模块的uri
-            _modules, _modules_, length, exports, _entrance, _entranceID, call;
+            pointType = type(load.point)=='array',
+            current = pointType ? load.point.shift() : load.point,//当前载入模块的uri
+            _modules, _modules_ = [], length, exports, _entrance, _entranceID, call;
         
         current = modules[current];
         current.factory = factory;
@@ -310,25 +312,15 @@
         if( _entranceID ){
             _entrance = entrance[_entranceID];
         }
-        function check(step){
-            step = step || 0;
-            if( _entrance ){
-                _entrance.branch += step-1;
-                //console.log(_entrance.branch, step)
-                if( _entrance.branch<=0 ){//该入口模块整个依赖链加载完毕
-                    load.callback(_entrance.callback);
-                    _entrance = null;
-                }
-            }
-        }
-        
+               
         if( _type=='function' ){
             //解析内部所有require并提前载入
-            _modules_ = parseRequire( factory.toString() );
-            _modules = load.resolve(_modules_);
-            length = _modules.length;
-           
+            _modules_ = deps || parseRequire( factory.toString() );
+            length = _modules_.length;
+            
             if( length ){
+                _modules = load.resolve(_modules_);
+                
                 var i, m, relative; 
                 for( i=0; i<length; i++ ){
                     pathMap[_modules_[i]] = _modules[i];
@@ -342,34 +334,35 @@
                     }
                     length && load.add(_modules);
                 }
+                function push(m,i){
+                    if( modules[m] ){
+                        _modules_.splice(i,1);
+                        return;
+                    }
+                    modules[m] = {id : m};
+                    if( _entrance ){
+                        modules[m].entrance = _entranceID;
+                    }
+                }
                 //设置打包后，当前模块所依赖模块会并入自身
                 if( config.pack ){
                     if( typeof load.point == 'string' ){
                         load.point = []; 
                         //config.pack.relative只合并相对路径
                         //非相对路径 !/^\.{1,2}\// 过滤出来 加载模块
-                        
-                        function push(m,i){
-                            if( modules[m] ){
-                                _modules_.splice(i,1);
-                                return;
-                            }
-                            modules[m] = {id : m};
-                            if( _entrance ){
-                                modules[m].entrance = _entranceID;
-                            }
-                        }
                         for( i=0; i<length; i++ ){
                             m = _modules[i];
                             relative = config.pack.relative && /^\.{1,2}\//.test(_modules_[i]);//相对路径
                             load.point.push(m);
                             if( modules[m] || relative ){
                                 _modules.splice(i,1);
+                                _modules_.splice(i,1);
                                 i--;
                                 length--;
                                 push(m,i);
                                 continue;
                             }
+                            
                             if( config.pack.relative && !relative ){//非相对路径
                                 load.point.pop(); 
                             }else{
@@ -385,12 +378,41 @@
         }else{
             current.exports = factory;
         }
-        check(_modules_ && _modules_.length);
+        var branch;
+        if( config.pack ){
+            //pointType define开始执行时load.point的类型
+            if( pointType ){//load.point=='array'
+                branch = 0;
+            }else{
+                branch = (length ? load.point.length : 0) + _modules_.length;
+            }
+        }else{
+            branch = _modules_.length;
+        }
+        done(_entranceID, branch);
     }
     define.cmd = true;
     define.resolve = load.resolve;
     
-    function done(){}
+    /*
+     * 检测一条依赖链是否完成，更新其分支数 为0的时候即表示完成并执行回调
+     * @_entrance：分支id
+     * @step:变化的分支数
+     * @call:分支加载完成时的回调
+     */
+    function done(_entrance, step, call){
+        step = step || 0;
+        if( _entrance ){
+            _entrance = entrance[_entrance];
+            _entrance.branch += step-1;
+            //console.log(_entrance.branch, step)
+            if( _entrance.branch<=0 ){//该入口模块整个依赖链加载完毕
+                call && call(_entrance);
+                load.callback(_entrance.callback);
+                _entrance = null;
+            }
+        }
+    }
     done.use = function(){
         //初始化 使用use执行代码块 队列回调  全局模块就绪后执行
         var call;
@@ -485,9 +507,9 @@
             }
             href = location.href.split(/[#?]/)[0]; 
             host = location.host;
-            mainReg = (function(){
-                return /^www[\.]/.test(host) || host.indexOf('.')==host.lastIndexOf('.');
-            })();//主域
+            mainReg = (function(){//主域
+                return /^www[\.]/.test(host) || host.indexOf('.')==host.lastIndexOf('.') || /^(\d+\.){3}\d+(:\d+)?$/.test(location.host);
+            })();
             hostReg = new RegExp(host.replace(/\./g,'\\.')+'/$').test(href);//检测域名首页
             
             _host:
@@ -563,52 +585,42 @@
         return node.hasAttribute ? node.src : node.getAttribute("src", 4);
     }
         
-    //通过script标签的data-main来引入主模块
     //data-config设置配置选项
     function init(){
         var i,
             T = load,
             nojsSrc = getSrc(nojsScript),
-            _modules = nojsScript.getAttribute('data-main'),
             _config = nojsScript.getAttribute('data-config');
         
         config.base = nojsSrc.split('/').slice(0,-2).join('/')+'/';
         
-        if( _config || _modules ){
-            //配置选项
-            if( _config ){
-                if( /\.js$/.test(_config) ){
-                    configFile = 1; //
-                    //该事件会在nojs脚本加载完成之后触发
-                    //打包之后config.js会并入noJS.js
-                    onReady = function(){
-                        if( !config.pack ){
-                            configFile = 2; //配置文件正在载入
-                            T.add( [load.resolve(_config+'#')], function(){
-                                //配置文件加载完毕
-                                if( defer ){
-                                    for( var i=0; i<defer.length; i++ ){
-                                        noJS.use.apply(null, defer[i]);
-                                    }
-                                    defer = null;
+        //配置选项
+        if( _config ){
+            if( /\.js$/.test(_config) ){
+                configFile = 1; //
+                //该事件会在nojs脚本加载完成之后触发
+                //打包之后config.js会并入noJS.js
+                onReady = function(){
+                    if( !config.pack ){
+                        configFile = 2; //配置文件正在载入
+                        T.add( [load.resolve(_config+'#')], function(){
+                            //配置文件加载完毕
+                            if( defer ){
+                                for( var i=0; i<defer.length; i++ ){
+                                    noJS.use.apply(null, defer[i]);
                                 }
-                            }, {state:true} );
-                        }
-                        onReady = null;
+                                defer = null;
+                            }
+                        }, {state:true} );
                     }
-                    T.event( nojsScript, onReady);
-                }else{
-                    _config = eval( '({' + _config + '})' );
-                    noJS.config( _config );
+                    onReady = null;
                 }
+                T.event( nojsScript, onReady);
+            }else{
+                _config = eval( '({' + _config + '})' );
+                noJS.config( _config );
             }
-            //入口模块
-            if( _modules ){
-                _modules = load.resolve( _modules.split(',') );
-                init.deps = [].concat( _modules );
-                T.add( _modules );
-            }
-        }       
+        }        
     }
     
     init.deps = [];
@@ -621,8 +633,6 @@
             src = getSrc( script[i] );
             if( src ){
                 modules[ src ] = { id : src };
-                //获取默认路径为noJS所在父目录
-                //!baseUrl && ( config.base = baseUrl = src.split('/').slice(0,-2).join('/')+'/' );
             }
         }
     }();
@@ -644,10 +654,15 @@
      * 3.ie9缓存配置文件导致出错
      * 4.解决相对路径模块的接口问题，原因是在获取完整路径时使用了全局配置，导致无法正确匹配模块。解决后将模块配置连同自身一起保存在modules对象中
      * 5.优化use方法：执行代码块不必等整个依赖链都加载完毕才执行，而是全局模块就绪即可
-     * 6.由5导致的bug，载入入口模块a，a依赖b,当a完成而b正在载入时，后续use执行的代码块会直接触发done.use方法，导致前面入口模块a的回调一同执行，所以报错。优化后，回调会在该条入口模块链都完成后执行，添加全局变量entrance
+     * 6.由5导致的bug，载入入口模块a，a依赖b,当a完成而b正在载入时，后续use执行的代码块会直接触发done.use方法，导致前面入口模块a的回调一同执行，所以报错。
+     *      优化后，回调会在该条入口模块链都完成后执行，添加全局变量entrance 从该入口开始的整个依赖链都会关联一个统一的入口id保存在entrance中
      * 7.修正6导致的bug，加载非标准模块的回调问题  没有减去重复模块分支数的问题   entrance占位应该在use方法中就执行
-     * 8.修正打包后的bug，去除函数done，回调函数全部在define中执行（非标准模块除外）
-     * 9.更改寻址操作load.getPath>load.resolve 路径转换全部改为load之前 去除use方法的单独配置功能
+     * 8.修正打包后的bug，更新函数done，回调函数全部在define中执行（非标准模块除外）
+     * 9.更改寻址操作load.getPath>load.resolve 路径转换全部改为load之前 去除use方法的单独配置功能 
+     * 10.添加打包配置选项config.pack.relative：是否只打包相对路径的模块
+     * 11.去除通过script标签的data-main属性加载入口模块的功能
+     * 12.修正打包后多级依赖导致的bug, grunt合并后所有依赖都会体现在主模块上(如a>b>c>d，打包后模块a变成 define('a',['b','c','d'],factory) )
+     * 13.bug:在一个模块中，同时依赖相对路径和标准路径的模块，如果只打包相对路径  就会匹配错误[已解决 传入done中的分支数有误]
      */
     
 })( this );

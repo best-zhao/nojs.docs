@@ -286,7 +286,7 @@
 		<li class="item clearfix">
 			<span class="p_txt">
 				<label for="" class="lab"><i>*</i>select：</label>
-				<select name="select" id="">
+				<select name="select" class="fl">
 					<option value="0">请选择</option>
 					<option value="1">1</option>
 					<option value="2">2</option>
@@ -333,6 +333,7 @@ noJS.use(function($,ui){
 		item : [
 			{content : $('#demo_tmpl1').html(), callback : function(){
 				noJS.use('nojs/module/form', function($,ui,form){
+				    //console.log(form.reg.specialCode('米色向日葵'))
 					form.reg.tel = function(value){
 						//自定义规则，手机、座机、400电话均可
 						if( form.reg.isMobile(value) || form.reg.isTel(value) || form.reg.isTel400(value) ){
