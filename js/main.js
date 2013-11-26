@@ -1,5 +1,6 @@
 define("main", [ "nojs/module/tree", "nojs/module/codelight", "project", "./demo", "./url", "./a" ], function(require, $, ui) {
     var tree = require("nojs/module/tree"), codeLight = require("nojs/module/codelight"), project = require("project"), demo = require("./demo"), setUrl = require("./url"), G = {};
+    //require('style.css');	
     var page = $("#ui_page"), main = $("#main_content"), head = $("#ui_head"), option = head.find(".options"), win = $(window), D = window.Page == "mobile" ? "mb_intro" : "nojs_info", frame = $("#iframe_content"), side = $("#side_menu"), wrap = page.children("div.ui_wrap"), showMenu = $("#show_menu"), first = 0, Menu;
     if (typeof onhashchange != "undefined") {
         window.onhashchange = function() {
@@ -295,7 +296,7 @@ define("demo", [ "nojs/module/codelight", "url", "a" ], function(require, $, ui)
                 win = obj.data("win");
                 button = obj;
                 !win && init();
-                var item = demoAction.item[demo.index], html = [ '<div style="height:500px;overflow:auto"><script type="text/templete" code="html">', "<!DOCTYPE html>", "<html>", "<head>", '<meta charset="utf-8" />', "<title>" + Menu.selected + "示例" + (demo.index + 1) + "- nojs</title>", '<base href="http://nolure.github.io/nojs.docs/" />', '<link rel="stylesheet" href="css/ui.css" />', '<link rel="stylesheet" href="css/base.css" />', '<link rel="stylesheet" href="css/main.css" />', '<script src="src/nojs/noJS.js" data-config="global:[\'nojs/jquery\',\'nojs/ui\']" id="nojs"></ script>', "</head>", "<body>", demoAction.html ? demoAction.html.replace(/^\n*/, "") : "", item.content ? item.content.replace(/^\n*/, "") : "", "<script>" + str(item.callback || demoAction.callback) + "</ script>", "</body>", "</html>", "</script></div>" ], code;
+                var item = demoAction.item[demo.index], html = [ '<div style="height:500px;overflow:auto"><script type="text/templete" code="html">', "<!DOCTYPE html>", "<html>", "<head>", '<meta charset="utf-8" />', "<title>" + Menu.selected + "示例" + (demo.index + 1) + "- nojs</title>", '<base href="http://nolure.github.io/nojs.docs/" />', '<link rel="stylesheet" href="css/ui.css" />', '<link rel="stylesheet" href="css/base.css" />', '<link rel="stylesheet" href="css/main.css" />', '<link rel="stylesheet" href="css/tree.css" />', '<script src="src/nojs/noJS.js" data-config="global:[\'nojs/jquery\',\'nojs/ui\']" id="nojs"></ script>', "</head>", "<body>", demoAction.html ? demoAction.html.replace(/^\n*/, "") : "", item.content ? item.content.replace(/^\n*/, "") : "", "<script>" + str(item.callback || demoAction.callback) + "</ script>", "</body>", "</html>", "</script></div>" ], code;
                 win.set("title", Menu.selected + " - 示例" + (demo.index + 1) + "源码");
                 win.set("content", html.join("\n"));
                 code = new codeLight({

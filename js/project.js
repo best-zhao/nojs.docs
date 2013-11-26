@@ -149,6 +149,10 @@ define("project", [], {
                 id: "resize",
                 text: "resize",
                 link: "module/resize"
+            }, {
+                id: "localstorage",
+                text: "localstorage",
+                link: "module/localstorage"
             } ]
         }, {
             id: "test_page",

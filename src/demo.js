@@ -110,6 +110,7 @@ define(function(require,$,ui){
 						'<link rel="stylesheet" href="css/ui.css" />',
 						'<link rel="stylesheet" href="css/base.css" />',
 						'<link rel="stylesheet" href="css/main.css" />',
+						'<link rel="stylesheet" href="css/tree.css" />',
 						'<script src="src/nojs/noJS.js" data-config="global:[\'nojs/jquery\',\'nojs/ui\']" id="nojs"></ script>',
 						'</head>',
 						'<body>',

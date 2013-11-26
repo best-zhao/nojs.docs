@@ -17,6 +17,7 @@ define("nojs/module/autocomplete", [], function(require, $) {
         }
     }
     var autoComplete = function(text, opt) {
+        text = typeof text == "string" ? $("#" + text) : text;
         if (!text || !text.length) {
             return;
         }
@@ -79,6 +80,7 @@ define("nojs/module/autocomplete", [], function(require, $) {
 
                   default:
                     clearTimeout(A);
+                    T.showBox("hide");
                     A = setTimeout(function() {
                         T.complete();
                         T.onKeyup && T.onKeyup(T.state);

@@ -18,7 +18,6 @@
      * 1.普通：直接执行相关方法，
      * 2.区域初始化：通过在Elements上配置相应的属性初始化对应区域内所有ui组件，默认body区域
      */
-    
     ui.init = function( area ){
         area = area || $('body');
         

@@ -5,6 +5,8 @@ define(function(require,$,ui){
 		demo = require('./demo'),
 		setUrl = require('./url'),
 		G = {};
+		
+	//require('style.css');	
 	
 	var page = $('#ui_page'),
 		main = $('#main_content'),

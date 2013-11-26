@@ -41,7 +41,8 @@ define({
 				{id:'lazyload',text:'lazyload延迟加载',link:'module/lazyload'},
 				{id:'lightbox',text:'lightbox',link:'module/lightbox'},
                 {id:'page',text:'page',link:'module/page'},//capture
-                {id:'resize',text:'resize',link:'module/resize'}
+                {id:'resize',text:'resize',link:'module/resize'},
+                {id:'localstorage',text:'localstorage',link:'module/localstorage'}
 			]},
 	
 			{id:'test_page',text:'小测试',open:0,data:[

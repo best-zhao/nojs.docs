@@ -17,6 +17,7 @@ define(function(require,$){
 		} 
 	}
 	var autoComplete = function(text,opt){
+	    text = typeof text=='string' ? $('#'+text) : text;
 		if(!text||!text.length){return;}
 		this.text = text;
 		opt = opt || {};
@@ -62,6 +63,7 @@ define(function(require,$){
 	                    break;
 					default:
 						clearTimeout(A);
+						T.showBox('hide');
 						A = setTimeout(function(){
 							T.complete();
 							T.onKeyup && T.onKeyup(T.state);

@@ -1,0 +1,21 @@
+<h4 class="p_tit">localstorage</h4>
+<h6 class="p_tit"></h6>
+<div class="text_info">
+	<p></p>
+</div>
+<div class="text_info">
+    
+</div><!--p_con-->
+<script>
+noJS.use('nojs/module/localstorage',function( $, ui, localStorage ){
+    localStorage.set('a','12346');
+    localStorage.set('a1',123);
+    //localStorage.remove('test',123);
+	console.log(localStorage);
+	//localStorage.clear();
+	for( var i=0;i<localStorage.length;i++){
+	    //console.log(localStorage.key(i))
+	}
+	
+});
+</script>

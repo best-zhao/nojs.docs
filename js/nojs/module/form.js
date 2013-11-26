@@ -75,11 +75,12 @@ define("nojs/module/form", [], function(require, $, ui) {
                     (function(m) {
                         //validate
                         m.off("keyup.validate").on("keyup.validate", function() {
-                            m.data("state", false);
+                            $(this).data("state", false);
                         });
                         if (!T.formSubmit && T.type(m) == "input") {
                             //绑定回车提交事件
                             m.off("keyup.validate").on("keyup.validate", function(e) {
+                                $(this).data("state", false);
                                 e.keyCode == 13 && T.btn.click();
                             });
                         }
