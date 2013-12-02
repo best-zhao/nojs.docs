@@ -30,7 +30,7 @@ define(function(require,$){
 			
 			'limit' : 10,						//文件个数限制
 			'fileSize' : 2,						//文件大小限制，单位MB
-			'fileType' : '.jpg,.png,.gif',		//文件类型后缀
+			'fileType' : '.jpg,.png,.gif,.psd',		//文件类型后缀
 			'showPreview' : true,				//是否显示缩略图
 			'auto' : true,						//选择文件后是否自动上传	
 			
@@ -150,7 +150,6 @@ define(function(require,$){
 					this.value = '';
 					return;
 				}	
-				
 				if ( opt.fileType ) {
 					type = val.substring( val.lastIndexOf('.'), val.length ).toLowerCase();
 					if ( opt.fileType.indexOf(type) < 0 ) {
@@ -161,7 +160,6 @@ define(function(require,$){
 				}
 				data = {};
 				data.name = val.substring( val.lastIndexOf('\\')+1, val.length );
-				
 				T.push( _file, data );
 			})
 		},

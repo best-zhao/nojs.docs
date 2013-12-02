@@ -117,16 +117,12 @@
         type : function(obj){
             return obj == null ? String( obj ) : Object.prototype.toString.call( obj ).slice( 8, -1 ).toLowerCase();
         },
-        random : function(){
-            //得到一个随机数
-            return String(Math.ceil(Math.random() * 100000) + String(new Date().getTime()));
-        },        
         //取消事件的默认动作 e.preventDefault()   stopDefault
         //阻止冒泡 e.stopPropagation()        stopBubble
-        onScroll : function( obejct, onScroll ){
+        onScroll : function( object, onScroll ){
             //自定义鼠标滚轮事件
             var scrollFunc = function(e){ 
-                e = e || window.event;    
+                e = e || window.event;  
                 if(e.wheelDelta){//IE/Opera/Chrome 
                     //e.returnValue=false;//阻止网页滚动条滚动
                 }else if(e.detail){//Firefox 
@@ -136,11 +132,10 @@
                 onScroll && onScroll(e);
             } 
             if(document.addEventListener){//firefox
-                obejct.addEventListener( "DOMMouseScroll", scrollFunc, false );
+                object.addEventListener( "DOMMouseScroll", scrollFunc, false );
             }
-            obejct.onmousewheel = scrollFunc;//IE/Opera/Chrome/Safari 
+            object.onmousewheel = scrollFunc;//IE/Opera/Chrome/Safari 
         },
-        
         browser : function(){
             //检测浏览器
             var u = navigator.userAgent.toLowerCase(),
@@ -192,7 +187,6 @@
                 return d?fn(d):fn;
             };
         }(),
-        
         cookie : function( name, value, options ){
             /*
              * 读取cookie值: $.cookie("key"); 
@@ -252,7 +246,99 @@
                 style.innerHTML = css; 
                 document.getElementsByTagName('HEAD')[0].appendChild(style);
             }
-        }
+        },
+        localStorage : function(){
+            var localStorage = window.localStorage || (function(){
+                //userData
+                var o = document.getElementsByTagName("head")[0],
+                    n = window.location.hostname || "localStorage",
+                    d = new Date(),
+                    doc, agent;
+                    
+                if( !o.addBehavior ){
+                    return {};
+                }
+                try{ 
+                    agent = new ActiveXObject('htmlfile');
+                    agent.open();
+                    agent.write('<s' + 'cript>document.w=window;</s' + 'cript><iframe src="/favicon.ico"></frame>');
+                    agent.close();
+                    doc = agent.w.frames[0].document;
+                }catch(e){
+                    doc = document;
+                }
+                o = doc.createElement('head');
+                doc.appendChild(o);
+                d.setDate(d.getDate() + 365);
+                o.addBehavior("#default#userData");
+                o.expires = d.toUTCString();
+                o.load(n);
+                
+                var root = o.XMLDocument.documentElement,
+                attrs = root.attributes,
+                prefix = "prefix_____hack__",
+                reg1 = /^[-\d]/,
+                reg2 = new RegExp("^"+prefix),
+                encode = function(key){
+                    return reg1.test(key) ? prefix + key : key;
+                },
+                decode = function(key){
+                    return key.replace(reg2,"");
+                };
+                
+                return {
+                    length: attrs.length,
+                    getItem: function(key){
+                        return (attrs.getNamedItem( encode(key) ) || {nodeValue: null}).nodeValue || root.getAttribute(encode(key)); 
+                    },
+                    setItem: function(key, value){
+                        root.setAttribute( encode(key), value); 
+                        o.save(n);
+                        this.length = attrs.length;
+                    },
+                    removeItem: function(key){
+                        root.removeAttribute( encode(key) ); 
+                        o.save(n);
+                        this.length = attrs.length;
+                    },
+                    clear: function(){
+                        while(attrs.length){
+                            this.removeItem( attrs[0].nodeName );
+                        }
+                        this.length = 0;
+                    },
+                    key: function(i){
+                        return attrs[i] ? decode(attrs[i].nodeName) : undefined;
+                    }
+                };
+            })();
+            return {
+                length : localStorage.length,
+                set : function(key, value){
+                    //iPhone/iPad 'QUOTA_EXCEEDED_ERR'
+                    if( this.get(key) !== undefined ){
+                        this.remove(key);
+                    }
+                    localStorage.setItem(key, value);
+                    this.length = localStorage.length;
+                },
+                get : function(key){
+                    var v = localStorage.getItem(key);
+                    return v === null ? undefined : v;
+                },
+                remove : function(key){ 
+                    localStorage.removeItem(key); 
+                    this.length = localStorage.length;
+                },
+                clear : function(){
+                    localStorage.clear();
+                    this.length = 0;
+                },
+                key : function(key){
+                    return localStorage.key(key);
+                }
+            };
+        }()
     })
     
     /*
@@ -312,8 +398,8 @@
                 y : offset ? offset.top : 0,
                 scrollLeft : this.cssFixed ? 0 : nearby.scrollLeft(),
                 scrollTop : this.cssFixed ? 0 : nearby.scrollTop(),
-                WIDTH : this.element.outerWidth(),
-                HEIGHT : this.element.outerHeight()
+                WIDTH : this.element.outerWidth(true),
+                HEIGHT : this.element.outerHeight(true)
             };
             return size;
         },
@@ -398,6 +484,48 @@
         }
     }
     
+    ui.effect = function(element, effect){
+        if( !element || !element.length ){
+            return;
+        }
+        this.element = element;
+        this.effect = effect || 'normal';
+        
+    }
+    ui.effect.prototype = {
+        item : {
+            'normal' : [function(e){
+                e.css('visibility', 'visible');
+            }, function(e){
+                e.css('visibility', 'hidden');
+            }],
+            'drop' : [function(e){
+                e.css({
+                    "margin-top" : -20,
+                    'visibility' : 'visible',
+                    'opacity' : 0
+                })
+                e.stop().animate({
+                    "margin-top" : "0",
+                    "opacity" : "1"
+                }, 400, 'easeOutExpo');
+            }, function(e){
+                e.animate({
+                    "margin-top" : -20,
+                    "opacity" : "0"
+                }, 400, 'easeOutExpo', function(){
+                    e.css('visibility','hidden');
+                });
+            }]
+        },
+        show : function(){
+            
+            this.item[this.effect][0](this.element);
+        },
+        hide : function(){
+            this.item[this.effect][1](this.element);
+        }
+    }
     /*
      * 浮动层
      */
@@ -405,6 +533,7 @@
         ui.overlay.baseConstructor.call(this, options);        
         this.visible = false;//可视状态
         this.content = null;//内容区域
+        this.showClassName = this.options.showClassName || 'nj_overlay_show';
         this.arrow = this.options.arrow;//箭头 根据align对齐方式自动调整指向
         this.timeout = this.options.timeout;
         this.onShow = this.options.onShow;
@@ -447,7 +576,7 @@
             this.arrow.element = $('<div class="nj_overlay_arrow"></div>').appendTo(this.element);
             this.arrow.offset = this.arrow.offset || [0,0];
         }
-        
+        this._effect = new ui.effect(this.element, this.options.effect);
         this.bind();
     }; 
     ui.overlay.prototype.show = function(callback){
@@ -457,7 +586,8 @@
         }
         var self = this;
         
-        this.element.css('visibility','visible');
+        this._effect.show();
+        this.element.addClass(this.showClassName);
         this.set();
         
         if( this.timeout ){
@@ -490,7 +620,8 @@
         if( !this.visible ){
             return;
         }
-        this.element.css('visibility','hidden');
+        this._effect.hide();
+        this.element.removeClass(this.showClassName);
         this.autoHide = clearTimeout(this.autoHide);
         this.visible = false;
         callback && callback.call(this);
@@ -623,12 +754,11 @@
     }();
     
     ui.popup = function( options ){
-        /*
-         * 弹窗
-         */
         options = options || {};
         options.className = 'nj_win '+(options.className || ''); 
         options.nearby = options.nearby || window;
+        options.showClassName = options.showClassName || 'nj_pop_show';
+        options.effect = options.effect || 'drop';
         ui.popup.baseConstructor.call(this, options);
         this.width = options.width || 400;//宽
         this.close = null;//关闭按钮
@@ -673,14 +803,6 @@
             this.layer && ui.layer.show();
             fn.call(this, callback);
             
-            this.element.css({
-                "margin-top" : -20
-            })
-            this.element.stop().animate({
-                "margin-top" : "0",
-                "opacity" : "1"
-            }, 400, 'easeOutExpo');
-            
             //this.bindEsc && ui.popup.focus.push(this);
             if( this.bindEsc && !ui.popup.focus[this.key] ){
                 ui.popup.focus[this.key] = this;
@@ -704,14 +826,6 @@
             }
             
             fn.call(self, callback);
-            this.element.css('visibility','visible');
-            
-            this.element.animate({
-                "margin-top" : -20,
-                "opacity" : "0"
-            }, 400, 'easeOutExpo', function(){
-                self.element.css('visibility','hidden');
-            });
             
             this.layer && $.each(ui.popup.item, function(){//检测其他弹窗看是否需要保留遮罩
                 if( this.key != self.key && this.visible && this.layer ){
@@ -725,7 +839,7 @@
     })
     ui.popup.prototype.create = function(){
         var self = this,
-            id = 'nj_popup_' + $.random();
+            id = 'nj_popup_' + (+new Date);
         
         ui.popup.item[id] = this;
         this.key = id;
@@ -736,7 +850,7 @@
             '<div class="win_opt"></div>'
         ].join(''));
         this.content.addClass('win_wrap');
-        this.element.css( {'width':self.width, 'opacity':'0'} );
+        this.element.css( {'width':self.width} );
         this.element[0].id = id;
         this.close = this.element.find(".win_close");
         this.title = this.element.find(".win_tit").hide();
@@ -749,7 +863,7 @@
             self.hide();
         });
         this.bindEsc && !ui.popup.bind.init && ui.popup.bind();
-        $.onScroll( this.content[0] );        
+        $.onScroll( this.element[0] );        
     }
     ui.popup.prototype.addBtn = function(text,callback,color){
         /*
@@ -855,11 +969,12 @@
                     ];
                 }
                 if( !win || !$('#'+win.key).length ){
-                    win = new ui.popup({
+                    var _opt = $.extend(true, {}, opt, {
                         width : w,
-                        bindEsc : C ? true : false,
-                        className : 'msg_tip_win'
-                    });
+                        bindEsc : C ? true : false
+                    })
+                    _opt.className = 'msg_tip_win ' + (_opt.className || '');
+                    win = new ui.popup(_opt);
                     
                     win.element.find('div.nj_overlay_wrap').addClass('msg_tip_'+type);
                     
@@ -904,6 +1019,7 @@
             }        
         }
     }();
+    
     ui.select = function( element, options ){
         if( isNew = instaceofFun(this,arguments) ){
             return isNew;
@@ -1008,9 +1124,10 @@
             }else if(e.which==13 ){
                 self.hide();
             }else{
-                return;
+                return false;
             }
-            self.select(self.index);            
+            self.select(self.index);   
+            return false;         
         })
     }
     ui.select.prototype.select = function(value, trigger){

@@ -83,6 +83,7 @@
         if(!len){
             return;
         }
+        
         //打包时 指向真实的模块
         if( file.point ){
             for( i=0; i<file.point.length; i++ ){
@@ -125,13 +126,16 @@
             }
             if( _entrance && entrance[_entrance]  ){
                 if( !modules[src].cmd ){//存在非标准模块
+                    //console.log(file,_entrance,num>=len,T.now[1])
                     done(_entrance, 0, function(entrance){
-                        T.now[1] = entrance.callback;
+                        
+                        //T.now[1] = entrance.callback;
                     });
                 }
             }
             if( num>=len ){
                 //当前队列回调
+                //T.now[1] && console.log(file,T.point) 
                 T.callback(T.now[1]);
                 if( T.fileItem.length>0 ){//继续下一个队列
                     T.begin();
@@ -160,6 +164,7 @@
         if( type(file)=='array' && file.length ){
             opt = opt || {};
             T.fileItem[order==true?'unshift':'push']( [ file, callback, opt ] );
+            //console.log(T.fileItem[0][0],T.state)
             !T.state && T.begin();
         }
     }
@@ -273,6 +278,7 @@
         }
     }
     load.callback = function(call){
+        //console.log(call&&call.deps)
         call && call( depsToExports(call.deps) );
     }
     
@@ -433,6 +439,7 @@
         //初始化 使用use执行代码块 队列回调  全局模块就绪后执行
         var call;
         while( modules['start'].length ){
+            
             load.callback( modules['start'].shift() );
         }
     }

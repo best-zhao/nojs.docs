@@ -141,7 +141,7 @@ noJS.use( ['nojs/module/upload'], function($,ui,upload){
 		getProgressUrl : 'upload.php',
 		fileDomain : '',
 		limit : 10,
-		fileSize : 2,
+		fileSize : 8,
 		tip : function( con, type ){
 			ui.msg.show( type, con );
 		}
@@ -151,7 +151,7 @@ noJS.use( ['nojs/module/upload'], function($,ui,upload){
 		//dragUp : $('#drag_up'),
 		auto : false,
 		//fileType : '.txt',
-		showPreview : false,
+		//showPreview : false,
 		onSelect : function( data ){
 			var wrap = $([
 				'<li class="clearfix">',

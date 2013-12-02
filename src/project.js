@@ -11,7 +11,7 @@ define({
 			]},
 			{id:'nj_ui',text:'ui组件',open:1,data:[
 				{id:'ui_info',text:'说明',link:'ui/index'},
-				{id:'tools',text:'jQuery扩展工具',link:'ui/tools'},
+				{id:'tools',text:'扩展工具',link:'ui/tools'},
 				
 				{id:'ui_core',text:'核心ui组件',open:1,data:[
 					{id:'ui_align',text:'ui.align',link:'ui/align'},
@@ -41,8 +41,7 @@ define({
 				{id:'lazyload',text:'lazyload延迟加载',link:'module/lazyload'},
 				{id:'lightbox',text:'lightbox',link:'module/lightbox'},
                 {id:'page',text:'page',link:'module/page'},//capture
-                {id:'resize',text:'resize',link:'module/resize'},
-                {id:'localstorage',text:'localstorage',link:'module/localstorage'}
+                {id:'resize',text:'resize',link:'module/resize'}
 			]},
 	
 			{id:'test_page',text:'小测试',open:0,data:[
