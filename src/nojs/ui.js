@@ -824,7 +824,6 @@
             if( this.onbeforehide && !this.onbeforehide() ){
                 return;
             }
-            
             fn.call(self, callback);
             
             this.layer && $.each(ui.popup.item, function(){//检测其他弹窗看是否需要保留遮罩
