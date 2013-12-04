@@ -532,11 +532,14 @@
         //设置整站各页面的入口模块
         //二维关联数组   域名=〉页面 主域名用main表示 首页index
         var page = config.page,
-            href, host, mainReg, hostReg, p, j;
+            href, host, mainReg, hostReg, p, j, _type;
         
         if( page ) {
-            if( typeof page=='string' ){
-                noJS.use( page );
+            _type = type(page);
+            if( _type=='string' ){
+                noJS.use(page);
+            }else if( _type=='array' ){
+                noJS.use.apply(null, page);
             }else{
                 href = location.href.split(/[#?]/)[0]; 
                 host = location.host;
@@ -551,7 +554,7 @@
                         p = page[i];
                         for( j in p ){
                             if( j=='index' && hostReg || href.indexOf(j)>1 ){
-                                noJS.use( p[j] );
+                                noJS.use.apply(null, typeof p[j]=='string' ? [ p[j] ] : p[j] );
                                 break _host;
                             }
                         }

@@ -98,7 +98,60 @@
         }
     }
         
-    ui.config = {};    
+    ui.config = {};  
+    
+    /*
+     * ES6扩展：JSON
+     */  
+    if( window.JSON == undefined ){
+        
+        window.JSON = function(){
+            var rvalidchars = /^[\],:{}\s]*$/,
+                rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g,
+                rvalidescape = /\\(?:["\\\/bfnrt]|u[\da-fA-F]{4})/g,
+                rvalidtokens = /"[^"\\\r\n]*"|true|false|null|-?(?:\d+\.|)\d+(?:[eE][+-]?\d+|)/g;
+                
+            //JSON to string
+            function stringify(data){
+                if( $.type(data) != 'object' ){
+                    return '';
+                }
+                var i, m, value, rect = [];
+                for( i in data ){
+                    m = data[i];
+                    if( m===undefined || typeof m=='function' ){
+                        continue;
+                    }
+                    value = $.type(m)=='object' ? stringify(m) : String(m);
+                    value = typeof m=='string' ? '"'+value+'"' : value;
+                    rect.push('"'+i+'":' + value);
+                }
+                return '{'+rect.join(',')+'}';
+            }
+            
+            //string to JSON
+            function parse(data){
+                if( typeof data != 'string' ){
+                    return data;
+                }
+                data = data.replace(/^\s*|\s*$/g,'');//strim
+                
+                if( data ){
+                    if ( rvalidchars.test( data.replace( rvalidescape, "@" )
+                        .replace( rvalidtokens, "]" )
+                        .replace( rvalidbraces, "")) ) {
+    
+                        return ( new Function( "return " + data ) )();
+                    }
+                }                
+            }
+            
+            return {
+                stringify : stringify,
+                parse : parse
+            }
+        }();
+    } 
     
     /* 
      * [animate动画扩展]
