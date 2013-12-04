@@ -114,7 +114,7 @@
             //JSON to string
             function stringify(data){
                 if( $.type(data) != 'object' ){
-                    return '';
+                    return;
                 }
                 var i, m, value, rect = [];
                 for( i in data ){
@@ -132,7 +132,7 @@
             //string to JSON
             function parse(data){
                 if( typeof data != 'string' ){
-                    return data;
+                    return;
                 }
                 data = data.replace(/^\s*|\s*$/g,'');//strim
                 
