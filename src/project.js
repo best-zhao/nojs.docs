@@ -11,8 +11,8 @@ define({
 			]},
 			{id:'nj_ui',text:'ui组件',open:1,data:[
 				{id:'ui_info',text:'说明',link:'ui/index'},
+				{id:'ui_es6',text:'ES6扩展api',link:'ui/es6'},
 				{id:'tools',text:'扩展工具',link:'ui/tools'},
-				
 				{id:'ui_core',text:'核心ui组件',open:1,data:[
 					{id:'ui_align',text:'ui.align',link:'ui/align'},
 					{id:'ui_overlay',text:'ui.overlay',link:'ui/overlay'},

@@ -167,9 +167,6 @@
         }
     });
     $.extend({
-        type : function(obj){
-            return obj == null ? String( obj ) : Object.prototype.toString.call( obj ).slice( 8, -1 ).toLowerCase();
-        },
         //取消事件的默认动作 e.preventDefault()   stopDefault
         //阻止冒泡 e.stopPropagation()        stopBubble
         onScroll : function( object, onScroll ){
