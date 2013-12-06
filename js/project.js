@@ -38,8 +38,12 @@ define("project", [], {
                 text: "说明",
                 link: "ui/index"
             }, {
+                id: "ui_es6",
+                text: "ES6扩展api",
+                link: "ui/es6"
+            }, {
                 id: "tools",
-                text: "jQuery扩展工具",
+                text: "扩展工具",
                 link: "ui/tools"
             }, {
                 id: "ui_core",
@@ -149,10 +153,6 @@ define("project", [], {
                 id: "resize",
                 text: "resize",
                 link: "module/resize"
-            }, {
-                id: "localstorage",
-                text: "localstorage",
-                link: "module/localstorage"
             } ]
         }, {
             id: "test_page",

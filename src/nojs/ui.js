@@ -366,6 +366,7 @@
                     }
                 };
             })();
+            
             return {
                 length : localStorage.length,
                 set : function(key, value){
@@ -538,13 +539,15 @@
         }
     }
     
+    /*
+     * 元素显示隐藏效果集合
+     */
     ui.effect = function(element, effect){
         if( !element || !element.length ){
             return;
         }
         this.element = element;
         this.effect = effect || 'normal';
-        
     }
     ui.effect.prototype = {
         item : {
@@ -570,10 +573,29 @@
                 }, 400, 'easeOutExpo', function(){
                     e.css('visibility','hidden');
                 });
+            }],
+            'fade' : [function(e){
+                e.css({
+                    'visibility' : 'visible',
+                    'opacity' : 0
+                }).stop().fadeTo(300, 1);
+            }, function(e){
+                e.fadeTo(300, 0, function(){
+                    e.css('visibility', 'hidden');
+                });
+            }],
+            'slide' : [function(e){
+                e.css({
+                    'visibility' : 'visible',
+                    'display' : 'none'
+                }).stop().slideDown(200);
+            }, function(e){
+                e.slideUp(200, function(){
+                    e.css('visibility', 'hidden');
+                });
             }]
         },
         show : function(){
-            
             this.item[this.effect][0](this.element);
         },
         hide : function(){
@@ -729,7 +751,7 @@
                 hideTime = clearTimeout(hideTime);
                 showTime = setTimeout(function(){
                     self.show();
-                }, 10);
+                }, 50);
             }() : !hideEvent && self.visible ? self.hide() : self.show();
             
             if( mode=='click' ){

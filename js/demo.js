@@ -1,4 +1,5 @@
-define("demo", [ "nojs/module/codelight", "./url", "./a" ], function(require, $, ui) {
+define("demo", [ "./a", "test/lottery", "nojs/module/codelight", "./url" ], function(require, $, ui) {
+    require("./a");
     var demo = {
         container: $("#demo_content").css("opacity", "0"),
         isOpen: null
@@ -86,7 +87,13 @@ define("demo", [ "nojs/module/codelight", "./url", "./a" ], function(require, $,
     return demo;
 });
 
-define("url", [ "a" ], function(require, $, ui) {
+define("a", [ "test/lottery" ], function(require) {
+    //var b = require('./b');
+    require("test/lottery");
+    return "a";
+});
+
+define("url", [ "a", "test/lottery" ], function(require, $, ui) {
     require("a");
     function setUrl(key, value) {
         //@value: null清空参数undefined获取参数值 否则设置参数值
@@ -120,5 +127,3 @@ define("url", [ "a" ], function(require, $, ui) {
     setUrl.key = "id";
     return setUrl;
 });
-
-define("a", [], function(require) {});

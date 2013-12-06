@@ -1,4 +1,6 @@
 define(function(require,$,ui){
+    require('./a')
+    
 	var demo = {
 		container : $('#demo_content').css('opacity','0'),
 		isOpen : null
@@ -8,6 +10,8 @@ define(function(require,$,ui){
 	option = $('#ui_head .options');	
 	
 	demo.openFirst = setUrl('demo')!=undefined;
+	
+	
 	
 	demo.getHtml = function(){
 		if( !demoAction || !demoAction.item ){

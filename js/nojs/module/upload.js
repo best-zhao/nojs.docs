@@ -36,7 +36,7 @@ define("nojs/module/upload", [], function(require, $) {
             //文件个数限制
             fileSize: 2,
             //文件大小限制，单位MB
-            fileType: ".jpg,.png,.gif",
+            fileType: ".jpg,.png,.gif,.psd",
             //文件类型后缀
             showPreview: true,
             //是否显示缩略图

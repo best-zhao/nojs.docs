@@ -11,7 +11,10 @@ module.exports = function(grunt) {
         transport: {        	
             dialog: {
             	options : {
-            		paths : ['src']
+            		paths : ['src'],
+            		alias : {
+            		    'b' : 'test/lottery'
+            		}
 		        },
                 files : [
                     {	

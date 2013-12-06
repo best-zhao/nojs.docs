@@ -204,14 +204,16 @@ noJS.use(function($,ui){
 				    
 				    //使用on方法绑定事件
 					var m3 = new ui.overlay({
-						nearby : 'overlay_test11'
+						nearby : 'overlay_test11',
+                        effect : 'fade'
 					})
 					m3.set('content', '<div style="padding:50px">使用on方法绑定事件</div>');
 					m3.on({
 						mode : 'click'
 					});	
 					var m4 = new ui.overlay({
-                        nearby : 'overlay_test13'
+                        nearby : 'overlay_test13',
+                        effect : 'slide'
                     })
                     m4.set('content', '<div style="padding:50px">使用on方法绑定事件，可在内部操作</div>');
                     m4.on();

@@ -1,4 +1,4 @@
-define("main", [ "nojs/module/tree", "nojs/module/codelight", "project", "./demo", "./url", "./a" ], function(require, $, ui) {
+define("main", [ "nojs/module/tree", "nojs/module/codelight", "project", "./demo", "./a", "test/lottery", "./url" ], function(require, $, ui) {
     var tree = require("nojs/module/tree"), codeLight = require("nojs/module/codelight"), project = require("project"), demo = require("./demo"), setUrl = require("./url"), G = {};
     //require('style.css');	
     var page = $("#ui_page"), main = $("#main_content"), head = $("#ui_head"), option = head.find(".options"), win = $(window), D = window.Page == "mobile" ? "mb_intro" : "nojs_info", frame = $("#iframe_content"), side = $("#side_menu"), wrap = page.children("div.ui_wrap"), showMenu = $("#show_menu"), first = 0, Menu;
@@ -221,7 +221,8 @@ define("main", [ "nojs/module/tree", "nojs/module/codelight", "project", "./demo
     return G;
 });
 
-define("demo", [ "nojs/module/codelight", "url", "a" ], function(require, $, ui) {
+define("demo", [ "a", "test/lottery", "nojs/module/codelight", "url" ], function(require, $, ui) {
+    require("a");
     var demo = {
         container: $("#demo_content").css("opacity", "0"),
         isOpen: null
@@ -309,7 +310,13 @@ define("demo", [ "nojs/module/codelight", "url", "a" ], function(require, $, ui)
     return demo;
 });
 
-define("url", [ "a" ], function(require, $, ui) {
+define("a", [ "test/lottery" ], function(require) {
+    //var b = require('./b');
+    require("test/lottery");
+    return "a";
+});
+
+define("url", [ "a", "test/lottery" ], function(require, $, ui) {
     require("a");
     function setUrl(key, value) {
         //@value: null清空参数undefined获取参数值 否则设置参数值
@@ -343,5 +350,3 @@ define("url", [ "a" ], function(require, $, ui) {
     setUrl.key = "id";
     return setUrl;
 });
-
-define("a", [], function(require) {});

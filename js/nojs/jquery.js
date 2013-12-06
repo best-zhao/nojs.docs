@@ -103,7 +103,60 @@ define(function(){
         }
     }
         
-    ui.config = {};    
+    ui.config = {};  
+    
+    /*
+     * ES6扩展：JSON
+     */  
+    if( window.JSON == undefined ){
+        
+        window.JSON = function(){
+            var rvalidchars = /^[\],:{}\s]*$/,
+                rvalidbraces = /(?:^|:|,)(?:\s*\[)+/g,
+                rvalidescape = /\\(?:["\\\/bfnrt]|u[\da-fA-F]{4})/g,
+                rvalidtokens = /"[^"\\\r\n]*"|true|false|null|-?(?:\d+\.|)\d+(?:[eE][+-]?\d+|)/g;
+                
+            //JSON to string
+            function stringify(data){
+                if( $.type(data) != 'object' ){
+                    return;
+                }
+                var i, m, value, rect = [];
+                for( i in data ){
+                    m = data[i];
+                    if( m===undefined || typeof m=='function' ){
+                        continue;
+                    }
+                    value = $.type(m)=='object' ? stringify(m) : String(m);
+                    value = typeof m=='string' ? '"'+value+'"' : value;
+                    rect.push('"'+i+'":' + value);
+                }
+                return '{'+rect.join(',')+'}';
+            }
+            
+            //string to JSON
+            function parse(data){
+                if( typeof data != 'string' ){
+                    return;
+                }
+                data = data.replace(/^\s*|\s*$/g,'');//strim
+                
+                if( data ){
+                    if ( rvalidchars.test( data.replace( rvalidescape, "@" )
+                        .replace( rvalidtokens, "]" )
+                        .replace( rvalidbraces, "")) ) {
+    
+                        return ( new Function( "return " + data ) )();
+                    }
+                }                
+            }
+            
+            return {
+                stringify : stringify,
+                parse : parse
+            }
+        }();
+    } 
     
     /* 
      * [animate动画扩展]
@@ -119,19 +172,12 @@ define(function(){
         }
     });
     $.extend({
-        type : function(obj){
-            return obj == null ? String( obj ) : Object.prototype.toString.call( obj ).slice( 8, -1 ).toLowerCase();
-        },
-        random : function(){
-            //得到一个随机数
-            return String(Math.ceil(Math.random() * 100000) + String(new Date().getTime()));
-        },        
         //取消事件的默认动作 e.preventDefault()   stopDefault
         //阻止冒泡 e.stopPropagation()        stopBubble
-        onScroll : function( obejct, onScroll ){
+        onScroll : function( object, onScroll ){
             //自定义鼠标滚轮事件
             var scrollFunc = function(e){ 
-                e = e || window.event;    
+                e = e || window.event;  
                 if(e.wheelDelta){//IE/Opera/Chrome 
                     //e.returnValue=false;//阻止网页滚动条滚动
                 }else if(e.detail){//Firefox 
@@ -141,11 +187,10 @@ define(function(){
                 onScroll && onScroll(e);
             } 
             if(document.addEventListener){//firefox
-                obejct.addEventListener( "DOMMouseScroll", scrollFunc, false );
+                object.addEventListener( "DOMMouseScroll", scrollFunc, false );
             }
-            obejct.onmousewheel = scrollFunc;//IE/Opera/Chrome/Safari 
+            object.onmousewheel = scrollFunc;//IE/Opera/Chrome/Safari 
         },
-        
         browser : function(){
             //检测浏览器
             var u = navigator.userAgent.toLowerCase(),
@@ -189,7 +234,11 @@ define(function(){
                 .replace(/[\r\t\n]/g," ")            
                 .split("<%").join("\t")
                 .replace(/((^|%>)[^\t]*)'/g,"$1\r")
-                .replace(/\t=(.*?)%>/g, "',$1,'")
+                
+                //.replace(/\t=(.*?)%>/g, "',$1,'")
+                //将undefined的值置为''
+                .replace(/\t=(.*?)%>/g, "',(typeof $1=='undefined'?'':$1),'")
+                
                 .split("\t").join("');")
                 .split("%>").join("p.push('")
                 .split("\r").join("\\'")
@@ -197,7 +246,6 @@ define(function(){
                 return d?fn(d):fn;
             };
         }(),
-        
         cookie : function( name, value, options ){
             /*
              * 读取cookie值: $.cookie("key"); 
@@ -257,7 +305,99 @@ define(function(){
                 style.innerHTML = css; 
                 document.getElementsByTagName('HEAD')[0].appendChild(style);
             }
-        }
+        },
+        localStorage : function(){
+            var localStorage = window.localStorage || (function(){
+                //userData
+                var o = document.getElementsByTagName("head")[0],
+                    n = window.location.hostname || "localStorage",
+                    d = new Date(),
+                    doc, agent;
+                    
+                if( !o.addBehavior ){
+                    return {};
+                }
+                try{ 
+                    agent = new ActiveXObject('htmlfile');
+                    agent.open();
+                    agent.write('<s' + 'cript>document.w=window;</s' + 'cript><iframe src="/favicon.ico"></frame>');
+                    agent.close();
+                    doc = agent.w.frames[0].document;
+                }catch(e){
+                    doc = document;
+                }
+                o = doc.createElement('head');
+                doc.appendChild(o);
+                d.setDate(d.getDate() + 365);
+                o.addBehavior("#default#userData");
+                o.expires = d.toUTCString();
+                o.load(n);
+                
+                var root = o.XMLDocument.documentElement,
+                attrs = root.attributes,
+                prefix = "prefix_____hack__",
+                reg1 = /^[-\d]/,
+                reg2 = new RegExp("^"+prefix),
+                encode = function(key){
+                    return reg1.test(key) ? prefix + key : key;
+                },
+                decode = function(key){
+                    return key.replace(reg2,"");
+                };
+                
+                return {
+                    length: attrs.length,
+                    getItem: function(key){
+                        return (attrs.getNamedItem( encode(key) ) || {nodeValue: null}).nodeValue || root.getAttribute(encode(key)); 
+                    },
+                    setItem: function(key, value){
+                        root.setAttribute( encode(key), value); 
+                        o.save(n);
+                        this.length = attrs.length;
+                    },
+                    removeItem: function(key){
+                        root.removeAttribute( encode(key) ); 
+                        o.save(n);
+                        this.length = attrs.length;
+                    },
+                    clear: function(){
+                        while(attrs.length){
+                            this.removeItem( attrs[0].nodeName );
+                        }
+                        this.length = 0;
+                    },
+                    key: function(i){
+                        return attrs[i] ? decode(attrs[i].nodeName) : undefined;
+                    }
+                };
+            })();
+            return {
+                length : localStorage.length,
+                set : function(key, value){
+                    //iPhone/iPad 'QUOTA_EXCEEDED_ERR'
+                    if( this.get(key) !== undefined ){
+                        this.remove(key);
+                    }
+                    localStorage.setItem(key, value);
+                    this.length = localStorage.length;
+                },
+                get : function(key){
+                    var v = localStorage.getItem(key);
+                    return v === null ? undefined : v;
+                },
+                remove : function(key){ 
+                    localStorage.removeItem(key); 
+                    this.length = localStorage.length;
+                },
+                clear : function(){
+                    localStorage.clear();
+                    this.length = 0;
+                },
+                key : function(key){
+                    return localStorage.key(key);
+                }
+            };
+        }()
     })
     
     /*
@@ -317,8 +457,8 @@ define(function(){
                 y : offset ? offset.top : 0,
                 scrollLeft : this.cssFixed ? 0 : nearby.scrollLeft(),
                 scrollTop : this.cssFixed ? 0 : nearby.scrollTop(),
-                WIDTH : this.element.outerWidth(),
-                HEIGHT : this.element.outerHeight()
+                WIDTH : this.element.outerWidth(true),
+                HEIGHT : this.element.outerHeight(true)
             };
             return size;
         },
@@ -403,6 +543,48 @@ define(function(){
         }
     }
     
+    ui.effect = function(element, effect){
+        if( !element || !element.length ){
+            return;
+        }
+        this.element = element;
+        this.effect = effect || 'normal';
+        
+    }
+    ui.effect.prototype = {
+        item : {
+            'normal' : [function(e){
+                e.css('visibility', 'visible');
+            }, function(e){
+                e.css('visibility', 'hidden');
+            }],
+            'drop' : [function(e){
+                e.css({
+                    "margin-top" : -20,
+                    'visibility' : 'visible',
+                    'opacity' : 0
+                })
+                e.stop().animate({
+                    "margin-top" : "0",
+                    "opacity" : "1"
+                }, 400, 'easeOutExpo');
+            }, function(e){
+                e.animate({
+                    "margin-top" : -20,
+                    "opacity" : "0"
+                }, 400, 'easeOutExpo', function(){
+                    e.css('visibility','hidden');
+                });
+            }]
+        },
+        show : function(){
+            
+            this.item[this.effect][0](this.element);
+        },
+        hide : function(){
+            this.item[this.effect][1](this.element);
+        }
+    }
     /*
      * 浮动层
      */
@@ -410,6 +592,7 @@ define(function(){
         ui.overlay.baseConstructor.call(this, options);        
         this.visible = false;//可视状态
         this.content = null;//内容区域
+        this.showClassName = this.options.showClassName || 'nj_overlay_show';
         this.arrow = this.options.arrow;//箭头 根据align对齐方式自动调整指向
         this.timeout = this.options.timeout;
         this.onShow = this.options.onShow;
@@ -452,7 +635,7 @@ define(function(){
             this.arrow.element = $('<div class="nj_overlay_arrow"></div>').appendTo(this.element);
             this.arrow.offset = this.arrow.offset || [0,0];
         }
-        
+        this._effect = new ui.effect(this.element, this.options.effect);
         this.bind();
     }; 
     ui.overlay.prototype.show = function(callback){
@@ -462,7 +645,8 @@ define(function(){
         }
         var self = this;
         
-        this.element.css('visibility','visible');
+        this._effect.show();
+        this.element.addClass(this.showClassName);
         this.set();
         
         if( this.timeout ){
@@ -495,7 +679,8 @@ define(function(){
         if( !this.visible ){
             return;
         }
-        this.element.css('visibility','hidden');
+        this._effect.hide();
+        this.element.removeClass(this.showClassName);
         this.autoHide = clearTimeout(this.autoHide);
         this.visible = false;
         callback && callback.call(this);
@@ -628,12 +813,11 @@ define(function(){
     }();
     
     ui.popup = function( options ){
-        /*
-         * 弹窗
-         */
         options = options || {};
         options.className = 'nj_win '+(options.className || ''); 
         options.nearby = options.nearby || window;
+        options.showClassName = options.showClassName || 'nj_pop_show';
+        options.effect = options.effect || 'drop';
         ui.popup.baseConstructor.call(this, options);
         this.width = options.width || 400;//宽
         this.close = null;//关闭按钮
@@ -678,14 +862,6 @@ define(function(){
             this.layer && ui.layer.show();
             fn.call(this, callback);
             
-            this.element.css({
-                "margin-top" : -20
-            })
-            this.element.stop().animate({
-                "margin-top" : "0",
-                "opacity" : "1"
-            }, 400, 'easeOutExpo');
-            
             //this.bindEsc && ui.popup.focus.push(this);
             if( this.bindEsc && !ui.popup.focus[this.key] ){
                 ui.popup.focus[this.key] = this;
@@ -707,16 +883,7 @@ define(function(){
             if( this.onbeforehide && !this.onbeforehide() ){
                 return;
             }
-            
             fn.call(self, callback);
-            this.element.css('visibility','visible');
-            
-            this.element.animate({
-                "margin-top" : -20,
-                "opacity" : "0"
-            }, 400, 'easeOutExpo', function(){
-                self.element.css('visibility','hidden');
-            });
             
             this.layer && $.each(ui.popup.item, function(){//检测其他弹窗看是否需要保留遮罩
                 if( this.key != self.key && this.visible && this.layer ){
@@ -730,7 +897,7 @@ define(function(){
     })
     ui.popup.prototype.create = function(){
         var self = this,
-            id = 'nj_popup_' + $.random();
+            id = 'nj_popup_' + (+new Date);
         
         ui.popup.item[id] = this;
         this.key = id;
@@ -741,7 +908,7 @@ define(function(){
             '<div class="win_opt"></div>'
         ].join(''));
         this.content.addClass('win_wrap');
-        this.element.css( {'width':self.width, 'opacity':'0'} );
+        this.element.css( {'width':self.width} );
         this.element[0].id = id;
         this.close = this.element.find(".win_close");
         this.title = this.element.find(".win_tit").hide();
@@ -754,7 +921,7 @@ define(function(){
             self.hide();
         });
         this.bindEsc && !ui.popup.bind.init && ui.popup.bind();
-        $.onScroll( this.content[0] );        
+        $.onScroll( this.element[0] );        
     }
     ui.popup.prototype.addBtn = function(text,callback,color){
         /*
@@ -860,11 +1027,12 @@ define(function(){
                     ];
                 }
                 if( !win || !$('#'+win.key).length ){
-                    win = new ui.popup({
+                    var _opt = $.extend(true, {}, opt, {
                         width : w,
-                        bindEsc : C ? true : false,
-                        className : 'msg_tip_win'
-                    });
+                        bindEsc : C ? true : false
+                    })
+                    _opt.className = 'msg_tip_win ' + (_opt.className || '');
+                    win = new ui.popup(_opt);
                     
                     win.element.find('div.nj_overlay_wrap').addClass('msg_tip_'+type);
                     
@@ -909,6 +1077,7 @@ define(function(){
             }        
         }
     }();
+    
     ui.select = function( element, options ){
         if( isNew = instaceofFun(this,arguments) ){
             return isNew;
@@ -1013,9 +1182,10 @@ define(function(){
             }else if(e.which==13 ){
                 self.hide();
             }else{
-                return;
+                return false;
             }
-            self.select(self.index);            
+            self.select(self.index);   
+            return false;         
         })
     }
     ui.select.prototype.select = function(value, trigger){

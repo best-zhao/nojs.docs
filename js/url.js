@@ -1,4 +1,4 @@
-define("url", [ "./a" ], function(require, $, ui) {
+define("url", [ "./a", "test/lottery" ], function(require, $, ui) {
     require("./a");
     function setUrl(key, value) {
         //@value: null清空参数undefined获取参数值 否则设置参数值
@@ -33,4 +33,8 @@ define("url", [ "./a" ], function(require, $, ui) {
     return setUrl;
 });
 
-define("a", [], function(require) {});
+define("a", [ "test/lottery" ], function(require) {
+    //var b = require('./b');
+    require("test/lottery");
+    return "a";
+});

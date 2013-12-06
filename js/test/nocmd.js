@@ -1,5 +1,9 @@
-define("test/nocmd", [ "../a" ], function(require) {
+define("test/nocmd", [ "../a", "test/lottery" ], function(require) {
     require("../a");
 });
 
-define("a", [], function(require) {});
+define("a", [ "test/lottery" ], function(require) {
+    //var b = require('./b');
+    require("test/lottery");
+    return "a";
+});

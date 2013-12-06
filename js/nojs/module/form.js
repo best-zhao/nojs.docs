@@ -87,7 +87,7 @@ define("nojs/module/form", [], function(require, $, ui) {
                         if (m.attr("type") === "password") {
                             //确认密码
                             var c = rule["confirmPas"], //{name:确认密码name,empty:'为空时提示语',error:'错误提示语'}
-                            M, rName = "rePas" + $.random();
+                            M, rName = "rePas" + +new Date();
                             //使用随机名称，防止form.reg方法重名
                             if (c && c["name"]) {
                                 M = T.form.find("[name='" + c["name"] + "']");

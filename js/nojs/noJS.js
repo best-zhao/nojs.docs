@@ -83,6 +83,7 @@
         if(!len){
             return;
         }
+        
         //打包时 指向真实的模块
         if( file.point ){
             for( i=0; i<file.point.length; i++ ){
@@ -125,13 +126,16 @@
             }
             if( _entrance && entrance[_entrance]  ){
                 if( !modules[src].cmd ){//存在非标准模块
+                    //console.log(file,_entrance,num>=len,T.now[1])
                     done(_entrance, 0, function(entrance){
-                        T.now[1] = entrance.callback;
+                        
+                        //T.now[1] = entrance.callback;
                     });
                 }
             }
             if( num>=len ){
                 //当前队列回调
+                //T.now[1] && console.log(file,T.point) 
                 T.callback(T.now[1]);
                 if( T.fileItem.length>0 ){//继续下一个队列
                     T.begin();
@@ -160,6 +164,7 @@
         if( type(file)=='array' && file.length ){
             opt = opt || {};
             T.fileItem[order==true?'unshift':'push']( [ file, callback, opt ] );
+            //console.log(T.fileItem[0][0],T.state)
             !T.state && T.begin();
         }
     }
@@ -273,6 +278,7 @@
         }
     }
     load.callback = function(call){
+        //console.log(call&&call.deps)
         call && call( depsToExports(call.deps) );
     }
     
@@ -433,6 +439,7 @@
         //初始化 使用use执行代码块 队列回调  全局模块就绪后执行
         var call;
         while( modules['start'].length ){
+            
             load.callback( modules['start'].shift() );
         }
     }
@@ -525,11 +532,14 @@
         //设置整站各页面的入口模块
         //二维关联数组   域名=〉页面 主域名用main表示 首页index
         var page = config.page,
-            href, host, mainReg, hostReg, p, j;
+            href, host, mainReg, hostReg, p, j, _type;
         
         if( page ) {
-            if( typeof page=='string' ){
-                noJS.use( page );
+            _type = type(page);
+            if( _type=='string' ){
+                noJS.use(page);
+            }else if( _type=='array' ){
+                noJS.use.apply(null, page);
             }else{
                 href = location.href.split(/[#?]/)[0]; 
                 host = location.host;
@@ -544,7 +554,7 @@
                         p = page[i];
                         for( j in p ){
                             if( j=='index' && hostReg || href.indexOf(j)>1 ){
-                                noJS.use( p[j] );
+                                noJS.use.apply(null, typeof p[j]=='string' ? [ p[j] ] : p[j] );
                                 break _host;
                             }
                         }
@@ -706,7 +716,9 @@
 		base : debug ? 'src/' : 'js/',
 		pack : !debug && {relative:true},
 		global : mobile ? ['m/zepto','m/ui'] : ['nojs/jquery','nojs/ui'],
-		page : 'main',
+		page : ['main',function(){
+		    //console.log(arguments)
+		}],
 		update : {
 		    version : '2013.11.22',
 		    files : ['main']
