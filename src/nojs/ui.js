@@ -366,7 +366,6 @@
                     }
                 };
             })();
-            
             return {
                 length : localStorage.length,
                 set : function(key, value){
