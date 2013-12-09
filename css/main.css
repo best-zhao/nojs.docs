@@ -61,8 +61,10 @@ h6.p_tit{margin:0 0 10px;text-shadow:0 0 1px #ddd}
     #show_menu:after{content:'<';position:absolute;color:#333;left:4px;top:18px;text-shadow:0 0 2px #333;z-index:999;text-indent:0;font:800 18px simsun}
     .menu_tree{width:14em;position:absolute;left:-15em;top:0;z-index:99;box-shadow:2px 1px 4px rgba(0,0,0,.3)}
     .menu_tree .nj_tree .item{padding:0 8px}
+    .main_content{margin:0}
     .iframe_content{padding:15px}
     .text_info{padding-left:0}
+    #demo_content .demo_wrap{margin:0}
 }
 
 

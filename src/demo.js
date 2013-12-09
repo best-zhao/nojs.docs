@@ -11,8 +11,6 @@ define(function(require,$,ui){
 	
 	demo.openFirst = setUrl('demo')!=undefined;
 	
-	
-	
 	demo.getHtml = function(){
 		if( !demoAction || !demoAction.item ){
 			return '';
@@ -49,6 +47,7 @@ define(function(require,$,ui){
 	    index = parseInt(index || 0);
 		var btn = option.find('a[data-action=demo]');
 		demo.index = index;
+		demo.source[setUrl('source')?'show':'hide']();
 		!demo.isOpen && btn.click();
 		demo.tab.change(index);
 	}
@@ -76,7 +75,13 @@ define(function(require,$,ui){
 		var win, button;
 		function init(){
 			win = new ui.popup({
-				width : '85%'
+				width : '85%',
+				onShow : function(){
+				    setUrl('source', 1);
+				},
+                onHide : function(){
+                    setUrl('source', null);
+                }
 			});
 			win.element.css('max-width','900px');
 			button.data('win', win);
@@ -99,6 +104,7 @@ define(function(require,$,ui){
 		}
 		return {
 			show : function(obj){
+			    obj = obj || demo.container.find('a[data-action=source]');
 				win = obj.data('win');
 				button = obj;
 				!win && init();
@@ -130,13 +136,12 @@ define(function(require,$,ui){
 				code = new codeLight({parent:win.content});
 				win.show();
 				//code.select();
+			},
+			hide : function(){
+			    win && win.hide();
 			}
 		}
 	}();
 	
 	return demo;
 });
-/*
- * bug记录：
- * [drag] - 需要找到元素父元素中的相对定位层，否则会移位
- */

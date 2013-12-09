@@ -21,10 +21,35 @@ define(function(require,$,ui){
 		first = 0, Menu;
 	
 	if( typeof onhashchange!='undefined' ){
-		window.onhashchange = function(){
+	    function getChange(e){
+	        var newHash = getChange.hash(e.newURL),
+	            oldHash = getChange.hash(e.oldURL);
+	            
+	        if( newHash.source ){
+                return 'source';
+            }else if( newHash.demo ){
+	            return 'demo';
+	        }else{
+	            return 'id';
+	        }
+	    }
+	    getChange.hash = function(url){
+	        var hash = url.split('#')[1], rect = {}, i = 0, m;
+	        if( hash ){
+	            hash = hash.split('&');
+	        }else{
+	            hash = [];
+	        }
+	        for( ; i<hash.length; i++ ){
+	            m = hash[i].split('=');
+	            rect[m[0]] = m[1];
+	        }
+	        return rect;
+	    }
+		window.onhashchange = function(e){
 		    var id = setUrl(), i, m,
-			    key = setUrl.key;
-			    
+			    key = getChange(e);
+			
 			if( id && key=='id' ){
 				for( i=0; i<G.project.length; i++ ){
 					m = G.project[i];
@@ -35,7 +60,10 @@ define(function(require,$,ui){
 					}
 				}
 			}
-			key=='demo' && demo.tab && demo.isOpen && setUrl('demo')!=demo.index && demo.tab.change(setUrl('demo'));
+			if( key == 'demo' || key == 'source' ){
+			    demo.show();
+			    demo.tab && demo.isOpen && setUrl('demo')!=demo.index && demo.tab.change(setUrl('demo'));
+			}
 		}
 	}	
 	setUrl.call = function(){
@@ -139,9 +167,10 @@ define(function(require,$,ui){
 							demoAction.onChange && demoAction.onChange(demo.index);
 						}
 					})
+					
 					frame.animate({
 						'opacity' : !demo.isOpen ? 1 : 0,
-						'margin-left' : !demo.isOpen ? '0' : '-200px'
+						'margin-left' : !demo.isOpen ? '0' : '-300px'
 					}, demo.openFirst ? 0 : 500, 'easeOutExpo')
 					
 					if( demo.isOpen && !demo.init ){

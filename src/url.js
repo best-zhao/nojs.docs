@@ -5,6 +5,7 @@ define(function(require,$,ui){
 		var hash = location.hash.replace(/^#/,'').split('&'),
             i, m, _hash = {};
 		
+		
 		key = key || 'id';
 	
 		for( i=0; i<hash.length; i++ ){
@@ -25,8 +26,8 @@ define(function(require,$,ui){
             return _hash[key];
         }else{
 		    _hash[key] = value;
-		    setUrl.key = key;
 		}
+		
 		hash = [];	
 		for( i in _hash ){
 		    hash.push(i+'='+_hash[i]);
@@ -34,6 +35,5 @@ define(function(require,$,ui){
 		setUrl.call && setUrl.call();
 		location.hash = hash.join('&');
 	}
-	setUrl.key = 'id';
 	return setUrl;
 });
