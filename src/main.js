@@ -60,9 +60,14 @@ define(function(require,$,ui){
 					}
 				}
 			}
+			//console.log(key,demo.tab && demo.isOpen && setUrl('demo')!=demo.index)
 			if( key == 'demo' || key == 'source' ){
-			    demo.show();
-			    demo.tab && demo.isOpen && setUrl('demo')!=demo.index && demo.tab.change(setUrl('demo'));
+			    if( demo.isOpen ){
+			        demo.tab && setUrl('demo')!=demo.index && demo.tab.change(setUrl('demo'));
+			    }else{
+			        demo.show();
+			    }
+			    demo.source[setUrl('source')?'show':'hide']();			    
 			}
 		}
 	}	
@@ -182,7 +187,6 @@ define(function(require,$,ui){
 							onChange : function(index){
 								var wrap = this.con.eq(index), call;
 								demo.index = index;
-								//console.log(index)
 								call = demoAction.item[index].callback;
 								if( call ){
                                     call.onShow && call.onShow();
@@ -207,7 +211,7 @@ define(function(require,$,ui){
 						window.demoAction.callback && window.demoAction.callback();
 					}
 					!demo.isOpen && window.demoAction && demoAction.onHide && demoAction.onHide();
-					setUrl('demo', demo.isOpen?demo.index:null);
+					setUrl('demo', demo.isOpen ? demo.index : null);
 					if( demo.openFirst ){
                         delete demo.openFirst;
                     }
