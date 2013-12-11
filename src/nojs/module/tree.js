@@ -12,7 +12,17 @@ define(function(require,$){
 		this._data = options.data;//原始数据
 		//@data: string即为ajax获取数据
 		this.ajaxMode = typeof this._data=='string';
-		this.data = this.ajaxMode ? null : tree.format( this._data );
+		
+		tree.key = $.extend({
+            'id' : 'id',
+            'name' : 'name',
+            'parent' : 'parent',
+            'children' : 'children',
+            'open' : 'open',
+            'link' : 'link'
+        }, tree.key);
+		
+		this.data = options.formatData ? options.formatData : this.ajaxMode ? null : tree.format( this._data );
 		
 		if( !this.box.length || !this.ajaxMode && !this.data.level.length ){
 			return;
@@ -29,17 +39,18 @@ define(function(require,$){
 		this.relationParent = this.options.relationParent==false ? false : true;
 		this.radio = this.options.radio;
 		
+		
 		//ajax模式获取数据后，所有节点都应先初始化为包含子节点的节点
 		if( this.ajaxMode ){
-			var T = this;			
-			tree.ajax({
+			var T = this;	
+			this.data ? this.init( null, true, true ) : tree.ajax({
 				url : this._data + tree.rootID,
 				tree : this,
 				success : function(data){
 					T.init( null, true, true );
 					T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data);
 				}
-			})
+			});
 		}else{
 			this.init( null, true, true );
 		}
@@ -84,7 +95,7 @@ define(function(require,$){
 			level = _Data && _Data.level ? _Data.level : [],
 			time = 0,
 			child,
-			key,
+			key = tree.key,
 			_data = _Data && _Data.all ? _Data.all : {};
 			
 		if( dataType!='array' || !data.length || $.type(data[0])!='object' ){
@@ -93,14 +104,6 @@ define(function(require,$){
 				level : level
 			};
 		}
-		tree.key = key = $.extend({
-			'id' : 'id',
-			'name' : 'name',
-			'parent' : 'parent',
-			'children' : 'children',
-			'open' : 'open',
-			'link' : 'link'
-		}, tree.key);
 		
 		child = key['children'];		
 		dataType = data[0][ key['parent'] ]==undefined ? 1 : 2;
@@ -221,13 +224,20 @@ define(function(require,$){
 				noChild = this.ajaxMode && this.options.level && this.options.level-1==level,
 				item = '', i, j, now, m, link, line, id, open, check, more;
 			
-			if( !data.length ){
-				return;
-			}
-			data['break'] = data['break'] || 0;
 			if( isChild ){
-			   all[node].init = 2; //其子节点已初始化
-			} 
+               all[node].init = 2; //其子节点已初始化
+            } 
+			if( !data.length ){//该节点无子节点
+			    if( this.ajaxMode ){
+			        var tag = $('#'+all[node][_id]);
+                    tag.addClass('no_child').next('ul').remove();
+                    if( tag.find('.last_ico1').length ){
+                        tag.find('.last_ico1').addClass('last_ico').removeClass('last_ico1');
+                    }
+			    }
+                return;
+            }
+			data['break'] = data['break'] || 0;
 			
 			line = '';
 			if( level ){
@@ -235,7 +245,6 @@ define(function(require,$){
 					line += '<i class="line"></i>';
 				}
 			}
-			
 			for( i=data['break']; i<data.length; i++ ){
 				if( i>=T.max+data['break'] ){
 					data['break'] += T.max;
@@ -246,7 +255,7 @@ define(function(require,$){
 				m = isChild ? all[m] : m;
 				id = m[_id];
 				
-				m.init = 1;//标记节点本身初始化
+				m.init = m.init || 1;//标记节点本身初始化
 				item += '<li level="'+level+'">';
 				link = m[_link] ? m[_link] : 'javascript:void(0)';//javascript:void(0)for firefox
 				
@@ -258,7 +267,7 @@ define(function(require,$){
 				if(  m[ _child ].length ){
 					//暂不加载子节点，除默认打开节点外
 					if( m[_open]==1 || T.options.openAll ){
-						m.init = 2;//标记其子节点初始化
+						//m.init = 2;//标记其子节点初始化
 						item += '<ul data-init="true">';
 						item += this.init(id,false);
 					}else{
@@ -334,33 +343,23 @@ define(function(require,$){
 						sec && sec.is(":visible") && sec.hide();
 						tag.removeClass('open');
 					}else{
-						if( !sec.data('init') ){
-							var node = tag[0].id;
-								///child = T.data.all[node][tree.key['children']][0];
+					    var node = tag[0].id;
+						if( T.data.all[node].init!=2 && T.ajaxMode ){//子节点未初始化
+							//child = T.data.all[node][tree.key['children']][0];
 							//初始化该节点
-							if( T.ajaxMode ){
-								tree.ajax({
-									url : T._data+node,
-									data : {id:node},
-									tree : T,
-									success : function(data){
-										if( data && data.length ){
-											T.init(node, true);
-										}else{
-											tag.addClass('no_child').next('ul').remove();
-											if( tag.find('.last_ico1').length ){
-												tag.find('.last_ico1').addClass('last_ico').removeClass('last_ico1');
-											}
-											//sec.data('init', null);
-										}	
-										T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data, T.data.all[node]);									
-									}
-								})
-							}else{
-								T.init(node,true);
-							}
-							sec.data('init', true);
+							tree.ajax({
+                                url : T._data+node,
+                                data : {id:node},
+                                tree : T,
+                                success : function(data){
+                                    T.init(node, true);
+                                    T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data, T.data.all[node]);                                 
+                                }
+                            })
+						}else{
+							T.init(node,true);
 						}
+						
 						sec && sec.is(":hidden") && sec.show();
 						tag.addClass('open');
 					}
