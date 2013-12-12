@@ -40,6 +40,7 @@ noJS.use(function($,ui){
 		win = new ui.popup({
 		    className : 'turn_pop',
 		    showClassName : 'turn_pop_show',
+		    //effect : 'normal',
 		    onShow : function(){
 		        win.onbeforehide1 = function(){
                     ui.msg.show('confirm','确认关闭?',{
@@ -57,7 +58,7 @@ noJS.use(function($,ui){
 			['确定','close','sb'],['取消','close']
 		]);	
 	}
-	init();
+	//init();
 	$('#test1').click(function(){
 		!win && init();
 		win.show();

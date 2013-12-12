@@ -366,14 +366,26 @@
                     }
                 };
             })();
-            return {
+            var expiresKey = 'expireskey',
+            exports = {
                 length : localStorage.length,
-                set : function(key, value){
+                set : function(key, value, options){
+                    options = options || {};
+                    
+                    
                     //iPhone/iPad 'QUOTA_EXCEEDED_ERR'
                     if( this.get(key) !== undefined ){
                         this.remove(key);
+                    }else{
+                        
                     }
-                    localStorage.setItem(key, value);
+                    
+                    //options.expires过期时间 单位天  使用一个独立的key来所有过期的键
+                    if( options.expires ){
+                        
+                    }
+                    
+                    localStorage.setItem(key, value, options);
                     this.length = localStorage.length;
                 },
                 get : function(key){
@@ -392,6 +404,11 @@
                     return localStorage.key(key);
                 }
             };
+            function expires(){
+                
+            }
+            
+            return exports;
         }()
     })
     
@@ -834,7 +851,9 @@
         options.nearby = options.nearby || window;
         options.showClassName = options.showClassName || 'nj_pop_show';
         options.effect = options.effect || 'drop';
+        
         ui.popup.baseConstructor.call(this, options);
+        
         this.width = options.width || 400;//宽
         this.close = null;//关闭按钮
         this.title = null;//标题区
