@@ -366,23 +366,20 @@
                     }
                 };
             })();
-            var expiresKey = 'expireskey',
-            exports = {
+            var exports = {
                 length : localStorage.length,
                 set : function(key, value, options){
                     options = options || {};
                     
-                    
                     //iPhone/iPad 'QUOTA_EXCEEDED_ERR'
                     if( this.get(key) !== undefined ){
                         this.remove(key);
-                    }else{
-                        
                     }
                     
-                    //options.expires过期时间 单位天  使用一个独立的key来所有过期的键
-                    if( options.expires ){
-                        
+                    //options.expires过期时间 单位天  使用一个独立的key来保存所有设置过期时间的键
+                    if( typeof options.expires == 'number' ){
+                        expiresData[key] = (+new Date) + options.expires*24*60*60*1000;
+                        exports.set(expiresKey, JSON.stringify(expiresData));
                     }
                     
                     localStorage.setItem(key, value, options);
@@ -403,10 +400,24 @@
                 key : function(key){
                     return localStorage.key(key);
                 }
-            };
-            function expires(){
-                
+            },
+            expiresKey = '__expireskey__',
+            expiresData = exports.get(expiresKey);
+            expiresData = expiresData ? JSON.parse(expiresData) : {};
+            
+            //检测是否过期
+            function expiresCheck(){
+                var key;
+                for( key in expiresData ){
+                    if( (+new Date) > expiresData[key] ){
+                        exports.remove(key);
+                        delete expiresData[key];
+                    }
+                }
+                exports.set(expiresKey, JSON.stringify(expiresData));
             }
+            expiresCheck();
+            exports.check = expiresCheck;
             
             return exports;
         }()

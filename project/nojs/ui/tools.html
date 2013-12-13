@@ -59,11 +59,22 @@
     $.localStorage.key(index);
     $.localStorage.remove(key);
     $.localStorage.clear();
-    $.localStorage.length;  
+    $.localStorage.length; 
+     
     </script>
+    <p class="mb10">$.localStorage.check();检测是否过期，页面加载时会自动执行一次</p>
 </div>
 <script>
 noJS.use(function($,ui){
+    var key = 'test_expires',
+        data = $.localStorage.get(key);
+    
+        
+    $.localStorage.set(key,'123', {expires:0.0001});//8.64s
+    
+    setInterval(function(){
+        $.localStorage.check();
+    },2000)
     
 });
 </script>
