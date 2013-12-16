@@ -604,6 +604,15 @@ define(function(require,$){
 	tree.select = function( box, options ){
 		options = options || {};
 		
+		tree.key = $.extend({
+            'id' : 'id',
+            'name' : 'name',
+            'parent' : 'parent',
+            'children' : 'children',
+            'open' : 'open',
+            'link' : 'link'
+        }, tree.key);
+        
 		var Data = typeof options.data=='string' ? {} : tree.format(options.data),
 			selected = [].concat(options.select),
 			single = options.level==0,
