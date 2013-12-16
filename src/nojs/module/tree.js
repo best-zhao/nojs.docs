@@ -22,7 +22,24 @@ define(function(require,$){
             'link' : 'link'
         }, tree.key);
 		
-		this.data = options.formatData ? options.formatData : this.ajaxMode ? null : tree.format( this._data );
+		//直接导入格式化后的数据，需将所有节点状态置为1
+		var fd = options.formatData,
+		    hasFormatData = $.type(fd)=='object' && $.type(fd.all)=='object' && $.type(fd.level)=='array';
+		if( options.formatData ){
+            !function(){
+                var all = fd.all, level = fd.level, n = level.length, i, j, m;
+                for( i in all ){
+                    all[i].init = 1;
+                }
+                for( i=0; i<n; i++ ){
+                    m = level[i];
+                    for( j=0; j<m.length; j++ ){
+                        m[j].init = 1;
+                    }
+                }
+            }();
+		}
+		this.data = hasFormatData ? fd : this.ajaxMode ? null : tree.format( this._data );
 		
 		if( !this.box.length || !this.ajaxMode && !this.data.level.length ){
 			return;
@@ -79,15 +96,15 @@ define(function(require,$){
 				}
 				if( Tree && _data_ ){
 					Tree.data = tree.format(_data_, Tree.data);
+					//console.log(Tree.data.all)
 				}
 				options.success && options.success(_data_);
 			}
 		})
 	}
 	/*
-	 * 格式化数据，可接受2种形式的数据，均为json Array对象
-	 * 1. 树状结构，子节点children(json Array).
-	 * 2. 所有节点并列存放，必须指定父节点id(parent),根节点为-1
+	 * 格式化数据json Array对象
+	 * 所有节点并列存放，必须指定父节点id(parent),根节点为-1
 	 * @Data: 在原数据上添加
 	 */
 	tree.format = function( data, _Data ){
@@ -97,7 +114,8 @@ define(function(require,$){
 			child,
 			key = tree.key,
 			_data = _Data && _Data.all ? _Data.all : {};
-			
+		
+		_Data && console.log(_Data.level)	
 		if( dataType!='array' || !data.length || $.type(data[0])!='object' ){
 			return {
 				all : _data,
@@ -123,36 +141,22 @@ define(function(require,$){
 				_data[id] = m;
 				pid = m[ key['parent'] ];//该节点的父节点id
 				
-				if( pid==undefined ){//树状形式的数据
-					
-					_data[id] = {
-						level : _level
-					}
-					for( j in m ){
-						_data[id][j] = j==child ? [] : m[j];
-					}
-					_data[id][child] = _data[id][child] || [];
-					
-					if( _level>0 ){
-						_data[id][ key['parent'] ] = _parent;//指定其父节点
-						_data[_parent][child].push(id);
-					}else{
-						_data[id][ key['parent'] ] = tree.rootID;
-					}
-					
-					if( m[child] && m[child].length ){
-						each( m[child], _level+1, id );
-					}
-				}else if( pid==tree.rootID ){//一级根节点
-					
+				if( pid==tree.rootID ){//一级根节点
 					m.level = _level = 0;
 					m[ child ] = [];
 				}else{//子节点
-					
 					m[ child ] = [];
 					if( _data[pid] ){//其所属父节点
 						_data[pid][ child ] = _data[pid][ child ] || [];
 						_data[pid][ child ].push(id);
+						if( _Data && level[_level] ){//更新子节点后 ，需要更新其父节点children
+                            for( j=0; j<level[_level].length; j++ ){
+                                if( level[_level][j][key['id']]==pid ){
+                                    level[_level][j][child] = [].concat(_data[pid][child]);
+                                    break;
+                                }
+                            }
+                        }
 						m.level = _level = _data[pid].level+1;
 					}else{
 						delete _data[id];
@@ -262,20 +266,32 @@ define(function(require,$){
 				open = typeof m[_open]!=='undefined' ? 'open="'+m[_open]+'"' : '';
 				check = isCheck ? '<input type="checkbox" value="'+id+'" />' : '';
 				
-				item += '<a class="item'+(noChild?' no_child':'')+'" href="'+link+'" reallink="'+link+'" id="'+id+'" '+open+'>'+line+'<i class="ico"></i>'+check+'<i class="folder"></i><span class="text">'+m[_name]+'</span></a>';
+				noChild = !m[ _child ].length;
 				
-				if(  m[ _child ].length ){
+				if( this.ajaxMode ){
+				    noChild = null;
+				    if( this.options.level && this.options.level-1==level ){
+				        noChild = true;
+				    }
+				    if( this.options.formatData && m.ajax ){
+				        noChild = !m[ _child ].length;
+				    }
+				}
+				//console.log(noChild)
+				item += '<a class="item'+(noChild?' no_child':'')+'" href="'+link+'" reallink="'+link+'" id="'+id+'" '+open+'>'+line+'<i class="ico"></i>'+check+'<i class="folder"></i><span class="text">'+m[_name]+'</span></a>';
+				//this.box[0].id=='tree_test1' && console.log(this.data.level)
+				
+				if(  !noChild ){
 					//暂不加载子节点，除默认打开节点外
 					if( m[_open]==1 || T.options.openAll ){
 						//m.init = 2;//标记其子节点初始化
 						item += '<ul data-init="true">';
 						item += this.init(id,false);
+						//this.box[0].id=='tree_test1' && console.log(item)
 					}else{
 						item += '<ul>';
 					}
 					item += '</ul>';
-				}else if( this.ajaxMode && !noChild ){
-					item += '<ul></ul>';
 				}
 				item += '</li>';
 			}
@@ -343,21 +359,25 @@ define(function(require,$){
 						sec && sec.is(":visible") && sec.hide();
 						tag.removeClass('open');
 					}else{
-					    var node = tag[0].id;
-						if( T.data.all[node].init!=2 && T.ajaxMode ){//子节点未初始化
+					    var node = tag[0].id,
+					        needAjax = T.ajaxMode;
+					    
+						if( T.data.all[node].init!=2 ){//子节点未初始化
 							//child = T.data.all[node][tree.key['children']][0];
 							//初始化该节点
-							tree.ajax({
+							if( T.options.formatData && T.options.formatData.all[node] && T.options.formatData.all[node].ajax ){
+							    needAjax = null;
+							}
+							needAjax ? tree.ajax({
                                 url : T._data+node,
                                 data : {id:node},
                                 tree : T,
                                 success : function(data){
                                     T.init(node, true);
+                                    T.data.all[node].ajax = 1;
                                     T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data, T.data.all[node]);                                 
                                 }
-                            })
-						}else{
-							T.init(node,true);
+                            }) : T.init(node,true);
 						}
 						
 						sec && sec.is(":hidden") && sec.show();

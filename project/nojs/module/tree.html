@@ -314,16 +314,17 @@ noJS.use(function($,ui){
 					var key = 'tree_test2_data',
 					    _data = $.localStorage.get(key);
 					    
-					//console.log(JSON.parse(_data))				
-									
-					new tree( 'tree_test1', {
+					Tree = new tree( 'tree_test1', {
 						data : 'tree.php?id=',
+						//openAll : true,
 						formatData : _data && JSON.parse(_data),
 						level : 4,
 						ajaxSuccess : function(data){
+						   //console.log(Tree.data.level)
 						    $.localStorage.set(key, JSON.stringify(this.data));
 						}
-					});					
+					});	
+					//console.log(Tree.data.level)				
 				});
 			}},
 			{content : $('#demo_tmpl3').html(), callback : function(){
