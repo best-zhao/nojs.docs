@@ -80,23 +80,22 @@ define(function(require,$){
 	 */
 	tree.ajax = function( options ){
 		options = options || {};
-		var _data = options.data;
+		var data = options.data;
 		
-		$.getJSON( options.url, _data, function(json){
+		$.getJSON( options.url, data, function(json){
 			if( json.status==1 ){
 				var Tree = options.tree,
 					_data_ = json.data;
 				
 				//获取子节点时，返回数据必须指定父id
-				if( _data_ && _data && _data.id ){
+				if( _data_ && data && data.id ){
 					var i, _par = tree.key['parent'];
 					for( i=0; i<_data_.length; i++ ){
-						_data_[i][_par] = _data.id;
+						_data_[i][_par] = data.id;
 					}
 				}
 				if( Tree && _data_ ){
 					Tree.data = tree.format(_data_, Tree.data);
-					//console.log(Tree.data.all)
 				}
 				options.success && options.success(_data_);
 			}
@@ -115,7 +114,7 @@ define(function(require,$){
 			key = tree.key,
 			_data = _Data && _Data.all ? _Data.all : {};
 		
-		_Data && console.log(_Data.level)	
+		//_Data && console.log(_Data.level)	
 		if( dataType!='array' || !data.length || $.type(data[0])!='object' ){
 			return {
 				all : _data,
@@ -613,7 +612,8 @@ define(function(require,$){
             'link' : 'link'
         }, tree.key);
         
-		var Data = typeof options.data=='string' ? {} : tree.format(options.data),
+		var formatData = options.formatData,
+		    Data = formatData ? formatData : typeof options.data=='string' ? {} : tree.format(options.data),
 			selected = [].concat(options.select),
 			single = options.level==0,
 			ajaxMode = typeof options.data=='string',
@@ -677,33 +677,50 @@ define(function(require,$){
 		function init(){
 			item = get(level);
 			item = $(item);
-			if( selected[0]!=undefined ){
+			if( selected[0] != undefined ){
 				item[0].value = selected[0];
 				selected[0] = null;
 			}
 			box.html(item);
 		}
 		function ajax(_data, callback){
+		    var pid = _data && _data.id;
+		    
+		    if( formatData && (!pid || pid && Data.all[pid].ajax) ){
+		        call();
+		        return;
+		    }
+		    
 			tree.ajax({
-				url : options.data,
+				url : options.data + (_data ? _data.id : tree.rootID),
 				data : _data,
 				success : function(_data_){
-					if( !_data_ || !_data_.length ){
-						return;
-					}	
-					Data = tree.format(_data_, Data);
-					data = Data.level;
-					if( callback ){
-						callback();
-					}else{
-						init();
-						!single && bind( item );
-					}
+				    if( pid ){
+                        Data.all[pid].ajax = 1;
+                    }
+				    if( _data_ && _data_.length ){
+                        Data = tree.format(_data_, Data);
+                        call();
+                    } 
+					options.ajaxSuccess && options.ajaxSuccess(_data_, pid, Data);
 				}
 			});
+			function call(){
+                data = Data.level;
+                if( callback ){
+                    callback();
+                }else{
+                    init();
+                    !single && bind( item );
+                }
+			}
 		}
 		
-		if( !single ){
+		if( single ){
+		    item && item.change(function(){
+                options.onSelect && options.onSelect(this.value, Data);
+            });
+		}else{
 			function add(m,id){
 				var _data = Data.all[id],
 					child = _data[_child];
@@ -712,7 +729,7 @@ define(function(require,$){
 					return;
 				}	
 				m = $(m);
-				_data.init = true;
+				_data.init = 1;
 				
 				level = _data.level;
 				child = $('<select name="">'+empty+getChild(child)+'</select>');
@@ -730,6 +747,8 @@ define(function(require,$){
 				if( id==emptyID || !Data.all[id] ){
 					return;
 				}
+				options.onSelect && options.onSelect(id, Data);
+				
 				if( ajaxMode && !Data.all[id].init ){
 					ajax({id:id}, function(){
 						add(item,id);
@@ -737,8 +756,8 @@ define(function(require,$){
 				}else{
 					add(item,id);
 				}
-				
 			}
+			
 			function bind(item){
 				item.change(function(){
 					change(this);
@@ -747,7 +766,7 @@ define(function(require,$){
 					change(item[0]);
 				}
 			}
-			item && bind( item );
+			!ajaxMode && item && bind( item );
 		}
 		return item;
 	}

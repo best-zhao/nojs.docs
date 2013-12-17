@@ -403,7 +403,6 @@
             },
             expiresKey = '__expireskey__',
             expiresData = exports.get(expiresKey);
-            expiresData = expiresData ? JSON.parse(expiresData) : {};
             
             //检测是否过期
             function expiresCheck(){
@@ -416,7 +415,12 @@
                 }
                 exports.set(expiresKey, JSON.stringify(expiresData));
             }
-            expiresCheck();
+            if( expiresData ){
+                expiresData = JSON.parse(expiresData);
+                expiresCheck();
+            }else{
+                expiresData = {};
+            }            
             exports.check = expiresCheck;
             
             return exports;

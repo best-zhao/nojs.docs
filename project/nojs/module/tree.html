@@ -319,7 +319,7 @@ noJS.use(function($,ui){
 						//openAll : true,
 						formatData : _data && JSON.parse(_data),
 						level : 4,
-						ajaxSuccess : function(data){
+						ajaxSuccess : function(){
 						   //console.log(Tree.data.level)
 						    $.localStorage.set(key, JSON.stringify(this.data));
 						}
@@ -342,9 +342,23 @@ noJS.use(function($,ui){
 						'name' : 'text',
 						'children' : 'data'
 					}	
-					tree.select( $('#tree_test4'), {data:config.nojs.data, select:['nj_ui','ui_core','ui_msg']} );
+					tree.select( $('#tree_test4'), {
+					    data : config.nojs.data, 
+					    select : ['nj_ui','ui_core','ui_msg'],
+					    onSelect : function(id){
+					        //console.log(id)
+					    }
+					});
+					
+					var key = 'tree_test5_data',
+                        _data = $.localStorage.get(key);
+                        
 					tree.select( $('#tree_test5'), {
-						data : 'tree.php?act=select&id='
+					    formatData : _data && JSON.parse(_data),
+						data : 'tree.php?act=select&id=',
+                        ajaxSuccess : function(data, parent, Data){
+                            $.localStorage.set(key, JSON.stringify(Data));
+                        }
 					});
 				});
 			}}
