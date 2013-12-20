@@ -66,7 +66,7 @@ define(function(require,$,ui){
         
         var _id = this.box[0].id,
             name = _id.substring(_id.indexOf('_')+1,_id.length),
-            url = 'project/' + name + '/' +link+'.html',
+            url = name + '/' +link+'.html',
             title = document.title;
             
         title = title.indexOf('-')>-1 ? title.split(' - ')[1] : title;  

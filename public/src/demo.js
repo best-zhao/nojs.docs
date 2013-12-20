@@ -1,5 +1,4 @@
 define(function(require,$,ui){
-    //require('./a')
     
 	var demo = {
 		container : $('#demo_content').css('opacity','0'),
@@ -118,10 +117,10 @@ define(function(require,$,ui){
 						'<meta charset="utf-8" />',
 						'<title>'+Menu.selected+'示例'+(demo.index+1)+'- nojs</title>',
 						'<base href="http://nolure.github.io/nojs.docs/" />',
-						'<link rel="stylesheet" href="css/ui.css" />',
-						'<link rel="stylesheet" href="css/base.css" />',
-						'<link rel="stylesheet" href="css/main.css" />',
-						'<script src="src/nojs/noJS.js" data-config="global:[\'nojs/jquery\',\'nojs/ui\']" id="nojs"></ script>',
+						'<link rel="stylesheet" href="public/css/ui.css" />',
+						'<link rel="stylesheet" href="public/css/base.css" />',
+						'<link rel="stylesheet" href="public/css/main.css" />',
+						'<script src="public/src/nojs/noJS.js" data-config="global:[\'nojs/jquery\',\'nojs/ui\']" id="nojs"></ script>',
 						'</head>',
 						'<body>',
 							demoAction.html ? demoAction.html.replace(/^\n*/,'') : '',

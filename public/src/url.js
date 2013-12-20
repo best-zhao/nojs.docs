@@ -1,5 +1,4 @@
 define(function(require,$,ui){
-    //require('./a')
     var data = {};
     
     data.onHashChange = [];
