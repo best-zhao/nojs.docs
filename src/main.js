@@ -3,11 +3,10 @@ define(function(require,$,ui){
 		codeLight = require('nojs/module/codelight'),
 		project = require('project'),
 		demo = require('./demo'),
-		setUrl = require('./url'),
+		url = require('./url'),
+		setUrl = url.setUrl,
 		G = {};
 		
-	//require('style.css');	
-	
 	var page = $('#ui_page'),
 		main = $('#main_content'),
 		head = $('#ui_head'),
@@ -20,131 +19,94 @@ define(function(require,$,ui){
 		showMenu = $('#show_menu'),
 		first = 0, Menu;
 	
-	if( typeof onhashchange!='undefined' ){
-	    function getChange(e){
-	        var newHash = getChange.hash(e.newURL),
-	            oldHash = getChange.hash(e.oldURL);
-	            
-	        if( newHash.source ){
-                return 'source';
-            }else if( newHash.demo ){
-	            return 'demo';
-	        }else{
-	            return 'id';
-	        }
-	    }
-	    getChange.hash = function(url){
-	        var hash = url.split('#')[1], rect = {}, i = 0, m;
-	        if( hash ){
-	            hash = hash.split('&');
-	        }else{
-	            hash = [];
-	        }
-	        for( ; i<hash.length; i++ ){
-	            m = hash[i].split('=');
-	            rect[m[0]] = m[1];
-	        }
-	        return rect;
-	    }
-		window.onhashchange = function(e){
-		    var id = setUrl(), i, m,
-			    key = getChange(e);
-			
-			if( id && key=='id' ){
-				for( i=0; i<G.project.length; i++ ){
-					m = G.project[i];
-					if( m.data.all[id] ){
-						first = 0;
-						m.select(id);
-						break;
-					}
-				}
-			}
-			//console.log(key,demo.tab && demo.isOpen && setUrl('demo')!=demo.index)
-			if( key == 'demo' || key == 'source' ){
-			    if( demo.isOpen ){
-			        demo.tab && setUrl('demo')!=demo.index && demo.tab.change(setUrl('demo'));
-			    }else{
-			        demo.show();
-			    }
-			    demo.source[setUrl('source')?'show':'hide']();			    
-			}
-		}
-	}	
-	setUrl.call = function(){
-	    first = 1;
-	}
+	url.onHashChange.push(function(e, data){
+	    var id = data.id, i, m,
+            key = data.key;
+        
+        if( id && key=='id' ){
+            for( i=0; i<G.project.length; i++ ){
+                m = G.project[i];
+                if( m.data.all[id] ){
+                    //m.select(id);
+                    treeSelect.call(m, m.data.all[id]);
+                    break;
+                }
+            }
+        }       
+	})	
 	
 	var treeOptions = {
 		defaultNode : setUrl() || D,//设置默认节点
-		onSelect : function(data){
-			var link = data.link,
-				id = data.id;
-			
-			demo.hide();
-			setUrl('id', id);
-			
-			if( first>0 ){
-				return;
-			}
-			if(!link){
-				option.hide();
-				return;
-			}
-			window.demoAction = demo.init = demo.tab = null;
-			
-			frame.html('<i class="load"></i>');
-			new ui.ico( frame.find('i.load'), {
-				type : 'loading',
-				width : 32,
-				height : 32
-			})
-			page.siblings().remove();
-			
-			var _id = this.box[0].id,
-				name = _id.substring(_id.indexOf('_')+1,_id.length),
-				url = 'project/' + name + '/' +link+'.html',
-				title = document.title;
-				
-			title = title.indexOf('-')>-1 ? title.split(' - ')[1] : title;	
-			document.title = data.text+' - '+title;	
-				
-			id!='project' && this.box.siblings('.nj_tree').find('a.current').removeClass('current');
-			
-			frame.load( url, function(){
-				option[window.demoAction?'show':'hide']();
-				if( window.demoAction ){
-					demo.container.html( demo.getHtml() );
-					demo.openFirst && demo.show(setUrl('demo'));
-				}				
-				//代码高亮
-				new codeLight({parent:frame});
-				
-				frame.click(function(e){
-					var t = e.target,
-						act, m, i;
-					if( t.tagName.toLowerCase()=='a' ){
-						act = $(t).attr('data-action');
-						if( act=='demo' ){
-							demo.show($(t).attr('data-index')-1);
-							return false;
-						}
-						if( act = $(t).attr('data-id') ){//扩展应用
-							for( i=0;i<G.project.length;i++ ){
-								m = G.project[i];
-								if( m.data.all[act] ){
-									m.select(act);
-									break;
-								}
-							}
-							return false;
-						}
-					}
-				})
-				ui.init(frame);
-			});
-			showMenu.is(':visible') && setMenu('hide');
+		onSelect : function(data){	
+		    if( !first ){
+		        first = 1;
+		        treeSelect.call(this, data);
+		    }	
+			setUrl('id', data.id);		
 		}
+	}
+	function treeSelect(data){
+	    var link = data.link,
+            id = data.id;
+       
+	    if(!link){
+            option.hide();
+            return;
+        }
+        demo.hide();
+        window.demoAction = demo.init = demo.tab = null;
+        
+        frame.html('<i class="load"></i>');
+        new ui.ico( frame.find('i.load'), {
+            type : 'loading',
+            width : 32,
+            height : 32
+        })
+        page.siblings().remove();
+        
+        var _id = this.box[0].id,
+            name = _id.substring(_id.indexOf('_')+1,_id.length),
+            url = 'project/' + name + '/' +link+'.html',
+            title = document.title;
+            
+        title = title.indexOf('-')>-1 ? title.split(' - ')[1] : title;  
+        document.title = data.text+' - '+title; 
+            
+        id!='project' && this.box.siblings('.nj_tree').find('a.current').removeClass('current');
+        
+        frame.load( url, function(){
+            option[window.demoAction?'show':'hide']();
+            if( window.demoAction ){
+                demo.container.html( demo.getHtml() );
+                demo.openFirst && demo.show(setUrl('demo'));
+            }
+            //代码高亮
+            new codeLight({parent:frame});
+            
+            frame.click(function(e){
+                var t = e.target,
+                    act, m, i;
+                if( t.tagName.toLowerCase()=='a' ){
+                    act = $(t).attr('data-action');
+                    if( act=='demo' ){
+                        demo.show($(t).attr('data-index')-1);
+                        return false;
+                    }
+                    if( act = $(t).attr('data-id') ){//扩展应用
+                        for( i=0;i<G.project.length;i++ ){
+                            m = G.project[i];
+                            if( m.data.all[act] ){
+                                m.select(act);
+                                break;
+                            }
+                        }
+                        return false;
+                    }
+                }
+            })
+            ui.init(frame);
+        });
+        showMenu.is(':visible') && setMenu('hide');
 	}
 	
 	var headHeight = head.outerHeight();
@@ -153,7 +115,7 @@ define(function(require,$,ui){
 		wrap.height(h);
 	}
 	setLayout();
-	win.on('scroll resize',setLayout);
+	win.on('scroll resize', setLayout);
 	
 	option.click(function(e){
 		var t = e.target,
@@ -207,7 +169,6 @@ define(function(require,$,ui){
 								setUrl('demo', demo.index);
 							},
 							onHide : function(index){
-							    //console.log(index)
 							    var call = demoAction.item[index].callback;
 							    call && call.onHide && call.onHide(index);
 							}

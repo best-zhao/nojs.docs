@@ -1,12 +1,13 @@
 define(function(require,$,ui){
-    require('./a')
+    //require('./a')
     
 	var demo = {
 		container : $('#demo_content').css('opacity','0'),
 		isOpen : null
 	},
 	codeLight = require('nojs/module/codelight'),
-	setUrl = require('./url'),
+	url = require('./url'),
+	setUrl = url.setUrl,
 	option = $('#ui_head .options');	
 	
 	demo.openFirst = setUrl('demo')!=undefined;
@@ -141,6 +142,21 @@ define(function(require,$,ui){
 			}
 		}
 	}();
+	
+	
+	url.onHashChange.push(function(e, data){
+        var key = data.key;
+        
+        //console.log(key,demo.tab && demo.isOpen && setUrl('demo')!=demo.index)
+        if( key == 'demo' || key == 'source' ){
+            if( demo.isOpen ){
+                demo.tab && setUrl('demo')!=demo.index && demo.tab.change(setUrl('demo'));
+            }else{
+                demo.show();
+            }
+            demo.source[setUrl('source')?'show':'hide']();              
+        }
+    })
 	
 	return demo;
 });

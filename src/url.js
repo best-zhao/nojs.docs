@@ -1,5 +1,8 @@
 define(function(require,$,ui){
-    require('./a')
+    //require('./a')
+    var data = {};
+    
+    data.onHashChange = [];
 	function setUrl(key, value){
 	    //@value: null清空参数undefined获取参数值 否则设置参数值
 		var hash = location.hash.replace(/^#/,'').split('&'),
@@ -32,8 +35,50 @@ define(function(require,$,ui){
 		for( i in _hash ){
 		    hash.push(i+'='+_hash[i]);
 		}
-		setUrl.call && setUrl.call();
+		data.setUrl.call && data.setUrl.call();
 		location.hash = hash.join('&');
 	}
-	return setUrl;
+	data.setUrl = setUrl;
+	function getChange(e){
+	    var newHash = getChange.hash(e.newURL),
+            oldHash = getChange.hash(e.oldURL);
+            
+        if( newHash.source ){
+            return 'source';
+        }else if( newHash.demo ){
+            return 'demo';
+        }else{
+            return 'id';
+        }
+	}
+	getChange.hash = function(url){
+        var hash = url.split('#')[1], rect = {}, i = 0, m;
+        if( hash ){
+            hash = hash.split('&');
+        }else{
+            hash = [];
+        }
+        for( ; i<hash.length; i++ ){
+            m = hash[i].split('=');
+            rect[m[0]] = m[1];
+        }
+        return rect;
+    }
+    data.getChange = getChange;
+    
+	if( typeof onhashchange!='undefined' ){
+        var i, n, _data, event = data.onHashChange;
+        
+        window.onhashchange = function(e){
+            n = event.length;
+            _data = {};
+            _data.id = setUrl();
+            _data.key = getChange(e);
+            
+            for( i=0; i<n; i++ ){
+                event[i](e, _data);
+            }
+        }
+    }
+	return data;
 });
