@@ -105,7 +105,7 @@ input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg
 	transform:rotate(-45deg);
 	transform-origin:0 100%}
 /*overlay*/
-.nj_overlay{position:absolute;left:-999em;z-index:994}
+.nj_overlay{position:absolute;left:-999em;z-index:980}
 .nj_overlay_arrow{position:absolute;width:8px;height:4px;background:#000}
 /*layer*/
 #nj_layer{background:#eee;display:none;width:100%;height:100%;z-index:990;top:0;left:0;position:fixed;opacity:0;filter:alpha(opacity=0)}
