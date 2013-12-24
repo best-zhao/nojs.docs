@@ -12,7 +12,31 @@ define("nojs/module/tree", [], function(require, $) {
         //原始数据
         //@data: string即为ajax获取数据
         this.ajaxMode = typeof this._data == "string";
-        this.data = this.ajaxMode ? null : tree.format(this._data);
+        tree.key = $.extend({
+            id: "id",
+            name: "name",
+            parent: "parent",
+            children: "children",
+            open: "open",
+            link: "link"
+        }, tree.key);
+        //直接导入格式化后的数据，需将所有节点状态置为1
+        var fd = options.formatData, hasFormatData = $.type(fd) == "object" && $.type(fd.all) == "object" && $.type(fd.level) == "array";
+        if (options.formatData) {
+            !function() {
+                var all = fd.all, level = fd.level, n = level.length, i, j, m;
+                for (i in all) {
+                    all[i].init = 1;
+                }
+                for (i = 0; i < n; i++) {
+                    m = level[i];
+                    for (j = 0; j < m.length; j++) {
+                        m[j].init = 1;
+                    }
+                }
+            }();
+        }
+        this.data = hasFormatData ? fd : this.ajaxMode ? null : tree.format(this._data);
         if (!this.box.length || !this.ajaxMode && !this.data.level.length) {
             return;
         }
@@ -30,7 +54,7 @@ define("nojs/module/tree", [], function(require, $) {
         //ajax模式获取数据后，所有节点都应先初始化为包含子节点的节点
         if (this.ajaxMode) {
             var T = this;
-            tree.ajax({
+            this.data ? this.init(null, true, true) : tree.ajax({
                 url: this._data + tree.rootID,
                 tree: this,
                 success: function(data) {
@@ -52,15 +76,15 @@ define("nojs/module/tree", [], function(require, $) {
 	 */
     tree.ajax = function(options) {
         options = options || {};
-        var _data = options.data;
-        $.getJSON(options.url, _data, function(json) {
+        var data = options.data;
+        $.getJSON(options.url, data, function(json) {
             if (json.status == 1) {
                 var Tree = options.tree, _data_ = json.data;
                 //获取子节点时，返回数据必须指定父id
-                if (_data_ && _data && _data.id) {
+                if (_data_ && data && data.id) {
                     var i, _par = tree.key["parent"];
                     for (i = 0; i < _data_.length; i++) {
-                        _data_[i][_par] = _data.id;
+                        _data_[i][_par] = data.id;
                     }
                 }
                 if (Tree && _data_) {
@@ -71,27 +95,19 @@ define("nojs/module/tree", [], function(require, $) {
         });
     };
     /*
-	 * 格式化数据，可接受2种形式的数据，均为json Array对象
-	 * 1. 树状结构，子节点children(json Array).
-	 * 2. 所有节点并列存放，必须指定父节点id(parent),根节点为-1
+	 * 格式化数据json Array对象
+	 * 所有节点并列存放，必须指定父节点id(parent),根节点为-1
 	 * @Data: 在原数据上添加
 	 */
     tree.format = function(data, _Data) {
-        var dataType = $.type(data), level = _Data && _Data.level ? _Data.level : [], time = 0, child, key, _data = _Data && _Data.all ? _Data.all : {};
+        var dataType = $.type(data), level = _Data && _Data.level ? _Data.level : [], time = 0, child, key = tree.key, _data = _Data && _Data.all ? _Data.all : {};
+        //_Data && console.log(_Data.level)	
         if (dataType != "array" || !data.length || $.type(data[0]) != "object") {
             return {
                 all: _data,
                 level: level
             };
         }
-        tree.key = key = $.extend({
-            id: "id",
-            name: "name",
-            parent: "parent",
-            children: "children",
-            open: "open",
-            link: "link"
-        }, tree.key);
         child = key["children"];
         dataType = data[0][key["parent"]] == undefined ? 1 : 2;
         function each(Data, _level, _parent) {
@@ -108,26 +124,7 @@ define("nojs/module/tree", [], function(require, $) {
                 _data[id] = m;
                 pid = m[key["parent"]];
                 //该节点的父节点id
-                if (pid == undefined) {
-                    //树状形式的数据
-                    _data[id] = {
-                        level: _level
-                    };
-                    for (j in m) {
-                        _data[id][j] = j == child ? [] : m[j];
-                    }
-                    _data[id][child] = _data[id][child] || [];
-                    if (_level > 0) {
-                        _data[id][key["parent"]] = _parent;
-                        //指定其父节点
-                        _data[_parent][child].push(id);
-                    } else {
-                        _data[id][key["parent"]] = tree.rootID;
-                    }
-                    if (m[child] && m[child].length) {
-                        each(m[child], _level + 1, id);
-                    }
-                } else if (pid == tree.rootID) {
+                if (pid == tree.rootID) {
                     //一级根节点
                     m.level = _level = 0;
                     m[child] = [];
@@ -138,6 +135,15 @@ define("nojs/module/tree", [], function(require, $) {
                         //其所属父节点
                         _data[pid][child] = _data[pid][child] || [];
                         _data[pid][child].push(id);
+                        if (_Data && level[_level]) {
+                            //更新子节点后 ，需要更新其父节点children
+                            for (j = 0; j < level[_level].length; j++) {
+                                if (level[_level][j][key["id"]] == pid) {
+                                    level[_level][j][child] = [].concat(_data[pid][child]);
+                                    break;
+                                }
+                            }
+                        }
                         m.level = _level = _data[pid].level + 1;
                     } else {
                         delete _data[id];
@@ -188,13 +194,21 @@ define("nojs/module/tree", [], function(require, $) {
             //@node:节点id，初始化该节点下所有一级子节点，为空表示初始化根节点
             var T = this, _link = tree.key["link"], _id = tree.key["id"], _open = tree.key["open"], _name = tree.key["name"], _parent = tree.key["parent"], _child = tree.key["children"], isChild = node != undefined && node != tree.rootID, all = this.data.all, level = isChild ? all[node].level + 1 : 0, data = isChild ? all[node][_child] : this.data.level[level], isCheck = this.options.isCheck, //ajax加载到倒数第二级时 其子级(最后一级)初始化为无子节点的节点 即最后一级不会发送请求
             noChild = this.ajaxMode && this.options.level && this.options.level - 1 == level, item = "", i, j, now, m, link, line, id, open, check, more;
-            if (!data.length) {
-                return;
-            }
-            data["break"] = data["break"] || 0;
             if (isChild) {
                 all[node].init = 2;
             }
+            if (!data.length) {
+                //该节点无子节点
+                if (this.ajaxMode) {
+                    var tag = $("#" + all[node][_id]);
+                    tag.addClass("no_child").next("ul").remove();
+                    if (tag.find(".last_ico1").length) {
+                        tag.find(".last_ico1").addClass("last_ico").removeClass("last_ico1");
+                    }
+                }
+                return;
+            }
+            data["break"] = data["break"] || 0;
             line = "";
             if (level) {
                 for (j = 0; j < level; j++) {
@@ -210,27 +224,36 @@ define("nojs/module/tree", [], function(require, $) {
                 m = data[i];
                 m = isChild ? all[m] : m;
                 id = m[_id];
-                m.init = 1;
+                m.init = m.init || 1;
                 //标记节点本身初始化
                 item += '<li level="' + level + '">';
                 link = m[_link] ? m[_link] : "javascript:void(0)";
                 //javascript:void(0)for firefox
                 open = typeof m[_open] !== "undefined" ? 'open="' + m[_open] + '"' : "";
                 check = isCheck ? '<input type="checkbox" value="' + id + '" />' : "";
+                noChild = !m[_child].length;
+                if (this.ajaxMode) {
+                    noChild = null;
+                    if (this.options.level && this.options.level - 1 == level) {
+                        noChild = true;
+                    }
+                    if (this.options.formatData && m.ajax) {
+                        noChild = !m[_child].length;
+                    }
+                }
+                //console.log(noChild)
                 item += '<a class="item' + (noChild ? " no_child" : "") + '" href="' + link + '" reallink="' + link + '" id="' + id + '" ' + open + ">" + line + '<i class="ico"></i>' + check + '<i class="folder"></i><span class="text">' + m[_name] + "</span></a>";
-                if (m[_child].length) {
+                //this.box[0].id=='tree_test1' && console.log(this.data.level)
+                if (!noChild) {
                     //暂不加载子节点，除默认打开节点外
                     if (m[_open] == 1 || T.options.openAll) {
-                        m.init = 2;
-                        //标记其子节点初始化
+                        //m.init = 2;//标记其子节点初始化
                         item += '<ul data-init="true">';
                         item += this.init(id, false);
                     } else {
                         item += "<ul>";
                     }
                     item += "</ul>";
-                } else if (this.ajaxMode && !noChild) {
-                    item += "<ul></ul>";
                 }
                 item += "</li>";
             }
@@ -291,33 +314,26 @@ define("nojs/module/tree", [], function(require, $) {
                         sec && sec.is(":visible") && sec.hide();
                         tag.removeClass("open");
                     } else {
-                        if (!sec.data("init")) {
-                            var node = tag[0].id;
-                            ///child = T.data.all[node][tree.key['children']][0];
+                        var node = tag[0].id, needAjax = T.ajaxMode;
+                        if (T.data.all[node].init != 2) {
+                            //子节点未初始化
+                            //child = T.data.all[node][tree.key['children']][0];
                             //初始化该节点
-                            if (T.ajaxMode) {
-                                tree.ajax({
-                                    url: T._data + node,
-                                    data: {
-                                        id: node
-                                    },
-                                    tree: T,
-                                    success: function(data) {
-                                        if (data && data.length) {
-                                            T.init(node, true);
-                                        } else {
-                                            tag.addClass("no_child").next("ul").remove();
-                                            if (tag.find(".last_ico1").length) {
-                                                tag.find(".last_ico1").addClass("last_ico").removeClass("last_ico1");
-                                            }
-                                        }
-                                        T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data, T.data.all[node]);
-                                    }
-                                });
-                            } else {
-                                T.init(node, true);
+                            if (T.options.formatData && T.options.formatData.all[node] && T.options.formatData.all[node].ajax) {
+                                needAjax = null;
                             }
-                            sec.data("init", true);
+                            needAjax ? tree.ajax({
+                                url: T._data + node,
+                                data: {
+                                    id: node
+                                },
+                                tree: T,
+                                success: function(data) {
+                                    T.init(node, true);
+                                    T.data.all[node].ajax = 1;
+                                    T.options.ajaxSuccess && T.options.ajaxSuccess.call(T, data, T.data.all[node]);
+                                }
+                            }) : T.init(node, true);
                         }
                         sec && sec.is(":hidden") && sec.show();
                         tag.addClass("open");
@@ -522,7 +538,15 @@ define("nojs/module/tree", [], function(require, $) {
     //通过一个select来展现树形结构或者是级联菜单
     tree.select = function(box, options) {
         options = options || {};
-        var Data = typeof options.data == "string" ? {} : tree.format(options.data), selected = [].concat(options.select), single = options.level == 0, ajaxMode = typeof options.data == "string", data = ajaxMode ? [] : Data.level, emptyID = options.empty != undefined ? options.empty : "", empty, level = 0, item, _id = tree.key["id"], _name = tree.key["name"], _child = tree.key["children"];
+        tree.key = $.extend({
+            id: "id",
+            name: "name",
+            parent: "parent",
+            children: "children",
+            open: "open",
+            link: "link"
+        }, tree.key);
+        var formatData = options.formatData, Data = formatData ? formatData : typeof options.data == "string" ? {} : tree.format(options.data), selected = [].concat(options.select), single = options.level == 0, ajaxMode = typeof options.data == "string", data = ajaxMode ? [] : Data.level, emptyID = options.empty != undefined ? options.empty : "", empty, level = 0, item, _id = tree.key["id"], _name = tree.key["name"], _child = tree.key["children"];
         if (!box || !box.length || !data) {
             return;
         }
@@ -577,32 +601,47 @@ define("nojs/module/tree", [], function(require, $) {
             box.html(item);
         }
         function ajax(_data, callback) {
+            var pid = _data && _data.id;
+            if (formatData && (!pid || pid && Data.all[pid].ajax)) {
+                call();
+                return;
+            }
             tree.ajax({
-                url: options.data,
+                url: options.data + (_data ? _data.id : tree.rootID),
                 data: _data,
                 success: function(_data_) {
-                    if (!_data_ || !_data_.length) {
-                        return;
+                    if (pid) {
+                        Data.all[pid].ajax = 1;
                     }
-                    Data = tree.format(_data_, Data);
-                    data = Data.level;
-                    if (callback) {
-                        callback();
-                    } else {
-                        init();
-                        !single && bind(item);
+                    if (_data_ && _data_.length) {
+                        Data = tree.format(_data_, Data);
+                        call();
                     }
+                    options.ajaxSuccess && options.ajaxSuccess(_data_, pid, Data);
                 }
             });
+            function call() {
+                data = Data.level;
+                if (callback) {
+                    callback();
+                } else {
+                    init();
+                    !single && bind(item);
+                }
+            }
         }
-        if (!single) {
+        if (single) {
+            item && item.change(function() {
+                options.onSelect && options.onSelect(this.value, Data);
+            });
+        } else {
             function add(m, id) {
                 var _data = Data.all[id], child = _data[_child];
                 if (!child.length) {
                     return;
                 }
                 m = $(m);
-                _data.init = true;
+                _data.init = 1;
                 level = _data.level;
                 child = $('<select name="">' + empty + getChild(child) + "</select>");
                 if (selected[level + 1] != undefined) {
@@ -618,6 +657,7 @@ define("nojs/module/tree", [], function(require, $) {
                 if (id == emptyID || !Data.all[id]) {
                     return;
                 }
+                options.onSelect && options.onSelect(id, Data);
                 if (ajaxMode && !Data.all[id].init) {
                     ajax({
                         id: id
@@ -636,7 +676,7 @@ define("nojs/module/tree", [], function(require, $) {
                     change(item[0]);
                 }
             }
-            item && bind(item);
+            !ajaxMode && item && bind(item);
         }
         return item;
     };

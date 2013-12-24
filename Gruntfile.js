@@ -11,7 +11,7 @@ module.exports = function(grunt) {
         transport: {        	
             dialog: {
             	options : {
-            		paths : ['src'],
+            		paths : ['public/src'],
             		alias : {
             		    'b' : 'test/lottery'
             		}
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
                 files : [
                     {	
                     	expand: true,
-                    	cwd: 'src/',
+                    	cwd: 'public/src/',
                         src : '**/*.js',
                         dest : '.build',
                         filter : function(file){
@@ -41,7 +41,7 @@ module.exports = function(grunt) {
 		        		expand: true,
 		        		cwd: '.build/',
 		        		src : '**/*.js',
-		        		dest : 'js'
+		        		dest : 'public/js'
 		        	}
 		        ]
             },
@@ -50,8 +50,8 @@ module.exports = function(grunt) {
                     noncmd : true
                 },
                 files : {
-                    'js/nojs/noJS.js' : ['src/nojs/noJS.js','src/conf.js'],
-                    'js/conf.js' : ['src/conf.js']
+                    'public/js/nojs/noJS.js' : ['public/src/nojs/noJS.js','public/src/conf.js'],
+                    'public/js/conf.js' : ['public/src/conf.js']
                 }
             },
             global : {   
@@ -59,13 +59,13 @@ module.exports = function(grunt) {
                     noncmd : true
                 },             
                 files : {
-                    'js/nojs/jquery.js' : ['src/nojs/jquery.js','src/nojs/ui.js'],
-                    'js/m/zepto.js' : ['.build/m/zepto.js','.build/m/ui.js']
+                    'public/js/nojs/jquery.js' : ['public/src/nojs/jquery.js','public/src/nojs/ui.js'],
+                    'public/js/m/zepto.js' : ['.build/m/zepto.js','.build/m/ui.js']
                 }
             }
         },
         clean : {
-			build : ['.build','js/**/*-debug.js'] //清除
+			build : ['.build','public/js/**/*-debug.js'] //清除
 		},
         uglify : {
         	options: {
@@ -78,9 +78,9 @@ module.exports = function(grunt) {
                 files : [
                 	{
 	                	expand : true,
-	                	cwd: 'js/',
+	                	cwd: 'public/js/',
 	                	src : "**/*.js",
-	                	dest : 'js/',
+	                	dest : 'public/js/',
 	                	ext: ''
 	                }
                 ]
@@ -89,9 +89,9 @@ module.exports = function(grunt) {
                 files : [
                 	{
 	                	expand : true,
-	                	cwd: 'src/',
+	                	cwd: 'public/src/',
 	                	src : "**/*.js",
-	                	dest : 'min/',
+	                	dest : 'public/min/',
 	                	ext: ''
 	                }
                 ]
@@ -99,7 +99,7 @@ module.exports = function(grunt) {
         },
 		watch: {			
 			js : {
-				files: ['src/**/*.js'],
+				files: ['public/src/**/*.js'],
 				tasks: ['transport','concat','clean','uglify:main'],
 				options: {
 			        livereload: 1337,

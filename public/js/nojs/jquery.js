@@ -371,14 +371,23 @@ define(function(){
                     }
                 };
             })();
-            return {
+            var exports = {
                 length : localStorage.length,
-                set : function(key, value){
+                set : function(key, value, options){
+                    options = options || {};
+                    
                     //iPhone/iPad 'QUOTA_EXCEEDED_ERR'
                     if( this.get(key) !== undefined ){
                         this.remove(key);
                     }
-                    localStorage.setItem(key, value);
+                    
+                    //options.expires过期时间 单位天  使用一个独立的key来保存所有设置过期时间的键
+                    if( typeof options.expires == 'number' ){
+                        expiresData[key] = (+new Date) + options.expires*24*60*60*1000;
+                        exports.set(expiresKey, JSON.stringify(expiresData));
+                    }
+                    
+                    localStorage.setItem(key, value, options);
                     this.length = localStorage.length;
                 },
                 get : function(key){
@@ -396,7 +405,30 @@ define(function(){
                 key : function(key){
                     return localStorage.key(key);
                 }
-            };
+            },
+            expiresKey = '__expireskey__',
+            expiresData = exports.get(expiresKey);
+            
+            //检测是否过期
+            function expiresCheck(){
+                var key;
+                for( key in expiresData ){
+                    if( (+new Date) > expiresData[key] ){
+                        exports.remove(key);
+                        delete expiresData[key];
+                    }
+                }
+                exports.set(expiresKey, JSON.stringify(expiresData));
+            }
+            if( expiresData ){
+                expiresData = JSON.parse(expiresData);
+                expiresCheck();
+            }else{
+                expiresData = {};
+            }            
+            exports.check = expiresCheck;
+            
+            return exports;
         }()
     })
     
@@ -543,13 +575,15 @@ define(function(){
         }
     }
     
+    /*
+     * 元素显示隐藏效果集合
+     */
     ui.effect = function(element, effect){
         if( !element || !element.length ){
             return;
         }
         this.element = element;
         this.effect = effect || 'normal';
-        
     }
     ui.effect.prototype = {
         item : {
@@ -575,10 +609,29 @@ define(function(){
                 }, 400, 'easeOutExpo', function(){
                     e.css('visibility','hidden');
                 });
+            }],
+            'fade' : [function(e){
+                e.css({
+                    'visibility' : 'visible',
+                    'opacity' : 0
+                }).stop().fadeTo(300, 1);
+            }, function(e){
+                e.fadeTo(300, 0, function(){
+                    e.css('visibility', 'hidden');
+                });
+            }],
+            'slide' : [function(e){
+                e.css({
+                    'visibility' : 'visible',
+                    'display' : 'none'
+                }).stop().slideDown(200);
+            }, function(e){
+                e.slideUp(200, function(){
+                    e.css('visibility', 'hidden');
+                });
             }]
         },
         show : function(){
-            
             this.item[this.effect][0](this.element);
         },
         hide : function(){
@@ -734,7 +787,7 @@ define(function(){
                 hideTime = clearTimeout(hideTime);
                 showTime = setTimeout(function(){
                     self.show();
-                }, 10);
+                }, 50);
             }() : !hideEvent && self.visible ? self.hide() : self.show();
             
             if( mode=='click' ){
@@ -818,7 +871,9 @@ define(function(){
         options.nearby = options.nearby || window;
         options.showClassName = options.showClassName || 'nj_pop_show';
         options.effect = options.effect || 'drop';
+        
         ui.popup.baseConstructor.call(this, options);
+        
         this.width = options.width || 400;//宽
         this.close = null;//关闭按钮
         this.title = null;//标题区
