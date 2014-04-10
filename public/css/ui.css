@@ -119,6 +119,8 @@ input.n_b_bg,input.n_b_bo,input.n_b_bb,button.n_b_bg,button.n_b_bo,button.n_b_bg
 .nj_win .win_opt a{margin:0 0 0 8px;vertical-align:top}
 .shownjwin,.shownjwin body{height:100%;overflow:hidden}
 .higher_win{z-index:993}
+.full_pop .win_wrap{height:100%;border:none}
+.full_pop .win_opt{position:absolute;bottom:0;right:0}
 
 .turn_pop{
     -webkit-backface-visibility: hidden;
